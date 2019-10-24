@@ -1,4 +1,4 @@
--- | An implementation of the Marketoritative PCM
+-- | An implementation of the Market PRSA
 module Relation.Ternary.Separation.Construct.Market where
 
 open import Level hiding (Lift)
