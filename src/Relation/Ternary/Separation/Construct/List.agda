@@ -57,6 +57,18 @@ list-resource = record
   ; isConcat      = list-has-concat
   ; monoid = ++-isMonoid }
 
-instance list-positive : IsPositive separation
+instance list-positive : IsPositive separation ε
 list-positive = record
   { ⊎-εˡ = λ where [] → refl }
+
+instance list-has-crosssplit : HasCrossSplit separation
+HasCrossSplit.cross-split list-has-crosssplit [] [] =
+  -, [] , [] , [] , []
+HasCrossSplit.cross-split list-has-crosssplit (consˡ σ₁) (consˡ σ₂) with cross-split σ₁ σ₂
+... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, consˡ τ₁ , τ₂ , consˡ τ₃ , τ₄
+HasCrossSplit.cross-split list-has-crosssplit (consˡ σ₁) (consʳ σ₂) with cross-split σ₁ σ₂
+... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, consʳ τ₁ , τ₂ , τ₃ , consˡ τ₄
+HasCrossSplit.cross-split list-has-crosssplit (consʳ σ₁) (consˡ σ₂) with cross-split σ₁ σ₂
+... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consˡ τ₂ , consʳ τ₃ , τ₄
+HasCrossSplit.cross-split list-has-crosssplit (consʳ σ₁) (consʳ σ₂) with cross-split σ₁ σ₂
+... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consʳ τ₂ , τ₃ , consʳ τ₄

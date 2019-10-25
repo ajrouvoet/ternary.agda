@@ -322,11 +322,10 @@ record IsConcattative {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
   ⊎-∙ᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ⊎ Φ₂ ≣ Φ → Φ₁ ⊎ (Φₑ ∙ Φ₂) ≣ (Φₑ ∙ Φ)
   ⊎-∙ᵣ s = ⊎-comm (⊎-∙ₗ (⊎-comm s))
 
-record IsPositive {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
+record IsPositive {c} {C : Set c} (sep : RawSep C) ε : Set (suc c) where
   open RawSep sep
 
   field
-    {ε} : _
     overlap {{ isUnitalSep }} : IsUnitalSep sep ε
     overlap {{ isSep }}       : IsSep sep
 
@@ -339,6 +338,23 @@ record IsPositive {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
   ⊎-ε σ with ⊎-εˡ σ
   ... | P.refl with ⊎-id⁻ˡ σ
   ... | P.refl = P.refl , P.refl
+
+record HasCrossSplit {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
+  open RawSep sep
+
+  field
+    overlap {{ isSep }}       : IsSep sep
+    cross-split : ∀ {a b c d z} →
+
+      a ⊎ b ≣ z →
+      c ⊎ d ≣ z →
+
+      Σ[ frags ∈ (C × C × C × C) ]
+        let ac , ad , bc , bd = frags
+        in ac ⊎ ad ≣ a
+         × bc ⊎ bd ≣ b
+         × ac ⊎ bc ≣ c
+         × ad ⊎ bd ≣ d
 
 record Separation c : Set (suc c) where
   field
@@ -389,7 +405,8 @@ module _ {c} {C : Set c} where
 open RawSep ⦃...⦄ public
 open IsConcattative ⦃...⦄ public
 open IsUnitalSep ⦃...⦄ public
-open IsPositive ⦃...⦄ hiding (ε) public
+open IsPositive ⦃...⦄ public
 open UnitalSep ⦃...⦄ public hiding (Carrier; ε)
 open IsSep ⦃...⦄ public
+open HasCrossSplit ⦃...⦄ public
 open MonoidalSep ⦃...⦄ public hiding (Carrier; ε)
