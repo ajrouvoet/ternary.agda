@@ -135,6 +135,12 @@ record IsSep {ℓ₁} {A} (s : RawSep {ℓ₁} A) : Set ℓ₁ where
     ... | abd , σ₇ , σ₈ with ⊎-unassoc (⊎-comm σ₈) σ₇
     ... | ac  , τ  , τ' = -, -, ⊎-comm τ , σ₅ , τ'
 
+    recombine : ∀ {a b ab c abc} →
+      a ⊎ b ≣ ab → ab ⊎ c ≣ abc →
+      ∃ λ ac → a ⊎ c ≣ ac × ac ⊎ b ≣ abc
+    recombine σ₁ σ₂ with ⊎-assoc σ₁ σ₂
+    ... | _ , σ₃ , σ₄ = ⊎-unassoc σ₃ (⊎-comm σ₄) 
+
   -- pairs commute
   module _ {p q} {P : SPred p} {Q : SPred q} where
     ✴-swap : ∀[ (P ✴ Q) ⇒ (Q ✴ P) ]
@@ -344,17 +350,25 @@ record HasCrossSplit {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
 
   field
     overlap {{ isSep }}       : IsSep sep
-    cross-split : ∀ {a b c d z} →
 
-      a ⊎ b ≣ z →
-      c ⊎ d ≣ z →
-
-      Σ[ frags ∈ (C × C × C × C) ]
+    cross : ∀ {a b c d z}
+      → a ⊎ b ≣ z
+      → c ⊎ d ≣ z
+      → Σ[ frags ∈ (C × C × C × C) ]
         let ac , ad , bc , bd = frags
         in ac ⊎ ad ≣ a
          × bc ⊎ bd ≣ b
          × ac ⊎ bc ≣ c
          × ad ⊎ bd ≣ d
+
+    uncross : ∀ {a b c d ac ad bc bd}
+      → ac ⊎ ad ≣ a
+      → bc ⊎ bd ≣ b
+      → ac ⊎ bc ≣ c
+      → ad ⊎ bd ≣ d
+      → Σ[ z ∈ C ]
+          a ⊎ b ≣ z
+        × c ⊎ d ≣ z
 
 record Separation c : Set (suc c) where
   field
