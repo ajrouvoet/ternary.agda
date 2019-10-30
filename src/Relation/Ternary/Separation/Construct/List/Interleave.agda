@@ -61,47 +61,23 @@ instance list-positive : IsPositive separation ε
 list-positive = record
   { ⊎-εˡ = λ where [] → refl }
 
--- instance list-has-crosssplit : HasCrossSplit separation
-
--- HasCrossSplit.cross list-has-crosssplit [] [] =
---   -, [] , [] , [] , []
--- HasCrossSplit.cross list-has-crosssplit (consˡ σ₁) (consˡ σ₂) with cross σ₁ σ₂
--- ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, consˡ τ₁ , τ₂ , consˡ τ₃ , τ₄
--- HasCrossSplit.cross list-has-crosssplit (consˡ σ₁) (consʳ σ₂) with cross σ₁ σ₂
--- ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, consʳ τ₁ , τ₂ , τ₃ , consˡ τ₄
--- HasCrossSplit.cross list-has-crosssplit (consʳ σ₁) (consˡ σ₂) with cross σ₁ σ₂
--- ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consˡ τ₂ , consʳ τ₃ , τ₄
--- HasCrossSplit.cross list-has-crosssplit (consʳ σ₁) (consʳ σ₂) with cross σ₁ σ₂
--- ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consʳ τ₂ , τ₃ , consʳ τ₄
-
--- HasCrossSplit.uncross list-has-crosssplit [] σ₂ σ₃ σ₄ with ⊎-id⁻ˡ σ₃ | ⊎-id⁻ˡ σ₄
--- ... | refl | refl = -, ⊎-idˡ , σ₂
--- HasCrossSplit.uncross list-has-crosssplit (consˡ σ₁) σ₂ σ₃ σ₄ = {!!}
--- HasCrossSplit.uncross list-has-crosssplit (consʳ σ₁) σ₂ σ₃ σ₄ = {!!}
-
--- HasCrossSplit.uncross list-has-crosssplit (consˡ σ₁) σ₂ (consˡ σ₃) σ₄ with uncross σ₁ σ₂ σ₃ σ₄
--- ... | _ , τ₁ , τ₂ = -, consˡ τ₁ , consˡ τ₂
-
--- HasCrossSplit.uncross list-has-crosssplit σ₁@(consˡ _) (consˡ σ₂) (consʳ σ₃) σ₄ with uncross σ₁ σ₂ σ₃ σ₄
--- ... | _ , τ₁ , τ₂ = -, consʳ τ₁ , consˡ τ₂
-
--- HasCrossSplit.uncross list-has-crosssplit (consˡ σ₁) (consʳ σ₂) (consʳ σ₃) (consˡ σ₄) = {!!}
--- HasCrossSplit.uncross list-has-crosssplit (consˡ σ₁) (consʳ σ₂) (consʳ σ₃) (consʳ σ₄) = {!!}
--- HasCrossSplit.uncross list-has-crosssplit (consʳ σ₁) σ₂ σ₃ σ₄ = {!!}
-
-
--- HasCrossSplit.uncross list-has-crosssplit [] σ₂ σ₃ σ₄ with ⊎-id⁻ˡ σ₃ | ⊎-id⁻ˡ σ₄
--- ... | refl | refl = -, ⊎-idˡ , σ₂
--- HasCrossSplit.uncross list-has-crosssplit (consˡ σ₁) σ₂ σ₃ σ₄ = {!!}
--- HasCrossSplit.uncross list-has-crosssplit (consʳ σ₁) σ₂ σ₃ σ₄ = {!!}
-
--- HasCrossSplit.uncross list-has-crosssplit σ₁ σ₂ [] with ⊎-id⁻ˡ σ₂ | ⊎-id⁻ʳ σ₁
--- ... | refl | refl = -, ⊎-∙ , ⊎-idˡ
--- HasCrossSplit.uncross list-has-crosssplit (consˡ σ₁) σ₂ σ@(consˡ _) with uncross σ₁ σ₂ σ
--- ... | _ , σ₃ , σ₄ = -, consˡ σ₃ , consʳ σ₄
--- HasCrossSplit.uncross list-has-crosssplit (consʳ σ₁) σ₂ (consˡ σ)   with uncross σ₁ σ₂ σ
--- ... | _ , σ₃ , σ₄ = -, consˡ σ₃ , consˡ σ₄
--- HasCrossSplit.uncross list-has-crosssplit σ₁ (consˡ σ₂) (consʳ σ)   with uncross σ₁ σ₂ σ
--- ... | _ , σ₃ , σ₄ = -, consʳ σ₃ , consˡ σ₄
--- HasCrossSplit.uncross list-has-crosssplit σ₁ (consʳ σ₂) σ@(consʳ _) with uncross σ₁ σ₂ σ
--- ... | _ , σ₃ , σ₄ = -, consʳ σ₃ , consʳ σ₄
+{- Cross splits on interleavings -}
+⊎-cross : ∀ {a b c d z}
+    → a ⊎ b ≣ z
+    → c ⊎ d ≣ z
+    → Σ[ frags ∈ (C × C × C × C) ]
+      let ac , ad , bc , bd = frags
+      in ac ⊎ ad ≣ a
+       × bc ⊎ bd ≣ b
+       × ac ⊎ bc ≣ c
+       × ad ⊎ bd ≣ d
+⊎-cross [] [] =
+  -, [] , [] , [] , []
+⊎-cross (consˡ σ₁) (consˡ σ₂) with ⊎-cross σ₁ σ₂
+... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, consˡ τ₁ , τ₂ , consˡ τ₃ , τ₄
+⊎-cross (consˡ σ₁) (consʳ σ₂) with ⊎-cross σ₁ σ₂
+... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, consʳ τ₁ , τ₂ , τ₃ , consˡ τ₄
+⊎-cross (consʳ σ₁) (consˡ σ₂) with ⊎-cross σ₁ σ₂
+... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consˡ τ₂ , consʳ τ₃ , τ₄
+⊎-cross (consʳ σ₁) (consʳ σ₂) with ⊎-cross σ₁ σ₂
+... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consʳ τ₂ , τ₃ , consʳ τ₄
