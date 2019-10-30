@@ -10,7 +10,7 @@ open import Function using (_∘_; case_of_)
 open import Relation.Binary.PropositionalEquality using (refl; _≡_)
 import Relation.Binary.HeterogeneousEquality as HEq
 open import Relation.Unary.PredicateTransformer hiding (_⊔_; [_])
-open import Relation.Ternary.Separation.Construct.List
+open import Relation.Ternary.Separation.Construct.List.Interleave
 open import Relation.Ternary.Separation.Construct.Product
 open import Relation.Ternary.Separation.Construct.Market
 open import Relation.Ternary.Separation.Morphisms

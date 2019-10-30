@@ -24,7 +24,7 @@ import Relation.Binary.HeterogeneousEquality as HEq
 open import Relation.Unary.PredicateTransformer hiding (_⊔_; [_])
 open import Relation.Binary.PropositionalEquality using (refl; _≡_)
 open import Relation.Ternary.Separation.Construct.Product
-open import Relation.Ternary.Separation.Construct.List T
+open import Relation.Ternary.Separation.Construct.List.Interleave T
 open import Relation.Ternary.Separation.Morphisms
 open import Relation.Ternary.Separation.Monad
 open import Relation.Ternary.Separation.Allstar

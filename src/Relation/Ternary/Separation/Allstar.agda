@@ -12,7 +12,11 @@ open import Data.List hiding (concat)
 open import Relation.Unary
 
 {- Inductive separating forall over a list -}
-module _ {ℓ} where
+module _ where
+  open import Relation.Ternary.Separation.Construct.Empty I
+  open import Relation.Ternary.Separation.Construct.List.Interleave I
+  open import Data.List.Relation.Ternary.Interleaving.Propositional as I
+
   data Allstar (P : I → Pred C ℓ) : List I → SPred (ℓ ⊔ c ⊔ i) where
     nil  :            ε[ Allstar P [] ]
     cons : ∀ {x xs} → ∀[ P x ✴ Allstar P xs ⇒ Allstar P (x ∷ xs) ]
@@ -23,9 +27,6 @@ module _ {ℓ} where
 
   singleton : ∀ {P x} → ∀[ P x ⇒ Allstar P [ x ] ]
   singleton v = cons (v ×⟨ ⊎-idʳ ⟩ nil)
-
-  open import Relation.Ternary.Separation.Construct.List I
-  open import Data.List.Relation.Ternary.Interleaving.Propositional as I
 
   repartition : ∀ {P} {Σ₁ Σ₂ Σ} →
                 Σ₁ ⊎ Σ₂ ≣ Σ → ∀[ Allstar P Σ ⇒ Allstar P Σ₁ ✴ Allstar P Σ₂ ]

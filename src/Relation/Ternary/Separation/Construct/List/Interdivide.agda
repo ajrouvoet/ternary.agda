@@ -1,9 +1,9 @@
 open import Relation.Ternary.Separation
 
-module Relation.Ternary.Separation.Construct.ListOf 
+module Relation.Ternary.Separation.Construct.List.Interdivide
   {a} (A : Set a) 
-  {{ r : RawSep A }}
-  {{ _ : IsSep r }}
+  {{r : RawSep A}}
+  {{_ : IsSep r}}
   where
 
 open import Level
@@ -78,7 +78,7 @@ instance
   split-monoidal : MonoidalSep _
   split-monoidal = record { monoid = ++-isMonoid }
 
-  list-positive : IsPositive splits
+  list-positive : IsPositive splits _
   list-positive = record
     { ⊎-εˡ = λ where [] → refl }
 
