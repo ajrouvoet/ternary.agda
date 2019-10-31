@@ -146,7 +146,7 @@ instance
 
   hustle-has-cross : HasCrossSplit hustle-sep
 
-  hustle-has-concat : IsConcattative hustle-sep
+  hustle-has-concat : HasConcat hustle-sep
   hustle-has-concat = record
     { _∙_  = _++_
     ; ⊎-∙ₗ = λ where (hustle σ h) → hustle (⊎-∙ₗ σ) (++⁺ˡ _ h) }

@@ -44,7 +44,7 @@ instance
     , trans (trans (↭-sym (++-assoc a b c)) (++⁺ʳ c h₁)) h₂
     , refl
 
-  hustle-is-concat : IsConcattative hustle-sep
+  hustle-is-concat : HasConcat hustle-sep
   hustle-is-concat = record { _∙_ = _++_ ; ⊎-∙ₗ = λ where
     {Φ₁} {Φ₂} σ → trans (++-assoc _ Φ₁ Φ₂) (++⁺ˡ _ σ) }
 

@@ -48,24 +48,20 @@ module _ {ℓ} {A : Set ℓ} {{ sep : RawSep A }} {{ _ : IsSep sep }} where
     ; ⊎-assoc = assoc
     }
 
-  instance market-sep : Separation _
-  market-sep = record
-    { isSep = market-has-sep }
-
 module _ {a} {A : Set a} {{r : RawSep A}} {u} {{ s : IsUnitalSep r u }} where
 
-  module U = IsUnitalSep
+  instance market-has-unit⁺ : HasUnit⁺ market-raw-sep (demand ε)
+  HasUnit⁺.⊎-idˡ market-has-unit⁺ {offer l} = offerᵣ ⊎-idˡ
+  HasUnit⁺.⊎-idˡ market-has-unit⁺ {demand r} = demand ⊎-idˡ
+
+  instance market-has-unit⁻ : HasUnit⁻ market-raw-sep (demand ε)
+  HasUnit⁻.⊎-id⁻ˡ market-has-unit⁻ (offerᵣ σ) = cong offer (sym (⊎-id⁻ˡ σ))
+  HasUnit⁻.⊎-id⁻ˡ market-has-unit⁻ (demand σ) = cong demand (⊎-id⁻ˡ σ)
+
   instance market-is-unital : IsUnitalSep market-raw-sep (demand ε)
-  U.isSep market-is-unital  = market-has-sep
-  U.⊎-idˡ market-is-unital {offer l} = offerᵣ ⊎-idˡ
-  U.⊎-idˡ market-is-unital {demand r} = demand ⊎-idˡ
-  U.⊎-id⁻ˡ market-is-unital (offerᵣ σ) = cong offer (sym (⊎-id⁻ˡ σ))
-  U.⊎-id⁻ˡ market-is-unital (demand σ) = cong demand (⊎-id⁻ˡ σ)
+  market-is-unital = unital
 
-
-module _ {a} {{ s : MonoidalSep a }} where
-
-  open MonoidalSep s using () renaming (Carrier to A)
+module _ {a} {A : Set a} {{ s : MonoidalSep A }} where
 
   matching : ∀ {a b : A} {c d} → (demand a) ⊎ (offer b) ≣ c → (demand (d ∙ a)) ⊎ (offer (d ∙ b)) ≣ c
   matching (offerᵣ σ) = offerᵣ (⊎-∙ₗ σ)

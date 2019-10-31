@@ -48,43 +48,30 @@ module _
   ⦃ s₁ : IsUnitalSep R₁ u₁ ⦄ ⦃ s₂ : IsUnitalSep R₂ u₂ ⦄
   where
 
-  instance ×-isUnitalSep : IsUnitalSep ×-rawsep (u₁ , u₂)
-  ×-isUnitalSep = record
-    { isSep = ×-isSep
-    ; ⊎-idˡ = ⊎-idˡ , ⊎-idˡ 
-    ; ⊎-id⁻ˡ = λ where
+  instance ×-hasUnit⁺ : HasUnit⁺ _ (u₁ , u₂) 
+  ×-hasUnit⁺ = record { ⊎-idˡ = ⊎-idˡ , ⊎-idˡ }
+
+  instance ×-hasUnit⁻ : HasUnit⁻ _ (u₁ , u₂)
+  ×-hasUnit⁻ = record
+    { ⊎-id⁻ˡ = λ where
       (fst , snd) → cong₂ _,_ (⊎-id⁻ˡ fst) (⊎-id⁻ˡ snd)
     }
 
-  instance _×-ε-separation_ : UnitalSep _
-  _×-ε-separation_ = record
-    { isUnitalSep = ×-isUnitalSep }
-
-module _
-  {ℓ₁ ℓ₂}
-  ⦃ s₁ : Separation ℓ₁ ⦄ ⦃ s₂ : Separation ℓ₂ ⦄
-  where
-
-  private
-    module S₁ = Separation s₁
-    module S₂ = Separation s₂
-
-  ×-separation : Separation _
-  ×-separation = record
-    { isSep = ×-isSep {{ _ }} {{ _ }} ⦃ Separation.isSep s₁ ⦄ ⦃ Separation.isSep s₂ ⦄ }
+  instance ×-isUnitalSep : IsUnitalSep ×-rawsep (u₁ , u₂)
+  ×-isUnitalSep = unital
 
 module _
   {ℓ₁ ℓ₂}
   {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
   ⦃ sep₁ : RawSep C₁ ⦄ ⦃ sep₂ : RawSep C₂ ⦄
-  ⦃ s₁ : IsConcattative sep₁ ⦄ ⦃ s₂ : IsConcattative sep₂ ⦄
+  ⦃ s₁ : HasConcat sep₁ ⦄ ⦃ s₂ : HasConcat sep₂ ⦄
   where
 
   private
-    module S₁ = IsConcattative s₁
-    module S₂ = IsConcattative s₂
+    module S₁ = HasConcat s₁
+    module S₂ = HasConcat s₂
 
-  instance ×-concat : IsConcattative ×-rawsep
+  instance ×-concat : HasConcat ×-rawsep
   ×-concat = record
     { _∙_ = (λ where (a , b) (c , d) → (a S₁.∙ c , b S₂.∙ d))
     ; ⊎-∙ₗ = λ where (p , q) → ⊎-∙ₗ p , ⊎-∙ₗ q }

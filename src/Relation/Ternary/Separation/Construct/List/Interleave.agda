@@ -9,15 +9,13 @@ open import Data.List.Relation.Ternary.Interleaving.Propositional as I public
 open import Data.List.Relation.Ternary.Interleaving.Properties
 open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Inductive
+open import Algebra.Structures using (IsMonoid)
 
 open import Relation.Binary.PropositionalEquality as P hiding ([_])
 open import Relation.Unary hiding (_∈_; _⊢_)
 open import Relation.Ternary.Separation
 
 private C = List A
-
-instance separation : RawSep C
-separation = record { _⊎_≣_ = Interleaving }
 
 -- TODO add to stdlib
 interleaving-assoc : ∀ {a b ab c abc : List A} →
@@ -28,38 +26,9 @@ interleaving-assoc (consˡ l) (consˡ r) = let _ , p , q = interleaving-assoc l 
 interleaving-assoc (consʳ l) (consˡ r) = let _ , p , q = interleaving-assoc l r in -, consʳ p , consˡ q
 interleaving-assoc [] []               = [] , [] , []
 
-instance list-has-sep : IsSep separation
-list-has-sep = record
-  { ⊎-comm = I.swap
-  ; ⊎-assoc = interleaving-assoc
-  }
-
-instance list-is-unital : IsUnitalSep _ _
-IsUnitalSep.isSep list-is-unital               = list-has-sep
-IsUnitalSep.⊎-idˡ list-is-unital               = right (≡⇒≋ P.refl)
-IsUnitalSep.⊎-id⁻ˡ list-is-unital []           = refl
-IsUnitalSep.⊎-id⁻ˡ list-is-unital (refl ∷ʳ px) = cong (_ ∷_) (⊎-id⁻ˡ px)
-
-instance list-has-concat : IsConcattative separation
-IsConcattative._∙_ list-has-concat = _++_
-IsConcattative.⊎-∙ₗ list-has-concat {Φₑ = []} ps = ps
-IsConcattative.⊎-∙ₗ list-has-concat {Φₑ = x ∷ Φₑ} ps = consˡ (⊎-∙ₗ ps)
-
-instance list-unitalsep : UnitalSep _
-list-unitalsep = record
-  { isUnitalSep = list-is-unital }
-
-instance list-resource : MonoidalSep _
-list-resource = record
-  { sep = separation
-  ; isSep = list-has-sep
-  ; isUnitalSep   = list-is-unital
-  ; isConcat      = list-has-concat
-  ; monoid = ++-isMonoid }
-
-instance list-positive : IsPositive separation ε
-list-positive = record
-  { ⊎-εˡ = λ where [] → refl }
+instance
+  separation : RawSep C
+  separation = record { _⊎_≣_ = Interleaving }
 
 {- Cross splits on interleavings -}
 ⊎-cross : ∀ {a b c d z}
@@ -81,3 +50,36 @@ list-positive = record
 ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consˡ τ₂ , consʳ τ₃ , τ₄
 ⊎-cross (consʳ σ₁) (consʳ σ₂) with ⊎-cross σ₁ σ₂
 ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consʳ τ₂ , τ₃ , consʳ τ₄
+
+instance
+  list-has-sep : IsSep separation
+  list-has-sep = record
+    { ⊎-comm = I.swap
+    ; ⊎-assoc = interleaving-assoc
+    }
+
+  list-has-unit⁺ : HasUnit⁺ separation []
+  HasUnit⁺.isSep list-has-unit⁺ = list-has-sep
+  HasUnit⁺.⊎-idˡ list-has-unit⁺ = right (≡⇒≋ P.refl)
+
+  list-has-unit⁻ : HasUnit⁻ separation []
+  HasUnit⁻.⊎-id⁻ˡ list-has-unit⁻ [] = refl
+  HasUnit⁻.⊎-id⁻ˡ list-has-unit⁻ (refl ∷ʳ px) = cong (_ ∷_) (⊎-id⁻ˡ px)
+
+  list-has-concat : HasConcat separation
+  HasConcat._∙_ list-has-concat = _++_
+  HasConcat.⊎-∙ₗ list-has-concat {Φₑ = []} ps = ps
+  HasConcat.⊎-∙ₗ list-has-concat {Φₑ = x ∷ Φₑ} ps = consˡ (⊎-∙ₗ ps)
+
+  list-unitalsep : IsUnitalSep separation []
+  list-unitalsep = record {}
+
+  list-positive : IsPositive separation ε
+  list-positive = record
+    { ⊎-εˡ = λ where [] → refl }
+
+  list-has-cross⁺ : HasCrossSplit⁺ separation
+  list-has-cross⁺ = record { cross = ⊎-cross }
+
+  list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
+  list-monoid = ++-isMonoid

@@ -12,6 +12,7 @@ open import Data.List
 open import Data.List.Properties using (++-isMonoid)
 open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Inductive
+open import Algebra.Structures using (IsMonoid)
 
 open import Relation.Binary.PropositionalEquality as P hiding ([_])
 open import Relation.Unary hiding (_∈_; _⊢_)
@@ -61,27 +62,30 @@ instance
   ... | _ , σ₃ , σ₄ | _ , τ₃ , τ₄ = -, divide τ₃ σ₃ , divide τ₄ σ₄
 
   
+  split-has-unit⁺ : HasUnit⁺ splits []
+  HasUnit⁺.⊎-idˡ split-has-unit⁺ {[]} = []
+  HasUnit⁺.⊎-idˡ split-has-unit⁺ {x ∷ Φ} = to-right ⊎-idˡ
+
+  split-has-unit⁻ : HasUnit⁻ splits []
+  HasUnit⁻.⊎-id⁻ˡ split-has-unit⁻ (to-right σ) rewrite ⊎-id⁻ˡ σ = refl
+  HasUnit⁻.⊎-id⁻ˡ split-has-unit⁻ [] = refl
+
   split-is-unital : IsUnitalSep splits []
-  IsUnitalSep.⊎-idˡ split-is-unital {[]}                           = []
-  IsUnitalSep.⊎-idˡ split-is-unital {x ∷ Φ}                        = to-right ⊎-idˡ
-  IsUnitalSep.⊎-id⁻ˡ split-is-unital (to-right σ) rewrite ⊎-id⁻ˡ σ = refl
-  IsUnitalSep.⊎-id⁻ˡ split-is-unital []                            = refl
+  split-is-unital = record {}
   
-  split-has-concat : IsConcattative splits
-  IsConcattative._∙_ split-has-concat = _++_
-  IsConcattative.⊎-∙ₗ split-has-concat {Φₑ = []} σ = σ
-  IsConcattative.⊎-∙ₗ split-has-concat {Φₑ = x ∷ Φₑ} σ = to-left (⊎-∙ₗ σ) 
+  split-has-concat : HasConcat splits
+  HasConcat._∙_ split-has-concat = _++_
+  HasConcat.⊎-∙ₗ split-has-concat {Φₑ = []} σ = σ
+  HasConcat.⊎-∙ₗ split-has-concat {Φₑ = x ∷ Φₑ} σ = to-left (⊎-∙ₗ σ) 
   
-  split-separation : Separation _
-  split-separation = record { Carrier = List A }
-
-  split-monoidal : MonoidalSep _
-  split-monoidal = record { monoid = ++-isMonoid }
-
-  list-positive : IsPositive splits _
+  list-positive : IsPositive splits []
   list-positive = record
     { ⊎-εˡ = λ where [] → refl }
 
-unspliceᵣ : ∀ {xs ys zs : Carrier} {y} → xs ⊎ (y ∷ ys) ≣ zs → ∃ λ zs₁ → xs ⊎ [ y ] ≣ zs₁ × zs₁ ⊎ ys ≣ zs
+  list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
+  list-monoid = ++-isMonoid
+
+unspliceᵣ : ∀ {xs ys zs : Carrier} {y} →
+            xs ⊎ (y ∷ ys) ≣ zs → ∃ λ zs₁ → xs ⊎ [ y ] ≣ zs₁ × zs₁ ⊎ ys ≣ zs
 unspliceᵣ σ with ⊎-unassoc σ (⊎-∙ {Φₗ = [ _ ]})
 ... | _ , σ₁ , σ₂ = -, σ₁ , σ₂

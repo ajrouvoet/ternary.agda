@@ -324,9 +324,15 @@ record HasUnit⁻ {c} {C : Set c} (sep : RawSep C) unit : Set (suc c) where
   wandit : ∀ {p q} {P : SPred p} {Q : SPred q} → ∀[ P ⇒ Q ] → ε[ P ─✴ Q ]
   app (wandit f) p σ rewrite ⊎-id⁻ˡ σ = f p
 
-open HasUnit⁻ {{...}}
+open HasUnit⁻ {{...}} public
 
-record IsConcattative {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
+record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
+  constructor unital
+  field
+    overlap {{ hasUnit⁺ }} : HasUnit⁺ sep un
+    overlap {{ hasUnit⁻ }} : HasUnit⁻ sep un
+
+record HasConcat {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
   open RawSep sep
 
   field
@@ -337,6 +343,8 @@ record IsConcattative {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
     
   ⊎-∙ᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ⊎ Φ₂ ≣ Φ → Φ₁ ⊎ (Φₑ ∙ Φ₂) ≣ (Φₑ ∙ Φ)
   ⊎-∙ᵣ s = ⊎-comm (⊎-∙ₗ (⊎-comm s))
+
+open HasConcat {{...}} public
 
 record IsPositive {c} {C : Set c} (sep : RawSep C) ε : Set (suc c) where
   open RawSep sep
@@ -352,12 +360,13 @@ record IsPositive {c} {C : Set c} (sep : RawSep C) ε : Set (suc c) where
   ... | P.refl with ⊎-id⁻ˡ σ
   ... | P.refl = P.refl , P.refl
 
-record HasCrossSplit {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
+open IsPositive ⦃...⦄ public
+
+record HasCrossSplit⁺ {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
   open RawSep sep
 
   field
-    overlap {{ isSep }}       : IsSep sep
-
+    overlap {{ isSep }} : IsSep sep
     cross : ∀ {a b c d z}
       → a ⊎ b ≣ z
       → c ⊎ d ≣ z
@@ -368,6 +377,12 @@ record HasCrossSplit {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
          × ac ⊎ bc ≣ c
          × ad ⊎ bd ≣ d
 
+open HasCrossSplit⁺ ⦃...⦄ public
+
+record HasCrossSplit⁻ {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
+  open RawSep sep
+  field
+    overlap {{ isSep }} : IsSep sep
     uncross : ∀ {a b c d ac ad bc bd}
       → ac ⊎ ad ≣ a
       → bc ⊎ bd ≣ b
@@ -377,53 +392,29 @@ record HasCrossSplit {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
           a ⊎ b ≣ z
         × c ⊎ d ≣ z
 
-record Separation c : Set (suc c) where
+open HasCrossSplit⁻ {{...}} public
+
+open RawSep {{...}} public
+
+record MonoidalSep {c} (C : Set c) : Set (suc c) where
+  instance constructor monoidal
   field
-    Carrier : Set c
-    overlap {{ raw }}   : RawSep Carrier
-    overlap {{ isSep }} : IsSep raw
+    {unit}        : C
+    {{sep}}       : RawSep C
+    {{isUnital}}  : IsUnitalSep sep unit
+    {{hasConcat}} : HasConcat sep
+    {{monoid}}    : IsMonoid {A = C} _≡_ (HasConcat._∙_  hasConcat) unit
 
-record UnitalSep c : Set (suc c) where
-  field
-    Carrier : Set c
-    unit    : _
-    overlap {{ sep }}      : RawSep Carrier
-    overlap {{ hasUnit⁺ }} : HasUnit⁺ sep unit
+module _ {c} {C : Set c} {{_ : MonoidalSep C}} where
+  open IsMonoid {{...}}
 
-record MonoidalSep c : Set (suc c) where
-  field
-    Carrier : Set c
-    unit    : _
-    overlap {{ sep }}         : RawSep Carrier
-    overlap {{ isSep }}       : IsSep sep
-    overlap {{ hasUnit⁺ }}    : HasUnit⁺ sep unit
-    overlap {{ isConcat }}    : IsConcattative sep
-
-  open RawSep sep
-  open IsConcattative isConcat
-
-  field
-    overlap {{ monoid }}      : IsMonoid {A = Carrier} _≡_ _∙_ ε
-
-  open IsMonoid monoid
-
-  ⊎-∙ : ∀ {Φₗ Φᵣ : Carrier} → Φₗ ⊎ Φᵣ ≣ (Φₗ ∙ Φᵣ)
+  ⊎-∙ : ∀ {Φₗ Φᵣ : C} → Φₗ ⊎ Φᵣ ≣ (Φₗ ∙ Φᵣ)
   ⊎-∙ {Φₗ} {Φᵣ} =
     P.subst (λ φ → φ ⊎ Φᵣ ≣ (Φₗ ∙ Φᵣ))
       (identityʳ Φₗ)
       (⊎-∙ₗ ⊎-idˡ)
 
-  instance unital : UnitalSep _
-  unital = record { unit = unit }
-
 module _ {c} {C : Set c} where
 
   εOf : ∀ (r : RawSep C) {u} {{ _ : HasUnit⁺ r u }} → C
   εOf _ {{ un }}= HasUnit⁺.ε un
-
-open RawSep ⦃...⦄ public
-open IsConcattative ⦃...⦄ public
-open IsPositive ⦃...⦄ public
-open UnitalSep ⦃...⦄ public hiding (Carrier; unit)
-open HasCrossSplit ⦃...⦄ public
-open MonoidalSep ⦃...⦄ public hiding (Carrier; unit)

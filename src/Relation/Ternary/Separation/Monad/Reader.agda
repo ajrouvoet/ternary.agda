@@ -25,7 +25,7 @@ module ReaderTransformer {ℓ}
   -- types
   {T : Set ℓ}
   -- runtime resource
-  {C : Set ℓ} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}} {{cc : IsConcattative rc}}
+  {C : Set ℓ} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}} {{cc : HasConcat rc}}
   --
   {B : Set ℓ} {{rb : RawSep B}}
   (j : Morphism C B) {{sb : IsUnitalSep rb (Morphism.j j u)}}
@@ -36,7 +36,7 @@ module ReaderTransformer {ℓ}
 
   open Morphism j hiding (j) public
   open Monads {{jm = j}} using (Monad; str; typed-str)
-  open import Relation.Ternary.Separation.Construct.List T
+  open import Relation.Ternary.Separation.Construct.List.Interleave T
 
   module _ where
     open Monad monad
@@ -100,7 +100,7 @@ module ReaderMonad {ℓ}
   -- types
   {T : Set ℓ}
   -- runtime resource
-  {C : Set ℓ} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}} {{cc : IsConcattative rc}}
+  {C : Set ℓ} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}} {{cc : HasConcat rc}}
   -- values
   (V : T → Pred C ℓ)
   where

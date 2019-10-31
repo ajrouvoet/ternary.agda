@@ -19,12 +19,13 @@ unit-has-sep = record
   ; ⊎-assoc = λ _ _ → tt , tt , tt
   }
 
-instance unit-is-unital : IsUnitalSep _ _
-unit-is-unital = record
-  { isSep = unit-has-sep
-  ; ⊎-idˡ = tt
-  ; ⊎-id⁻ˡ = λ where tt → refl }
+instance unit-has-unit⁺ : HasUnit⁺ _ _
+unit-has-unit⁺ = record
+  { ⊎-idˡ = tt }
 
-instance unit-sep : Separation _
-unit-sep = record
-  { isSep = unit-has-sep }
+instance unit-has-unit⁻ : HasUnit⁻ _ _
+unit-has-unit⁻ = record
+  { ⊎-id⁻ˡ = λ where tt → refl }
+
+instance unit-is-unital : IsUnitalSep _ _
+unit-is-unital = record {}
