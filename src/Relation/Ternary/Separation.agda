@@ -209,7 +209,9 @@ record IsSep {ℓ₁} {A} (s : RawSep {ℓ₁} A) : Set ℓ₁ where
     _◆_ : _ → _ → SPred _
     Φₗ ◆ Φᵣ = Exactly Φₗ ✴ Exactly Φᵣ
 
-record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
+open IsSep {{...}} public
+
+record HasUnit⁺ {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
   field
     overlap {{ isSep }}  : IsSep sep
 
@@ -219,15 +221,9 @@ record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
 
   field
     ⊎-idˡ    : ∀ {Φ} → ε ⊎ Φ ≣ Φ
-    ⊎-id⁻ˡ   : ∀ {Φ₁ Φ₂} → ε ⊎ Φ₁ ≣ Φ₂ → Φ₁ ≡ Φ₂
-
-  open IsSep isSep
 
   ⊎-idʳ : ∀ {Φ} → Φ ⊎ ε ≣ Φ
   ⊎-idʳ = ⊎-comm ⊎-idˡ
-
-  ⊎-id⁻ʳ : ∀ {Φ} → ∀[ (Φ ⊎ ε) ⇒ (Φ ≡_) ]
-  ⊎-id⁻ʳ = ⊎-id⁻ˡ ∘ ⊎-comm
 
   infix 10 ε[_]
   ε[_] : ∀ {ℓ} → Pred C ℓ → Set ℓ
@@ -245,16 +241,8 @@ record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
     Emp = Empty ⊤
     
   module _ where
-    ε⊎ε : ∀[ ε ⊎ ε ⇒ Emp ]
-    ε⊎ε p with ⊎-id⁻ˡ p
-    ... | (P.refl) = empty
-
     ✴-idʳ : ∀ {p} {P : SPred p} → ∀[ P ⇒ P ✴ Emp ]
     ✴-idʳ px = px ×⟨ ⊎-idʳ ⟩ empty
-
-    -- a resource-polymorphic function is a pure wand
-    wandit : ∀ {p q} {P : SPred p} {Q : SPred q} → ∀[ P ⇒ Q ] → ε[ P ─✴ Q ]
-    app (wandit f) p σ rewrite ⊎-id⁻ˡ σ = f p
     
     _⟨✴⟩_ : ∀ {p q} {P : SPred p} {Q : SPred q} → ε[ P ─✴ Q ] → ∀[ P ⇒ Q ]
     w ⟨✴⟩ p = app w p ⊎-idˡ
@@ -314,6 +302,30 @@ record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
       π₂ : ∀ {p q} {P : SPred p} {Q : SPred q} → ∀[ (P ✴ Q) ⇒ Q ↑ ]
       π₂ (_ ×⟨ sep ⟩ qx) = qx ⇑ ⊎-comm sep
 
+open HasUnit⁺ {{...}} public
+
+record HasUnit⁻ {c} {C : Set c} (sep : RawSep C) unit : Set (suc c) where
+  field
+    overlap {{ hasUnit⁺ }}  : HasUnit⁺ sep unit
+
+  open RawSep sep
+    
+  field
+    ⊎-id⁻ˡ   : ∀ {Φ₁ Φ₂} → ε ⊎ Φ₁ ≣ Φ₂ → Φ₁ ≡ Φ₂
+
+  ⊎-id⁻ʳ : ∀ {Φ} → ∀[ (Φ ⊎ ε) ⇒ (Φ ≡_) ]
+  ⊎-id⁻ʳ = ⊎-id⁻ˡ ∘ ⊎-comm
+
+  ε⊎ε : ∀[ ε ⊎ ε ⇒ Emp ]
+  ε⊎ε p with ⊎-id⁻ˡ p
+  ... | (P.refl) = empty
+
+  -- a resource-polymorphic function is a pure wand
+  wandit : ∀ {p q} {P : SPred p} {Q : SPred q} → ∀[ P ⇒ Q ] → ε[ P ─✴ Q ]
+  app (wandit f) p σ rewrite ⊎-id⁻ˡ σ = f p
+
+open HasUnit⁻ {{...}}
+
 record IsConcattative {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
   open RawSep sep
 
@@ -323,8 +335,6 @@ record IsConcattative {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
     _∙_ : C → C → C 
     ⊎-∙ₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ⊎ Φ₂ ≣ Φ → (Φₑ ∙ Φ₁) ⊎ Φ₂ ≣ (Φₑ ∙ Φ)
     
-  open IsSep isSep
-    
   ⊎-∙ᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ⊎ Φ₂ ≣ Φ → Φ₁ ⊎ (Φₑ ∙ Φ₂) ≣ (Φₑ ∙ Φ)
   ⊎-∙ᵣ s = ⊎-comm (⊎-∙ₗ (⊎-comm s))
 
@@ -332,15 +342,12 @@ record IsPositive {c} {C : Set c} (sep : RawSep C) ε : Set (suc c) where
   open RawSep sep
 
   field
-    overlap {{ isUnitalSep }} : IsUnitalSep sep ε
     overlap {{ isSep }}       : IsSep sep
-
-  open IsUnitalSep isUnitalSep using (⊎-id⁻ˡ)
 
   field
     ⊎-εˡ : ∀ {Φ₁ Φ₂} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε
-
-  ⊎-ε : ∀ {Φ₁ Φ₂} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε × Φ₂ ≡ ε
+  
+  ⊎-ε : ∀ {Φ₁ Φ₂} {{_ : HasUnit⁻ sep ε}} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε × Φ₂ ≡ ε
   ⊎-ε σ with ⊎-εˡ σ
   ... | P.refl with ⊎-id⁻ˡ σ
   ... | P.refl = P.refl , P.refl
@@ -379,23 +386,21 @@ record Separation c : Set (suc c) where
 record UnitalSep c : Set (suc c) where
   field
     Carrier : Set c
-    ε       : _
-    overlap {{ sep }}         : RawSep Carrier
-    overlap {{ isUnitalSep }} : IsUnitalSep sep ε
+    unit    : _
+    overlap {{ sep }}      : RawSep Carrier
+    overlap {{ hasUnit⁺ }} : HasUnit⁺ sep unit
 
 record MonoidalSep c : Set (suc c) where
   field
     Carrier : Set c
-    ε       : _
+    unit    : _
     overlap {{ sep }}         : RawSep Carrier
     overlap {{ isSep }}       : IsSep sep
-    overlap {{ isUnitalSep }} : IsUnitalSep sep ε
+    overlap {{ hasUnit⁺ }}    : HasUnit⁺ sep unit
     overlap {{ isConcat }}    : IsConcattative sep
 
   open RawSep sep
-  open IsSep isSep
   open IsConcattative isConcat
-  open IsUnitalSep isUnitalSep hiding (ε)
 
   field
     overlap {{ monoid }}      : IsMonoid {A = Carrier} _≡_ _∙_ ε
@@ -406,21 +411,19 @@ record MonoidalSep c : Set (suc c) where
   ⊎-∙ {Φₗ} {Φᵣ} =
     P.subst (λ φ → φ ⊎ Φᵣ ≣ (Φₗ ∙ Φᵣ))
       (identityʳ Φₗ)
-      (⊎-∙ₗ {Φₑ = Φₗ} (⊎-idˡ {Φᵣ}))
+      (⊎-∙ₗ ⊎-idˡ)
 
   instance unital : UnitalSep _
-  unital = record { ε = ε }
+  unital = record { unit = unit }
 
 module _ {c} {C : Set c} where
 
-  εOf : ∀ (r : RawSep C) {u} {{ _ : IsUnitalSep r u }} → C
-  εOf _ {{ un }}= IsUnitalSep.ε un
+  εOf : ∀ (r : RawSep C) {u} {{ _ : HasUnit⁺ r u }} → C
+  εOf _ {{ un }}= HasUnit⁺.ε un
 
 open RawSep ⦃...⦄ public
 open IsConcattative ⦃...⦄ public
-open IsUnitalSep ⦃...⦄ public
 open IsPositive ⦃...⦄ public
-open UnitalSep ⦃...⦄ public hiding (Carrier; ε)
-open IsSep ⦃...⦄ public
+open UnitalSep ⦃...⦄ public hiding (Carrier; unit)
 open HasCrossSplit ⦃...⦄ public
-open MonoidalSep ⦃...⦄ public hiding (Carrier; ε)
+open MonoidalSep ⦃...⦄ public hiding (Carrier; unit)
