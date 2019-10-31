@@ -12,8 +12,7 @@ open import Data.List hiding (concat)
 open import Relation.Unary
 
 {- Inductive separating forall over a list -}
-module _ where
-  open import Relation.Ternary.Separation.Construct.Empty I
+module _ {ℓ} where
   open import Relation.Ternary.Separation.Construct.List.Interleave I
   open import Data.List.Relation.Ternary.Interleaving.Propositional as I
 
