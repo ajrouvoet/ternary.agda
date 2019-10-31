@@ -45,17 +45,30 @@ module _
 module _
   {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
   {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}} {u₁ u₂}
-  ⦃ s₁ : IsUnitalSep R₁ u₁ ⦄ ⦃ s₂ : IsUnitalSep R₂ u₂ ⦄
+  ⦃ s₁ : HasUnit⁺ R₁ u₁ ⦄ ⦃ s₂ : HasUnit⁺ R₂ u₂ ⦄
   where
 
   instance ×-hasUnit⁺ : HasUnit⁺ _ (u₁ , u₂) 
   ×-hasUnit⁺ = record { ⊎-idˡ = ⊎-idˡ , ⊎-idˡ }
 
-  instance ×-hasUnit⁻ : HasUnit⁻ _ (u₁ , u₂)
+
+module _
+  {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
+  {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}} {u₁ u₂}
+  ⦃ s₁ : HasUnit⁻ R₁ u₁ ⦄ ⦃ s₂ : HasUnit⁻ R₂ u₂ ⦄
+  where
+
+  instance ×-hasUnit⁻ : HasUnit⁻ _ (u₁ , u₂) 
   ×-hasUnit⁻ = record
     { ⊎-id⁻ˡ = λ where
       (fst , snd) → cong₂ _,_ (⊎-id⁻ˡ fst) (⊎-id⁻ˡ snd)
     }
+
+module _
+  {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
+  {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}} {u₁ u₂}
+  ⦃ s₁ : IsUnitalSep R₁ u₁ ⦄ ⦃ s₂ : IsUnitalSep R₂ u₂ ⦄
+  where
 
   instance ×-isUnitalSep : IsUnitalSep ×-rawsep (u₁ , u₂)
   ×-isUnitalSep = unital

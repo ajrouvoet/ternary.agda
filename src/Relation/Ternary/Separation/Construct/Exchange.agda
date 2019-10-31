@@ -28,7 +28,10 @@ module _ {ℓ} (A : Set ℓ) where
 
   open Account public
 
-module _ {ℓ} {A : Set ℓ} {{ sep : RawSep A }} {{ cs : HasCrossSplit sep }} where
+module _ {ℓ} {A : Set ℓ}
+  {{ sep : RawSep A }}
+  {{_ : HasCrossSplit⁺ sep}}
+  {{_ : HasCrossSplit⁻ sep}} where
 
   open import Relation.Ternary.Separation.Construct.Product
 
@@ -80,12 +83,28 @@ module _ {ℓ} {A : Set ℓ} {{ sep : RawSep A }} {{ cs : HasCrossSplit sep }} w
 
 module _
   {ℓ} {A : Set ℓ} {{ sep : RawSep A }} {eps}
-  {{ cs : HasCrossSplit sep }} {{ _ : IsPositive sep eps }}where
+  {{ cs : HasCrossSplit⁻ sep }}
+  {{ cs : HasCrossSplit⁺ sep }}
+  {{ _  : HasUnit⁺ sep eps }}
+  where
 
   open import Relation.Ternary.Separation.Construct.Product
 
-  instance exchange-has-unit : IsUnitalSep exchange-raw (eps ↕ eps)
-  IsUnitalSep.⊎-idˡ exchange-has-unit    = ex (⊎-idˡ , ⊎-idʳ) (⊎-idʳ , ⊎-idˡ) ⊎-idˡ
-  IsUnitalSep.⊎-id⁻ˡ exchange-has-unit (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ⊎-ε x₁₁ | ⊎-ε x₂₂
+  instance exchange-has-unit⁺ : HasUnit⁺ exchange-raw (eps ↕ eps)
+  HasUnit⁺.⊎-idˡ exchange-has-unit⁺ = ex (⊎-idˡ , ⊎-idʳ) (⊎-idʳ , ⊎-idˡ) ⊎-idˡ
+
+module _
+  {ℓ} {A : Set ℓ} {{ sep : RawSep A }} {eps}
+  {{ cs : HasCrossSplit⁻ sep }}
+  {{ cs : HasCrossSplit⁺ sep }}
+  {{ _  : IsUnitalSep sep eps }}
+  {{ _  : IsPositive sep eps }}
+  where
+
+  open import Relation.Ternary.Separation.Construct.Product
+
+  instance exchange-has-unit⁻ : HasUnit⁻ exchange-raw (eps ↕ eps)
+  HasUnit⁻.⊎-id⁻ˡ exchange-has-unit⁻ 
+    (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ⊎-ε x₁₁ | ⊎-ε x₂₂
   ... | refl , refl | refl , refl with ⊎-id⁻ˡ σ₁ | ⊎-id⁻ˡ σ₂ | ⊎-id⁻ʳ x₂₁ | ⊎-id⁻ʳ x₁₂
   ... | refl | refl | refl | refl = refl
