@@ -7,17 +7,24 @@ open import Relation.Unary
 open import Relation.Unary.PredicateTransformer hiding (_⊔_; [_])
 open import Relation.Ternary.Separation
 open import Relation.Ternary.Separation.Monad
+open import Relation.Ternary.Separation.Morphisms
+open Monads
 
 open import Data.Unit
 open import Data.Product
 
-module _ {a} {A : Set a} {{s : RawSep A}} {u} {{s : IsUnitalSep s u}} where
+module _ {ℓ}
+  {C : Set ℓ} {u}
+  {{r : RawSep C}}
+  {{us : IsUnitalSep r u}}
+  where
+
   instance
-    ⤇-monad : Monad {I = ⊤} (λ _ _ → ⤇ {p = a})
-    Monad.return ⤇-monad px   = local λ σ → -, -, σ , px
+    ⤇-monad : Monad ⊤ _ (λ _ _ → ⤇ {p = ℓ})
+    Monad.return ⤇-monad px         = local λ σ → -, -, σ , px
     app (Monad.bind ⤇-monad f) p σₚ = local λ fr →
       let
-        _ , σ₁ , σ₂ = ⊎-assoc (⊎-comm σₚ) fr
+        _ , σ₁ , σ₂     = ⊎-assoc (⊎-comm σₚ) fr
         Δ , Σ , σ₃ , px = update p σ₁
-        _ , σ₄ , σ₅ = ⊎-unassoc σ₃ σ₂
+        _ , σ₄ , σ₅     = ⊎-unassoc σ₃ σ₂
       in update (app f px (⊎-comm σ₄)) σ₅
