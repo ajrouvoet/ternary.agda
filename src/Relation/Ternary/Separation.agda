@@ -220,7 +220,7 @@ record HasUnit⁺ {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
   ε = un
 
   field
-    ⊎-idˡ    : ∀ {Φ} → ε ⊎ Φ ≣ Φ
+    ⊎-idˡ : ∀ {Φ} → ε ⊎ Φ ≣ Φ
 
   ⊎-idʳ : ∀ {Φ} → Φ ⊎ ε ≣ Φ
   ⊎-idʳ = ⊎-comm ⊎-idˡ

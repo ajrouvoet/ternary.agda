@@ -28,6 +28,14 @@ module _ {ℓ} (A : Set ℓ) where
 
   open Account public
 
+module _ {a ℓ} {A : Set a} {uₐ}
+  {{sep : RawSep A }}
+  {{_ : HasUnit⁺ sep uₐ}}
+  where
+
+  data ○ (P : Pred A ℓ) : Pred (Account A) ℓ where
+    consumer : ∀ {x} → P x → ○ P (uₐ ↕ x)
+
 module _ {ℓ} {A : Set ℓ}
   {{ sep : RawSep A }}
   {{_ : HasCrossSplit⁺ sep}}

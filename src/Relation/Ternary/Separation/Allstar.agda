@@ -2,8 +2,9 @@
 open import Relation.Ternary.Separation
 
 module Relation.Ternary.Separation.Allstar
+  {ℓ}
   {i} {I : Set i}
-  {c} {C : Set c} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}}
+  {c} {C : Set c} {{rc : RawSep C}}
   where
 
 open import Level
@@ -11,18 +12,13 @@ open import Data.Product
 open import Data.List hiding (concat)
 open import Relation.Unary
 
-{- Inductive separating forall over a list -}
-module _ {ℓ} where
-  open import Relation.Ternary.Separation.Construct.List.Interleave I
-  open import Data.List.Relation.Ternary.Interleaving.Propositional as I
+open import Relation.Ternary.Separation.Construct.List.Interleave I
+open import Data.List.Relation.Ternary.Interleaving.Propositional as I
 
+module _ {u} {{_ : HasUnit⁺ rc u}} where
   data Allstar (P : I → Pred C ℓ) : List I → SPred (ℓ ⊔ c ⊔ i) where
     nil  :            ε[ Allstar P [] ]
     cons : ∀ {x xs} → ∀[ P x ✴ Allstar P xs ⇒ Allstar P (x ∷ xs) ]
-
-  -- not typed well in non-pattern positions
-  infixr 5 _:⟨_⟩:_
-  pattern _:⟨_⟩:_ x p xs = cons (x ×⟨ p ⟩ xs)
 
   singleton : ∀ {P x} → ∀[ P x ⇒ Allstar P [ x ] ]
   singleton v = cons (v ×⟨ ⊎-idʳ ⟩ nil)
@@ -40,6 +36,12 @@ module _ {ℓ} where
       xs ×⟨ σ′′ ⟩ ys = repartition σ qx
       _ , τ₁ , τ₂    = ⊎-unassoc σ′ (⊎-comm σ′′)
     in xs ×⟨ ⊎-comm τ₂ ⟩ (cons (a ×⟨ τ₁ ⟩ ys))
+
+{- Inductive separating forall over a list -}
+module _ {u} {{sc : IsUnitalSep rc u}} where
+  -- not typed well in non-pattern positions
+  infixr 5 _:⟨_⟩:_
+  pattern _:⟨_⟩:_ x p xs = cons (x ×⟨ p ⟩ xs)
 
   concat : ∀ {P} {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ✴ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ] 
   concat (nil ×⟨ s ⟩ env₂) rewrite ⊎-id⁻ˡ s = env₂

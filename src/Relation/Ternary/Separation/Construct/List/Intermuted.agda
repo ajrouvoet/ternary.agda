@@ -1,5 +1,11 @@
 {-# OPTIONS --safe #-}
-module Relation.Ternary.Separation.Construct.List.Intermuted {a} (A : Set a) where
+open import Relation.Ternary.Separation
+
+module Relation.Ternary.Separation.Construct.List.Intermuted
+  {a} (A : Set a)
+  {{r : RawSep A}}
+  {{_ : IsSep r}}
+  where
 
 open import Level
 open import Data.Product hiding (swap)
@@ -26,7 +32,6 @@ module _ where
   ... | refl = ¬∷↭[] s₁
 
 open import Relation.Unary hiding (_∈_; _⊢_)
-open import Relation.Ternary.Separation
 
 private 
   Carrier = List A
@@ -34,7 +39,8 @@ private
     xsˡ xsʳ xs ys ysˡ ysʳ zs xxs yys : Carrier
 
 open import Relation.Ternary.Separation.Construct.List.Interleave A hiding (swap)
-module Cr = HasCrossSplit
+module Cr⁺ = HasCrossSplit⁺
+module Cr⁻ = HasCrossSplit⁻
 
 module _ where
   {- An inductive definition of xs ++ ys ↭ zs -}
@@ -144,18 +150,21 @@ instance
       _ , σ₇ , h₆ = ↭-⊎ʳ σ₄ h₃
     in -, hustle σ₇ (↭-trans (↭-sym h₆) h₂) , hustle σ₆ (↭-sym h₅)
 
-  hustle-has-cross : HasCrossSplit hustle-sep
+  hustle-has-unit⁺ : HasUnit⁺ hustle-sep []
+  hustle-has-unit⁺ = record { ⊎-idˡ = hustle ⊎-idˡ refl }
 
   hustle-has-concat : HasConcat hustle-sep
   hustle-has-concat = record
     { _∙_  = _++_
     ; ⊎-∙ₗ = λ where (hustle σ h) → hustle (⊎-∙ₗ σ) (++⁺ˡ _ h) }
 
-  Cr.cross hustle-has-cross (hustle σ₁ h₁) (hustle σ₂ h₂) with ⊎-↭ σ₁ (trans h₁ (↭-sym h₂))
+  hustle-has-cross⁺ : HasCrossSplit⁺ hustle-sep
+  Cr⁺.cross hustle-has-cross⁺ (hustle σ₁ h₁) (hustle σ₂ h₂) with ⊎-↭ σ₁ (trans h₁ (↭-sym h₂))
   ... | _ , h₃ , h₄ , σ₃ with ⊎-cross σ₃ σ₂
   ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, hustle τ₁ h₃ , hustle τ₂ h₄ , hustle τ₃ refl , hustle τ₄ refl
 
-  Cr.uncross hustle-has-cross {a} {b} {c} {d} {ac} {ad} {bc} {bd} σ₁ σ₂ σ₃ σ₄ =
+  hustle-has-cross⁻ : HasCrossSplit⁻ hustle-sep
+  Cr⁻.uncross hustle-has-cross⁻ {a} {b} {c} {d} {ac} {ad} {bc} {bd} σ₁ σ₂ σ₃ σ₄ =
     -, hustle ⊎-∙ refl
      , hustle ⊎-∙ (
        let ρ₁ = ⟦ σ₁ ⟧; ρ₂ = ⟦ σ₂ ⟧

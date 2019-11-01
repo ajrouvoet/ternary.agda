@@ -1,9 +1,10 @@
+{-# OPTIONS --safe #-}
 open import Relation.Ternary.Separation
 
 module Relation.Ternary.Separation.Construct.List.Interdivide
   {a} (A : Set a) 
   {{r : RawSep A}}
-  {{_ : IsSep r}}
+  (sep : IsSep r)
   where
 
 open import Level
@@ -17,9 +18,8 @@ open import Algebra.Structures using (IsMonoid)
 open import Relation.Binary.PropositionalEquality as P hiding ([_])
 open import Relation.Unary hiding (_∈_; _⊢_)
 
-open import Relation.Ternary.Separation.Morphisms
-
 private 
+  instance sep-instance = sep
   Carrier = List A
   variable
     xˡ xʳ x y z : A
