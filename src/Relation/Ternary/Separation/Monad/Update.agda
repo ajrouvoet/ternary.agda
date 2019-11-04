@@ -14,8 +14,8 @@ open import Data.Unit
 open import Data.Product
 
 module _ {ℓ}
-  {C : Set ℓ} {u}
-  {{r : RawSep C}}
+  {C   : Set ℓ} {u}
+  {{r  : RawSep C}}
   {{us : IsUnitalSep r u}}
   where
 

@@ -85,7 +85,11 @@ instance
   list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
   list-monoid = ++-isMonoid
 
-unspliceᵣ : ∀ {xs ys zs : Carrier} {y} →
-            xs ⊎ (y ∷ ys) ≣ zs → ∃ λ zs₁ → xs ⊎ [ y ] ≣ zs₁ × zs₁ ⊎ ys ≣ zs
-unspliceᵣ σ with ⊎-unassoc σ (⊎-∙ {Φₗ = [ _ ]})
-... | _ , σ₁ , σ₂ = -, σ₁ , σ₂
+{- Lemmas about List splittings -}
+module _ where
+
+  unspliceᵣ : ∀ {xs ys zs : Carrier} {y} →
+              xs ⊎ (y ∷ ys) ≣ zs →
+              ∃ λ zs₁ → xs ⊎ [ y ] ≣ zs₁ × zs₁ ⊎ ys ≣ zs
+  unspliceᵣ σ with ⊎-unassoc σ (⊎-∙ {Φₗ = [ _ ]})
+  ... | _ , σ₁ , σ₂ = -, σ₁ , σ₂

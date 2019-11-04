@@ -1,4 +1,4 @@
-module Relation.Ternary.Separation.Construct.Duplicate {a} {A : Set a} where
+module Relation.Ternary.Separation.Construct.Duplicate {a} (A : Set a) where
 
 open import Data.Product
 open import Relation.Ternary.Separation
