@@ -6,7 +6,7 @@
 -- At every node in the splitting tree, two accounts can "exchange" some amount,
 -- meaning that the demand on the left can be fulfilled by some supply on the right and vice versa.
 
-module Relation.Ternary.Separation.Construct.Exchange where
+module Relation.Ternary.Separation.Construct.Exchange {ℓ} (A : Set ℓ) where
 
 open import Level hiding (Lift)
 open import Data.Product
@@ -18,7 +18,7 @@ open import Relation.Binary.PropositionalEquality as P
 open import Relation.Ternary.Separation
 open import Relation.Ternary.Separation.Morphisms
 
-module _ {ℓ} (A : Set ℓ) where
+module _ where
 
   record Account : Set ℓ where
     constructor _↕_
@@ -28,15 +28,15 @@ module _ {ℓ} (A : Set ℓ) where
 
   open Account public
 
-module _ {a ℓ} {A : Set a} {uₐ}
+module _ {ℓ} {uₐ}
   {{sep : RawSep A }}
   {{_ : HasUnit⁺ sep uₐ}}
   where
 
-  data ○ (P : Pred A ℓ) : Pred (Account A) ℓ where
+  data ○ (P : Pred A ℓ) : Pred Account ℓ where
     consumer : ∀ {x} → P x → ○ P (uₐ ↕ x)
 
-module _ {ℓ} {A : Set ℓ}
+module _
   {{ sep : RawSep A }}
   {{_ : HasCrossSplit⁺ sep}}
   {{_ : HasCrossSplit⁻ sep}} where
@@ -44,14 +44,14 @@ module _ {ℓ} {A : Set ℓ}
   open import Relation.Ternary.Separation.Construct.Product
 
   -- lifted pointwise product split
-  _×⊎_≣_ : (l r t : Account A) → Set ℓ
+  _×⊎_≣_ : (l r t : Account) → Set ℓ
   (u₁ ↕ d₁) ×⊎ (u₂ ↕ d₂) ≣ (u ↕ d) = (u₁ , d₁) ⊎ (u₂ , d₂) ≣ (u , d)
 
   -- subtract some amount from both sides of the balance
-  _/_≣_ : Account A → A → Account A → Set ℓ
+  _/_≣_ : Account → A → Account → Set ℓ
   ud₁ / e ≣ ud₂ = ud₂ ×⊎ (e ↕ e) ≣ ud₁
 
-  data Split : Account A → Account A → Account A → Set ℓ where
+  data Split : Account → Account → Account → Set ℓ where
     ex : ∀ {e₁ e₂ u₁ d₁ u₂ d₂ u₁' d₁' u₂' d₂' ud} →
 
          -- bind e₁ and e₂ in oposite side
@@ -63,7 +63,7 @@ module _ {ℓ} {A : Set ℓ}
 
          Split (u₁ ↕ d₁) (u₂ ↕ d₂) ud
 
-  exchange-raw : RawSep (Account A)
+  instance exchange-raw : RawSep Account
   exchange-raw = record { _⊎_≣_ = Split }
 
   instance exchange-is-sep : IsSep exchange-raw
@@ -90,10 +90,10 @@ module _ {ℓ} {A : Set ℓ}
      , ex (k₂ , ⊎-comm y₅) (⊎-comm x₆ , y₄) (x₈ , ⊎-comm y₇)
 
 module _
-  {ℓ} {A : Set ℓ} {{ sep : RawSep A }} {eps}
-  {{ cs : HasCrossSplit⁻ sep }}
-  {{ cs : HasCrossSplit⁺ sep }}
-  {{ _  : HasUnit⁺ sep eps }}
+  {{ sep : RawSep A }} {eps}
+  {{ cs⁻ : HasCrossSplit⁻ sep }}
+  {{ cs⁺ : HasCrossSplit⁺ sep }}
+  {{ un  : HasUnit⁺ sep eps }}
   where
 
   open import Relation.Ternary.Separation.Construct.Product
@@ -102,7 +102,7 @@ module _
   HasUnit⁺.⊎-idˡ exchange-has-unit⁺ = ex (⊎-idˡ , ⊎-idʳ) (⊎-idʳ , ⊎-idˡ) ⊎-idˡ
 
 module _
-  {ℓ} {A : Set ℓ} {{ sep : RawSep A }} {eps}
+  {{ sep : RawSep A }} {eps}
   {{ cs : HasCrossSplit⁻ sep }}
   {{ cs : HasCrossSplit⁺ sep }}
   {{ _  : IsUnitalSep sep eps }}
