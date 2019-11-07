@@ -90,10 +90,10 @@ module _
     ; ⊎-∙ₗ = λ where (p , q) → ⊎-∙ₗ p , ⊎-∙ₗ q }
 
 {- Some useful type-formers for this instance -}
-module _ {ℓ} {A : Set ℓ} {{ r : RawSep A }} {u} {{s : IsUnitalSep r u}} where
+module _ {a b} {B : Set b} {A : Set a} {{ r : RawSep A }} {u} {{s : HasUnit⁺ r u}} where
 
-  data Π₁ {p} (P : Pred A p) : Pred (A × A) (ℓ ⊔ p) where
-    fst : ∀ {a} → P a → Π₁ P (a , ε)
+  data Π₁ {p} (P : Pred B p) : Pred (B × A) (a ⊔ b ⊔ p) where
+    fst : ∀ {b : B} → P b → Π₁ P (b , ε)
 
-  data Π₂ {p} (P : Pred A p) : Pred (A × A) (ℓ ⊔ p) where
-    snd : ∀ {a} → P a → Π₂ P (ε , a)
+  data Π₂ {p} (P : Pred B p) : Pred (A × B) (a ⊔ b ⊔ p) where
+    snd : ∀ {b : B} → P b → Π₂ P (ε , b)
