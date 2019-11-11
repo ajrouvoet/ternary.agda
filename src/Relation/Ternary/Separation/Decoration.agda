@@ -4,7 +4,6 @@ open import Relation.Ternary.Separation
 module Relation.Ternary.Separation.Decoration
   {ℓₐ} {A : Set ℓₐ}
   {{raw : RawSep A}}
-  {u : A} {{_ : HasUnit⁺ raw u}}
   where
 
 open import Level
@@ -21,19 +20,28 @@ private
     a₁ a₂ a : A
 
 -- Splittable decorations
-record Decoration {d} (D : Pred A d) : Set (ℓₐ ⊔ d) where
-  field
-    decorˡ  : a₁ ⊎ a₂ ≣ a → D a → D a₁
-    decor-ε : D ε
+module _ {{_ : IsSep raw}} where
+  record Decoration {d} (D : Pred A d) : Set (ℓₐ ⊔ d) where
+    field
+      decorˡ  : a₁ ⊎ a₂ ≣ a → D a → D a₁
 
-  DT : A → Set _
-  DT a = D a → D a
+    DT : A → Set _
+    DT a = D a → D a
 
-  decorʳ  : a₁ ⊎ a₂ ≣ a → D a → D a₂
-  decorʳ σ = decorˡ (⊎-comm σ)
+    decorʳ  : a₁ ⊎ a₂ ≣ a → D a → D a₂
+    decorʳ σ = decorˡ (⊎-comm σ)
+
+  open Decoration {{...}} public
+
+module _ {u : A} {{_ : HasUnit⁺ raw u}} where
+  record UnitDecoration {d} (D : Pred A d) : Set (ℓₐ ⊔ d) where
+    field
+      decor-ε : D ε
+
+  open UnitDecoration {{...}}
 
   {- decorated carriers give rise to a separation algebra -}
-  module _ where
+  module _ {d} {D : Pred A d} {{_ : Decoration D}} {{_ : UnitDecoration D}}where
     Decorated = ∃ D
 
     ann-⊎ : Decorated → Decorated → Decorated → Set (ℓₐ ⊔ d)
@@ -51,6 +59,3 @@ record Decoration {d} (D : Pred A d) : Set (ℓₐ ⊔ d) where
 
       ann-has-unit⁺ : HasUnit⁺ ann-raw (ε , decor-ε)
       HasUnit⁺.⊎-idˡ ann-has-unit⁺ = lift ⊎-idˡ
-
-open Decoration {{...}} public hiding (Decorated; DT)
-open Decoration public using (Decorated; DT)

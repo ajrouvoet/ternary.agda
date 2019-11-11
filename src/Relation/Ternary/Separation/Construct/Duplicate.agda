@@ -19,7 +19,7 @@ instance
 
 -- decorations are trivial
 module _ {p} (P : Pred A p) where
-  open import Relation.Ternary.Separation.Decoration A
+  open import Relation.Ternary.Separation.Decoration
   open Decoration 
 
   dup-decor : Decoration P

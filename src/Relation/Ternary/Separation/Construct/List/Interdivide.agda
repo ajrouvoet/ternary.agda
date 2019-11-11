@@ -97,12 +97,12 @@ module _ where
   ... | _ , σ₁ , σ₂ = -, σ₁ , σ₂
 
 {- Decorations -}
-module Decor {p} {P : A → Set p} (PD : Decoration A P) where
+module Decor {p} {P : A → Set p} (PD : Decoration P) where
 
   open import Data.List.Relation.Unary.All
   open Decoration
 
-  all-decorates : Decoration (List A) (All P)
+  instance all-decorates : Decoration (All P)
   decorˡ all-decorates (divide τ σ) (px ∷ pxs) =
     decorˡ PD τ px ∷ decorˡ all-decorates σ pxs
   decorˡ all-decorates (consˡ σ)    (px ∷ pxs) =
@@ -111,3 +111,6 @@ module Decor {p} {P : A → Set p} (PD : Decoration A P) where
     decorˡ all-decorates σ pxs
   decorˡ all-decorates []           []         =
     []
+
+  instance all-unit-decoration : UnitDecoration (All P)
+  UnitDecoration.decor-ε all-unit-decoration = []
