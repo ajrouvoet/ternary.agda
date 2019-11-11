@@ -1,15 +1,19 @@
+{-# OPTIONS --safe #-}
 open import Relation.Ternary.Separation
 
 module Relation.Ternary.Separation.Decoration
-  {ℓₐ} (A : Set ℓₐ)
+  {ℓₐ} {A : Set ℓₐ}
   {{raw : RawSep A}}
-  {{_   : IsSep raw}}
+  {u : A} {{_ : HasUnit⁺ raw u}}
   where
 
 open import Level
 open import Function
-open import Relation.Unary
 open import Algebra.Core
+
+open import Data.Product
+
+open import Relation.Unary
 open import Relation.Binary.PropositionalEquality
 
 private
@@ -19,8 +23,8 @@ private
 -- Splittable decorations
 record Decoration {d} (D : Pred A d) : Set (ℓₐ ⊔ d) where
   field
-    decorˡ   : a₁ ⊎ a₂ ≣ a → D a → D a₁
-    ⊎-decor  : a₁ ⊎ a₂ ≣ a → D a₁ → D a₂ → D a
+    decorˡ  : a₁ ⊎ a₂ ≣ a → D a → D a₁
+    decor-ε : D ε
 
   DT : A → Set _
   DT a = D a → D a
@@ -28,105 +32,25 @@ record Decoration {d} (D : Pred A d) : Set (ℓₐ ⊔ d) where
   decorʳ  : a₁ ⊎ a₂ ≣ a → D a → D a₂
   decorʳ σ = decorˡ (⊎-comm σ)
 
-  redecʳ : a₁ ⊎ a₂ ≣ a → D a₂ → DT a
-  redecʳ σ a₂ a = ⊎-decor σ (decorˡ σ a) a₂
+  {- decorated carriers give rise to a separation algebra -}
+  module _ where
+    Decorated = ∃ D
 
-  redecˡ : a₁ ⊎ a₂ ≣ a → D a₁ → DT a
-  redecˡ σ a₁ a = ⊎-decor σ a₁ (decorʳ σ a)
+    ann-⊎ : Decorated → Decorated → Decorated → Set (ℓₐ ⊔ d)
+    ann-⊎ (a₁ , _) (a₂ , _) (a , _) = Lift d (a₁ ⊎ a₂ ≣ a)
 
--- Splittable Flow as a pair of input/output decorations
-module Flow
-  {ℓ} (D : Pred A ℓ) (decoration : Decoration D)
-  where
+    instance
+      ann-raw : RawSep Decorated
+      RawSep._⊎_≣_ ann-raw = ann-⊎
 
-  open Decoration decoration
-  open import Data.Product renaming (proj₁ to inp; proj₂ to out)
+      ann-is-sep : IsSep ann-raw
+      IsSep.⊎-comm ann-is-sep (lift σ) = lift (⊎-comm σ)
+      IsSep.⊎-assoc ann-is-sep {abc = abc} (lift σ₁) (lift σ₂) =
+        let a , σ₃ , σ₄ = ⊎-assoc σ₁ σ₂
+        in (a , decorˡ (⊎-comm σ₃) (proj₂ abc)) , lift σ₃ , lift σ₄
 
-  -- A carrier decorated with its flow attributes
-  Flow : A → Set ℓ
-  Flow a = D a × D a
+      ann-has-unit⁺ : HasUnit⁺ ann-raw (ε , decor-ε)
+      HasUnit⁺.⊎-idˡ ann-has-unit⁺ = lift ⊎-idˡ
 
-  -- one can split flow over separations
-  flowₗ : (a₁ ⊎ a₂ ≣ a) → Flow a → Flow a₁
-  flowₗ σ = map (decorˡ σ) (decorˡ σ)
-
-  flowᵣ : (a₁ ⊎ a₂ ≣ a) → Flow a → Flow a₂
-  flowᵣ σ = map (decorʳ σ) (decorʳ σ)
-
-  -- ...and project the input from either side of the split
-  inputₗ : a₁ ⊎ a₂ ≣ a → Flow a → D a₁
-  inputₗ σ = inp ∘ flowₗ σ
-
-  inputᵣ : a₁ ⊎ a₂ ≣ a → Flow a → D a₂
-  inputᵣ σ = inp ∘ flowᵣ σ
-
-  -- ...or the output
-  outputₗ : a₁ ⊎ a₂ ≣ a → Flow a → D a₁
-  outputₗ σ = out ∘ flowₗ σ 
-
-  outputᵣ : a₁ ⊎ a₂ ≣ a → Flow a → D a₂
-  outputᵣ σ = out ∘ flowᵣ σ
-
-  FlowPred : ∀ a ℓ → Set _
-  FlowPred a ℓ = Flow a → Set ℓ
-
-  _via_ : Flow a → DT a → Flow a
-  (i , o) via f = i , f o
-
-  -- Lifting a decoration transformer to a flow predicate:
-  --
-  -- ─∙─ f ─∙─
-  --
-  data Through (f : ∀[ DT ]) : FlowPred a ℓ where
-    through : ∀ {a} {d : D a} → Through f (d , f d)
-
-
-  -- the identity flow predicate
-  --
-  -- ─∙─────∙─
-  --
-  𝑰 = Through id
-
-
-  -- Parallel composition of flow predicates:
-  --
-  --     __ P __
-  --    ╱       ╲
-  --  ─∙─── Q ───∙─
-  --
-  record _∥⟨_⟩_ {p q}
-    (P : FlowPred a₁ p)
-    (σ : a₁ ⊎ a₂ ≣ a)
-    (Q : FlowPred a₂ q)
-    (φ : Flow a)
-    : Set (p ⊔ q ⊔ ℓₐ ⊔ ℓ) where
-    constructor par
-    field
-      px : P (flowₗ σ φ)
-      qx : Q (flowᵣ σ φ)
-
-  -- 
-  --     __ P __
-  --    ╱       ╲
-  --  ─∙─────────∙─
-  --
-  Bridge⟨_⟩ : ∀ {p} (σ : a₁ ⊎ a₂ ≣ a) (P : FlowPred a₁ p) → FlowPred a _
-  Bridge⟨ σ ⟩ P = P ∥⟨ σ ⟩ 𝑰
-
-  -- Sequential composition of flow predicates:
-  -- 
-  --     __ P ____________
-  --    ╱       ╲         ╲
-  --  ─∙─────────∙─── Q ───∙─
-  --
-  record _▹⟨_⟩_ {p q}
-    (P : FlowPred a₁ p)
-    (σ : a₁ ⊎ a₂ ≣ a)
-    (Q : FlowPred a₂ q)
-    (φ : Flow a)
-    : Set (p ⊔ q ⊔ ℓₐ ⊔ ℓ) where
-    constructor seq
-    field
-      {between} : _
-      px  : Bridge⟨ σ        ⟩ P (inp φ , between)
-      qx  : Bridge⟨ ⊎-comm σ ⟩ Q (between , out φ)
+open Decoration {{...}} public hiding (Decorated; DT)
+open Decoration public using (Decorated; DT)

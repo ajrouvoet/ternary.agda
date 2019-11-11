@@ -14,6 +14,7 @@ open import Data.List.Properties using (++-isMonoid)
 open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Inductive
 open import Algebra.Structures using (IsMonoid)
+open import Relation.Ternary.Separation.Decoration
 
 open import Relation.Binary.PropositionalEquality as P hiding ([_])
 open import Relation.Unary hiding (_∈_; _⊢_)
@@ -94,3 +95,19 @@ module _ where
               ∃ λ zs₁ → xs ⊎ [ y ] ≣ zs₁ × zs₁ ⊎ ys ≣ zs
   unspliceᵣ σ with ⊎-unassoc σ (⊎-∙ {Φₗ = [ _ ]})
   ... | _ , σ₁ , σ₂ = -, σ₁ , σ₂
+
+{- Decorations -}
+module Decor {p} {P : A → Set p} (PD : Decoration A P) where
+
+  open import Data.List.Relation.Unary.All
+  open Decoration
+
+  all-decorates : Decoration (List A) (All P)
+  decorˡ all-decorates (divide τ σ) (px ∷ pxs) =
+    decorˡ PD τ px ∷ decorˡ all-decorates σ pxs
+  decorˡ all-decorates (consˡ σ)    (px ∷ pxs) =
+    px ∷ decorˡ all-decorates σ pxs
+  decorˡ all-decorates (consʳ σ)    (px ∷ pxs) =
+    decorˡ all-decorates σ pxs
+  decorˡ all-decorates []           []         =
+    []
