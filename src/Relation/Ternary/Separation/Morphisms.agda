@@ -1,7 +1,6 @@
 module Relation.Ternary.Separation.Morphisms where
 
 open import Level
-open import Function
 open import Relation.Unary
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Separation
@@ -9,7 +8,7 @@ open import Data.Product
 open import Function using (_∘_)
 
 record Morphism {a b} (A : Set a) (B : Set b)
-  {{r : RawSep A}} {u} {{s₁ : IsUnitalSep r u}}
+  {{r : RawSep A}} {u} {{s₁ : HasUnit _≡_ r u}}
   {{rb : RawSep B}} : Set (a ⊔ suc b) where
 
   field
@@ -39,16 +38,18 @@ record Morphism {a b} (A : Set a) (B : Set b)
     jstar (inj (p ×⟨ σ ⟩ q)) = inj p ×⟨ j-⊎ σ ⟩ inj q
 
     jmap : ∀ {p q} {P : Pred A p} {Q : Pred A q} → ∀[ (P ─✴ Q) ⇒ⱼ (J P ─✴ J Q) ]
-    app (jmap f) (inj px) σ with j-⊎⁻ σ
-    ... | _ , refl , σ' = inj (app f px σ')
+    jmap f ⟨ σ ⟩ (inj px) with j-⊎⁻ σ
+    ... | _ , refl , σ' = inj (f ⟨ σ' ⟩ px)
 
   wanditⱼ : ∀ {p q} {P : Pred A p} {Q : Pred B q} → ∀[ P ⇒ⱼ Q ] → (P ─✴ⱼ Q) (j u)
-  app (wanditⱼ f) px σ with j-⊎⁻ σ
+  wanditⱼ f ⟨ σ ⟩ px with j-⊎⁻ σ
   ... | _ , refl , σ' with ⊎-id⁻ˡ σ'
   ... | refl = f px
 
 {- identity morphism -}
-module _ {a} {A : Set a} {{r : RawSep A}} {u} {{s₁ : IsUnitalSep r u}} where
+module _ {a} {A : Set a} {{r : RawSep A}} {u} {{s₁ : HasUnit _≡_ r u}} where
+
+  open import Function
 
   instance id-morph : Morphism A A
   id-morph = record 
