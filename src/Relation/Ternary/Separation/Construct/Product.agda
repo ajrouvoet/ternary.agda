@@ -43,35 +43,29 @@ module _
         in -, (l₃ , r₃) , l₄ , r₄ }
 
 module _
-  {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
+  {ℓ₁ ℓ₂ e₁ e₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
   {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}} {u₁ u₂}
-  ⦃ s₁ : HasUnit⁺ R₁ u₁ ⦄ ⦃ s₂ : HasUnit⁺ R₂ u₂ ⦄
+  {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂}
+  ⦃ s₁ : HasUnit _≈₁_ R₁ u₁ ⦄ ⦃ s₂ : HasUnit _≈₂_ R₂ u₂ ⦄
   where
 
-  instance ×-hasUnit⁺ : HasUnit⁺ _ (u₁ , u₂) 
-  ×-hasUnit⁺ = record { ⊎-idˡ = ⊎-idˡ , ⊎-idˡ }
-
+  instance ×-hasUnit : HasUnit (Pointwise _≈₁_ _≈₂_) ×-rawsep (u₁ , u₂) 
+  HasUnit.⊎-idˡ ×-hasUnit = ⊎-idˡ , ⊎-idˡ
+  HasUnit.ε-unique ×-hasUnit (fst , snd) with ε-unique fst | ε-unique snd
+  ... | refl | refl = refl
+  HasUnit.⊎-id⁻ˡ ×-hasUnit (fst , snd) = (⊎-id⁻ˡ fst) , (⊎-id⁻ˡ snd)
 
 module _
   {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
   {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}} {u₁ u₂}
-  ⦃ s₁ : HasUnit⁻ R₁ u₁ ⦄ ⦃ s₂ : HasUnit⁻ R₂ u₂ ⦄
+  ⦃ s₁ : HasUnit _≡_ R₁ u₁ ⦄ ⦃ s₂ : HasUnit _≡_ R₂ u₂ ⦄
   where
 
-  instance ×-hasUnit⁻ : HasUnit⁻ _ (u₁ , u₂) 
-  ×-hasUnit⁻ = record
-    { ⊎-id⁻ˡ = λ where
-      (fst , snd) → cong₂ _,_ (⊎-id⁻ˡ fst) (⊎-id⁻ˡ snd)
-    }
-
-module _
-  {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
-  {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}} {u₁ u₂}
-  ⦃ s₁ : IsUnitalSep R₁ u₁ ⦄ ⦃ s₂ : IsUnitalSep R₂ u₂ ⦄
-  where
-
-  instance ×-isUnitalSep : IsUnitalSep ×-rawsep (u₁ , u₂)
-  ×-isUnitalSep = unital
+  instance ×-hasUnit-≡ : HasUnit _≡_ ×-rawsep (u₁ , u₂) 
+  HasUnit.⊎-idˡ ×-hasUnit-≡ = ⊎-idˡ , ⊎-idˡ
+  HasUnit.ε-unique ×-hasUnit-≡ refl = refl
+  HasUnit.⊎-id⁻ˡ ×-hasUnit-≡ (fst , snd) with ⊎-id⁻ˡ fst | ⊎-id⁻ˡ snd
+  ... | refl | refl = refl
 
 module _
   {ℓ₁ ℓ₂}
@@ -90,7 +84,8 @@ module _
     ; ⊎-∙ₗ = λ where (p , q) → ⊎-∙ₗ p , ⊎-∙ₗ q }
 
 {- Some useful type-formers for this instance -}
-module _ {a b} {B : Set b} {A : Set a} {{ r : RawSep A }} {u} {{s : HasUnit⁺ r u}} where
+module _ {a b e} {B : Set b} {A : Set a} {{ r : RawSep A }} {u} {eq : A → A → Set e}
+  {{s : HasUnit eq r u}} where
 
   data Π₁ {p} (P : Pred B p) : Pred (B × A) (a ⊔ b ⊔ p) where
     fst : ∀ {b : B} → P b → Π₁ P (b , ε)
