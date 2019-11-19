@@ -14,7 +14,6 @@ open import Data.List.Properties using (++-isMonoid)
 open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Inductive
 open import Algebra.Structures using (IsMonoid)
-open import Relation.Ternary.Separation.Decoration
 
 open import Relation.Binary.PropositionalEquality as P hiding ([_])
 open import Relation.Unary hiding (_∈_; _⊢_)
@@ -67,16 +66,14 @@ module _ where
     ... | _ , σ₃ , σ₄ | _ , τ₃ , τ₄ = -, divide τ₃ σ₃ , divide τ₄ σ₄
 
 
-    split-has-unit⁺ : HasUnit⁺ splits []
-    HasUnit⁺.⊎-idˡ split-has-unit⁺ {[]} = []
-    HasUnit⁺.⊎-idˡ split-has-unit⁺ {x ∷ Φ} = consʳ ⊎-idˡ
+    split-has-unit : HasUnit _≡_ splits []
+    HasUnit.⊎-idˡ split-has-unit {[]} = []
+    HasUnit.⊎-idˡ split-has-unit {x ∷ Φ} = consʳ ⊎-idˡ
 
-    split-has-unit⁻ : HasUnit⁻ splits []
-    HasUnit⁻.⊎-id⁻ˡ split-has-unit⁻ (consʳ σ) rewrite ⊎-id⁻ˡ σ = refl
-    HasUnit⁻.⊎-id⁻ˡ split-has-unit⁻ [] = refl
+    HasUnit.ε-unique split-has-unit refl = refl
 
-    split-is-unital : IsUnitalSep splits []
-    split-is-unital = record {}
+    HasUnit.⊎-id⁻ˡ split-has-unit (consʳ σ) = cong (_ ∷_) (⊎-id⁻ˡ σ)
+    HasUnit.⊎-id⁻ˡ split-has-unit []        = refl
 
     split-has-concat : HasConcat splits
     HasConcat._∙_ split-has-concat = _++_
@@ -101,6 +98,7 @@ module _ where
 
 -- {- Decorations -}
 -- module Decor {p} {P : A → Set p} (PD : Decoration P) where
+-- open import Relation.Ternary.Separation.Decoration
 
 --   open Decoration
 

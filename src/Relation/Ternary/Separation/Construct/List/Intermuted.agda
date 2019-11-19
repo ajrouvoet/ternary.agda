@@ -94,20 +94,6 @@ module _ where
   ... | _ , h₁ , h₂ , σ₂ with ⊎-↭ σ₂ ρ₂
   ... | _ , h₃ , h₄ , σ₃ = _ , trans h₃ h₁ , trans h₄ h₂ , σ₃
 
--- {- The identity laws for hustle, with respect to permutations -}
-module _ where
-  hustle-ε⁻ˡ : ∀ {xs ys} → Hustle ε xs ys → ys ↭ xs
-  hustle-ε⁻ˡ (hustle h₁ h₂ σ) with ↭-[] (↭-sym h₁)
-  ... | refl with ⊎-id⁻ˡ σ
-  ... | refl = ↭-sym h₂
-
-  hustle-ε⁻ʳ : ∀ {xs ys} → Hustle xs ε ys → ys ↭ xs
-  hustle-ε⁻ʳ σ = hustle-ε⁻ˡ (comm σ)
-
-  hustle-ε : ∀ {a b} → Hustle a b [] → a ≡ [] × b ≡ []
-  hustle-ε (hustle h₁ h₂ σ) with ⊎-ε σ
-  ... | refl , refl = ↭-[] h₁ , ↭-[] h₂
-
 {- Hustle is a separation logic -}
 instance
   hustle-sep : RawSep Carrier
@@ -119,13 +105,21 @@ instance
   ... | _ , h₃ , h₄ , σ₃ with ⊎-assoc σ₃ σ₂
   ... | _ , σ₄ , σ₅ = -, hustle (trans h₁₁ (↭-sym h₃)) refl σ₄ , hustle (trans h₁₂ (↭-sym h₄)) h₂₂ σ₅
 
-  hustle-has-unit⁺ : HasUnit⁺ hustle-sep []
-  hustle-has-unit⁺ = record { ⊎-idˡ = hustle refl refl ⊎-idˡ }
+  hustle-has-unit : HasUnit _↭_ hustle-sep []
+  HasUnit.⊎-idˡ hustle-has-unit = hustle refl refl ⊎-idˡ
+  HasUnit.ε-unique hustle-has-unit x = ↭-[] (↭-sym x)
+  HasUnit.⊎-id⁻ˡ hustle-has-unit (hustle h₁ h₂ σ₁) with ↭-[] (↭-sym h₁)
+  ... | refl with ⊎-id⁻ˡ σ₁
+  ... | refl = h₂
 
   hustle-has-concat : HasConcat hustle-sep
   hustle-has-concat = record
     { _∙_  = _++_
     ; ⊎-∙ₗ = λ where (hustle h₁ h₂ σ) → hustle (++⁺ˡ _ h₁) (++⁺ˡ _ h₂) (⊎-∙ₗ σ) }
+
+  hustle-positive : IsPositive hustle-sep []
+  IsPositive.⊎-εˡ hustle-positive (hustle h₁ h₂ σ) with ⊎-ε σ
+  ... | refl , refl = ↭-[] h₁
 
   postulate hustle-has-cross⁺ : HasCrossSplit⁺ hustle-sep
   -- Cr⁺.cross hustle-has-cross⁺ (hustle σ₁ h₁) (hustle σ₂ h₂) with ⊎-↭ σ₁ (trans h₁ (↭-sym h₂))
