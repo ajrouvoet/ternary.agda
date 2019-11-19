@@ -243,6 +243,9 @@ record HasUnit⁺ {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
   module _ where
     ✴-idʳ : ∀ {p} {P : SPred p} → ∀[ P ⇒ P ✴ Emp ]
     ✴-idʳ px = px ×⟨ ⊎-idʳ ⟩ empty
+
+    ✴-idˡ : ∀ {p} {P : SPred p} → ∀[ P ⇒ Emp ✴ P ]
+    ✴-idˡ = ✴-swap ∘ ✴-idʳ
     
     _⟨✴⟩_ : ∀ {p q} {P : SPred p} {Q : SPred q} → ε[ P ─✴ Q ] → ∀[ P ⇒ Q ]
     w ⟨✴⟩ p = app w p ⊎-idˡ
@@ -323,6 +326,12 @@ record HasUnit⁻ {c} {C : Set c} (sep : RawSep C) unit : Set (suc c) where
   -- a resource-polymorphic function is a pure wand
   wandit : ∀ {p q} {P : SPred p} {Q : SPred q} → ∀[ P ⇒ Q ] → ε[ P ─✴ Q ]
   app (wandit f) p σ rewrite ⊎-id⁻ˡ σ = f p
+
+  ✴-id⁻ʳ : ∀ {p} {P : SPred p} → ∀[ P ✴ Emp ⇒ P ]
+  ✴-id⁻ʳ (px ×⟨ σ ⟩ empty) rewrite ⊎-id⁻ʳ σ = px
+
+  ✴-id⁻ˡ : ∀ {p} {P : SPred p} → ∀[ Emp ✴ P ⇒ P ]
+  ✴-id⁻ˡ = ✴-id⁻ʳ ∘ ✴-swap
 
 open HasUnit⁻ {{...}} public
 
