@@ -1,21 +1,19 @@
-open import Relation.Binary.Bundles
+open import Relation.Binary.Structures
 
-module Relation.Ternary.Separation.Monad {a e₁} (Aₛ : Setoid a e₁) where
+module Relation.Ternary.Separation.Monad {a e}
+  {A : Set a} (_≈_ : A → A → Set e) {{_ : IsEquivalence _≈_}} where
 
 open import Level
 open import Data.Product
 open import Function using (_∘_; case_of_)
 open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
-open import Relation.Binary.Structures
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Separation.Core
 open import Relation.Ternary.Separation.Morphisms
 
-open Setoid Aₛ renaming (Carrier to A; _≈_ to _≈₁_)
-
 {- strong indexed monads on predicates over PRSAs -}
-module _ {{ra : RawSep A}} {u} {{as : HasUnit _≈₁_ ra u}} where
+module _ {{ra : RawSep A}} {u} {{as : HasUnit _≈_ ra u}} where
 
   RawMonad : ∀ {i} (I : Set i) → (ℓ : Level) → Set _
   RawMonad I ℓ = (i j : I) → Pt A ℓ
@@ -25,7 +23,7 @@ module _ {{ra : RawSep A}} {u} {{as : HasUnit _≈₁_ ra u}} where
       return : ∀ {P i₁}         → ∀[ P ⇒ M i₁ i₁ P ]
       bind   : ∀ {P i₁ i₂ i₃ Q} → ∀[ (P ─✴ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─✴ M i₁ i₃ Q) ]
 
-    module _ {P Q} {{ _ : ∀ {i₁ i₂} → Respect _≈₁_ (M i₁ i₂ Q) }} where
+    module _ {P Q} {{ _ : ∀ {i₁ i₂} → Respect _≈_ (M i₁ i₂ Q) }} where
       _=<<_ : ∀ {i₁ i₂ i₃} → ∀[ P ⇒ M i₂ i₃ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₃ Q ]
       f =<< mp =
         bind

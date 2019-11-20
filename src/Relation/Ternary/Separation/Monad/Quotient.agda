@@ -31,7 +31,7 @@ module _ {e} {_≈_ : A → A → Set e} {{r : RawSep A}} where
   P ~✴ Q = P ─✴ (Q / _≈_)
 
 module _ {e} {_≈_ : A → A → Set e} {{r : RawSep A}} {u} {{_ : HasUnit _≈_ r u }} where
-  open import Relation.Ternary.Separation.Monad (record { isEquivalence = ≈-equivalence })
+  open import Relation.Ternary.Separation.Monad _≈_
   open import Data.Unit
 
   instance /-monad : ∀ {p} → Monad ⊤ (e ⊔ p ⊔ a) (λ _ _ P → P / _≈_)

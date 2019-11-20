@@ -6,7 +6,7 @@
 -- At every node in the splitting tree, two accounts can "exchange" some amount,
 -- meaning that the demand on the left can be fulfilled by some supply on the right and vice versa.
 
-module Relation.Ternary.Separation.Construct.Exchange {ℓ e} {A : Set ℓ} (_≈_ : A → A → Set e) where
+module Relation.Ternary.Separation.Construct.Exchange {ℓ e} {A : Set ℓ} (_≈ₐ_ : A → A → Set e) where
 
 open import Level hiding (Lift)
 open import Data.Product
@@ -34,22 +34,22 @@ module _ where
   open Account public
 
   open import Data.Product.Relation.Binary.Pointwise.NonDependent
-  _≈ac_ : Account → Account → Set _
-  a ≈ac b = Pointwise _≈_ _≈_ (pair a) (pair b)
+  _≈_ : Account → Account → Set _
+  a ≈ b = Pointwise _≈ₐ_ _≈ₐ_ (pair a) (pair b)
 
-module _ {uₐ} {{sep : RawSep A }} {{_ : HasUnit _≈_ sep uₐ}} where
+module _ {uₐ} {{sep : RawSep A }} {{_ : HasUnit _≈ₐ_ sep uₐ}} where
 
   data ○ (P : Pred A ℓ) : Pred Account ℓ where
     consumer : ∀ {x} → P x → ○ P (uₐ ↕ x)
 
 module _
   {{ sep : RawSep A }}
-  {{_ : HasCrossSplit⁺ _≈_ sep}}
-  {{_ : HasCrossSplit⁻ _≈_ sep}} where
+  {{_ : HasCrossSplit⁺ _≈ₐ_ sep}}
+  {{_ : HasCrossSplit⁻ _≈ₐ_ sep}} where
 
   open import Relation.Ternary.Separation.Construct.Product
 
-  instance account-equiv : IsEquivalence _≈ac_
+  instance account-equiv : IsEquivalence _≈_
   IsEquivalence.refl account-equiv  = refl , refl
   IsEquivalence.sym account-equiv   = map sym sym
   IsEquivalence.trans account-equiv (e₁ , e₂) (e₃ , e₄) = trans e₁ e₃ , trans e₂ e₄
@@ -77,7 +77,7 @@ module _
   instance exchange-raw : RawSep Account
   exchange-raw = record { _⊎_≣_ = Split }
 
-  instance exchange-is-sep : IsSep _≈ac_ exchange-raw
+  instance exchange-is-sep : IsSep _≈_ exchange-raw
 
   IsSep.⊎-respects-≈ˡ exchange-is-sep (eq₁ , eq₂) (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) σ)
     = ex (⊎-respects-≈ eq₁ x₁₁ , x₁₂) (x₂₁ , ⊎-respects-≈ eq₂ x₂₂) σ 
@@ -107,15 +107,15 @@ module _
 
 module _
   {{ sep : RawSep A }} {eps}
-  {{ cs⁻ : HasCrossSplit⁻ _≈_ sep }}
-  {{ cs⁺ : HasCrossSplit⁺ _≈_ sep }}
-  {{ _  : IsPositive _≈_ sep eps }}
-  {{ un  : HasUnit _≈_ sep eps }}
+  {{ cs⁻ : HasCrossSplit⁻ _≈ₐ_ sep }}
+  {{ cs⁺ : HasCrossSplit⁺ _≈ₐ_ sep }}
+  {{ _  : IsPositive _≈ₐ_ sep eps }}
+  {{ un  : HasUnit _≈ₐ_ sep eps }}
   where
 
   open import Relation.Ternary.Separation.Construct.Product
 
-  instance exchange-has-unit : HasUnit _≈ac_ exchange-raw (eps ↕ eps)
+  instance exchange-has-unit : HasUnit _≈_ exchange-raw (eps ↕ eps)
   HasUnit.ε-unique exchange-has-unit ρ with ε-unique (proj₁ ρ) | ε-unique (proj₂ ρ)
   ... | PEq.refl | PEq.refl = PEq.refl
 
