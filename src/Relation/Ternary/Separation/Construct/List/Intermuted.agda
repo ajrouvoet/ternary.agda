@@ -2,9 +2,10 @@
 open import Relation.Ternary.Separation
 
 module Relation.Ternary.Separation.Construct.List.Intermuted
-  {a} (A : Set a)
+  {a e} (A : Set a)
   (division : RawSep A)
-  {{_ : IsSep division}}
+  {_≈_ : A → A → Set e}
+  {{_ : IsSep _≈_ division}}
   where
 
 open import Level
@@ -37,7 +38,7 @@ private
   variable
     xsˡ xsʳ xs ys ysˡ ysʳ zs xxs yys : Carrier
 
-open import Relation.Ternary.Separation.Construct.List.Interdivide A division
+open import Relation.Ternary.Separation.Construct.List.Interdivide A division {_≈_}
 module Cr⁺ = HasCrossSplit⁺
 module Cr⁻ = HasCrossSplit⁻
 
@@ -99,35 +100,38 @@ instance
   hustle-sep : RawSep Carrier
   hustle-sep = record { _⊎_≣_ = Hustle }
 
-  hustle-is-sep : IsSep hustle-sep
+  hustle-is-sep : IsSep _↭_ hustle-sep
+  IsSep.≈-equivalence hustle-is-sep = ↭-isEquivalence
+  IsSep.⊎-respects-≈ˡ hustle-is-sep eq (hustle x₁ x₂ σ) = hustle (trans (↭-sym eq) x₁) x₂ σ
+  IsSep.⊎-respects-≈ hustle-is-sep eq (hustle x₁ x₂ σ) with ⊎-↭ σ eq
+  ... | _ , h₁ , h₂ , σ' = hustle (trans x₁ (↭-sym h₁)) (trans x₂ (↭-sym h₂)) σ'
   IsSep.⊎-comm  hustle-is-sep = comm
   IsSep.⊎-assoc hustle-is-sep (hustle h₁₁ h₁₂ σ₁) (hustle h₂₁ h₂₂ σ₂) with ⊎-↭ σ₁ h₂₁
   ... | _ , h₃ , h₄ , σ₃ with ⊎-assoc σ₃ σ₂
   ... | _ , σ₄ , σ₅ = -, hustle (trans h₁₁ (↭-sym h₃)) refl σ₄ , hustle (trans h₁₂ (↭-sym h₄)) h₂₂ σ₅
 
   hustle-has-unit : HasUnit _↭_ hustle-sep []
-  HasUnit.isEquivalence hustle-has-unit = ↭-isEquivalence
   HasUnit.⊎-idˡ hustle-has-unit = hustle refl refl ⊎-idˡ
   HasUnit.ε-unique hustle-has-unit x = ↭-[] (↭-sym x)
   HasUnit.⊎-id⁻ˡ hustle-has-unit (hustle h₁ h₂ σ₁) with ↭-[] (↭-sym h₁)
   ... | refl with ⊎-id⁻ˡ σ₁
   ... | refl = h₂
 
-  hustle-has-concat : HasConcat hustle-sep
+  hustle-has-concat : HasConcat _↭_ hustle-sep
   hustle-has-concat = record
     { _∙_  = _++_
     ; ⊎-∙ₗ = λ where (hustle h₁ h₂ σ) → hustle (++⁺ˡ _ h₁) (++⁺ˡ _ h₂) (⊎-∙ₗ σ) }
 
-  hustle-positive : IsPositive hustle-sep []
+  hustle-positive : IsPositive _↭_ hustle-sep []
   IsPositive.⊎-εˡ hustle-positive (hustle h₁ h₂ σ) with ⊎-ε σ
   ... | refl , refl = ↭-[] h₁
 
-  postulate hustle-has-cross⁺ : HasCrossSplit⁺ hustle-sep
+  postulate hustle-has-cross⁺ : HasCrossSplit⁺ _↭_ hustle-sep
   -- Cr⁺.cross hustle-has-cross⁺ (hustle σ₁ h₁) (hustle σ₂ h₂) with ⊎-↭ σ₁ (trans h₁ (↭-sym h₂))
   -- ... | _ , h₃ , h₄ , σ₃ with ⊎-cross σ₃ σ₂
   -- ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, hustle τ₁ h₃ , hustle τ₂ h₄ , hustle τ₃ refl , hustle τ₄ refl
 
-  postulate hustle-has-cross⁻ : HasCrossSplit⁻ hustle-sep
+  postulate hustle-has-cross⁻ : HasCrossSplit⁻ _↭_ hustle-sep
   -- Cr⁻.uncross hustle-has-cross⁻ {a} {b} {c} {d} {ac} {ad} {bc} {bd} σ₁ σ₂ σ₃ σ₄ =
   --   -, hustle ⊎-∙ refl
   --    , hustle ⊎-∙ (

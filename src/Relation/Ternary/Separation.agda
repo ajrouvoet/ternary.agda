@@ -12,4 +12,4 @@ module _ where
   open import Data.List
 
   Just : ∀ {a} {A : Set a} → A → Pred (List A) _
-  Just t = Exactly [ t ]
+  Just {A = A} t = Exactly [ t ]

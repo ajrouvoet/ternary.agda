@@ -28,27 +28,14 @@ module _ where
   Exactly x y = y ≡ x
 
 module _ {a} {A : Set a} where
-  module _ {e p} (_≈_ : A → A → Set e) (P : Pred A p) where
-    record Respect : Set (a ⊔ e ⊔ p) where
-      field
-        coe : P Respects _≈_
+  record Respect {e p} (_≈_ : A → A → Set e) (P : Pred A p) : Set (a ⊔ e ⊔ p) where
+    field
+      coe : P Respects _≈_
 
   open Respect {{...}} public
 
   instance respect-≡ : ∀ {p} {P : Pred A p} → Respect _≡_ P
   Respect.coe respect-≡ P.refl = id
-
-  record _/_ {e p} (P : Pred A p) (_≈_ : A → A → Set e) (aₒ : A) : Set (e ⊔ p ⊔ a) where
-    constructor mod
-    field
-      {aᵢ} : A
-      eq : aᵢ ≈ aₒ
-      px : P aᵢ
-
-  instance /≈-respect-≈ : ∀ {e p} {P : Pred A p} {_≈_ : A → A → Set e} {{_ : IsEquivalence _≈_}}
-                          → Respect _≈_ (P / _≈_) 
-  Respect.coe /≈-respect-≈ eq₁ (mod eq₂ px) = mod (trans eq₂ eq₁) px
-    where open IsEquivalence {{...}}
 
 record RawSep {a} (A : Set a) : Set (suc a) where
 
@@ -105,23 +92,31 @@ record RawSep {a} (A : Set a) : Set (suc a) where
   _─✴_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
   _─✴_ = _─✴[ id ]_
 
-record IsSep {a} {A : Set a} (s : RawSep A) : Set a where
+record IsSep {a e} {A : Set a} (Eq : A → A → Set e) (s : RawSep A) : Set (a ⊔ e) where
   open RawSep s
 
   field
+    overlap {{ ≈-equivalence }} : IsEquivalence Eq
+    ⊎-respects-≈  : ∀ {Φ₁ Φ₂ Φ Φ′} → Eq Φ Φ′ → Φ₁ ⊎ Φ₂ ≣ Φ → Φ₁ ⊎ Φ₂ ≣ Φ′
+    ⊎-respects-≈ˡ : ∀ {Φ₁ Φ₂ Φ₁′}  → Eq Φ₁ Φ₁′ → ∀[ Φ₁ ⊎ Φ₂ ⇒ Φ₁′ ⊎ Φ₂ ]
+
     ⊎-comm   : ∀ {Φ₁ Φ₂} → ∀[ Φ₁ ⊎ Φ₂ ⇒ Φ₂ ⊎ Φ₁ ]
     ⊎-assoc  : ∀ {a b ab c abc}
                → a ⊎ b ≣ ab → ab ⊎ c ≣ abc
                → ∃ λ bc → a ⊎ bc ≣ abc × b ⊎ c ≣ bc
 
-  ⊎-unassoc : ∀ {b c bc a abc}
-              → a ⊎ bc ≣ abc → b ⊎ c ≣ bc
-              → ∃ λ ab → a ⊎ b ≣ ab × ab ⊎ c ≣ abc
-  ⊎-unassoc σ₁ σ₂ =
-    let _ , σ₃ , σ₄ = ⊎-assoc (⊎-comm σ₂) (⊎-comm σ₁)
-    in -, ⊎-comm σ₄ , ⊎-comm σ₃
+  module _ where
+    ⊎-respects-≈ʳ : ∀ {Φ₁ Φ₂ Φ₂′} → Eq Φ₂ Φ₂′ → ∀[ Φ₁ ⊎ Φ₂ ⇒ Φ₁ ⊎ Φ₂′ ]
+    ⊎-respects-≈ʳ eq = ⊎-comm ∘ ⊎-respects-≈ˡ eq ∘ ⊎-comm
 
   module _ where
+    ⊎-unassoc : ∀ {b c bc a abc}
+                → a ⊎ bc ≣ abc → b ⊎ c ≣ bc
+                → ∃ λ ab → a ⊎ b ≣ ab × ab ⊎ c ≣ abc
+    ⊎-unassoc σ₁ σ₂ =
+      let _ , σ₃ , σ₄ = ⊎-assoc (⊎-comm σ₂) (⊎-comm σ₁)
+      in -, ⊎-comm σ₄ , ⊎-comm σ₃
+
     resplit : ∀ {a b c d ab cd abcd} →
               a ⊎ b ≣ ab → c ⊎ d ≣ cd → ab ⊎ cd ≣ abcd →
               ∃₂ λ ac bd → a ⊎ c ≣ ac × b ⊎ d ≣ bd × ac  ⊎ bd  ≣ abcd
@@ -204,8 +199,7 @@ open IsSep {{...}} public
 
 record HasUnit {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) (unit : A) : Set (a ⊔ e) where
   field
-    overlap {{ isEquivalence }} : IsEquivalence Eq
-    overlap {{ isSep }}         : IsSep sep
+    overlap {{ isSep }}         : IsSep Eq sep
 
   open RawSep sep
 
@@ -234,10 +228,10 @@ record HasUnit {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) (unit
 
   {- Emptyness -}
   module _ where
-  
+
     data Empty {p} (P : Set p) : Pred A (a ⊔ p) where
       emp : P → Empty P ε
-      
+
     -- backwards compatibility
     pattern empty = P.refl
 
@@ -247,11 +241,12 @@ record HasUnit {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) (unit
 
     ✴-id⁻ˡ : ∀[ Emp ✴ P ⇒ P ]
     ✴-id⁻ˡ = ✴-id⁻ʳ ∘ ✴-swap
-    
-    ✴-idʳ : ∀ {p} {P : Pred A p} → ∀[ P ⇒ P ✴ Emp ]
+
+  module _ {p} {P : Pred A p} where
+    ✴-idʳ : ∀[ P ⇒ P ✴ Emp ]
     ✴-idʳ px = px ×⟨ ⊎-idʳ ⟩ empty
 
-    ✴-idˡ : ∀ {p} {P : Pred A p} → ∀[ P ⇒ Emp ✴ P ]
+    ✴-idˡ : ∀[ P ⇒ Emp ✴ P ]
     ✴-idˡ = ✴-swap ∘ ✴-idʳ
 
   {- A free preorder -}
@@ -274,52 +269,52 @@ record HasUnit {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) (unit
 
 open HasUnit {{...}} public
 
-module _ {a} {A : Set a} {r : RawSep A} {unit} {{_ : HasUnit _≡_ r unit}} where
-  open RawSep r
+-- module _ {r : RawSep A} {unit} {{_ : HasUnit r unit}} where
+--   open RawSep r
 
-  -- a resource-polymorphic function is a pure wand
-  wandit : ∀ {p q} {P : Pred A p} {Q : Pred A q} → ∀[ P ⇒ Q ] → ε[ P ─✴ Q ]
-  wandit f ⟨ σ ⟩ p rewrite ⊎-id⁻ˡ σ = f p
+--   -- a resource-polymorphic function is a pure wand
+--   -- wandit : ∀ {p q} {P : Pred A p} {Q : Pred A q} → ∀[ P ⇒ Q ] → ε[ P ─✴ Q ]
+--   -- wandit f ⟨ σ ⟩ p rewrite ⊎-id⁻ˡ σ = f p
 
-record HasConcat {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
+record HasConcat {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) : Set (suc a ⊔ e) where
   open RawSep sep
 
   field
-    overlap {{ isSep }}  : IsSep sep
+    overlap {{ isSep }}  : IsSep Eq sep
 
-    _∙_ : C → C → C 
+    _∙_ : A → A → A 
     ⊎-∙ₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ⊎ Φ₂ ≣ Φ → (Φₑ ∙ Φ₁) ⊎ Φ₂ ≣ (Φₑ ∙ Φ)
-    
+
   ⊎-∙ᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ⊎ Φ₂ ≣ Φ → Φ₁ ⊎ (Φₑ ∙ Φ₂) ≣ (Φₑ ∙ Φ)
   ⊎-∙ᵣ s = ⊎-comm (⊎-∙ₗ (⊎-comm s))
 
 open HasConcat {{...}} public
 
-record IsPositive {c} {C : Set c} (sep : RawSep C) ε : Set (suc c) where
+record IsPositive {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) ε : Set (suc a ⊔ e) where
   open RawSep sep
 
   field
-    overlap {{ isSep }}       : IsSep sep
+    overlap {{ isSep }} : IsSep Eq sep
 
   field
     ⊎-εˡ : ∀ {Φ₁ Φ₂} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε
-  
-  ⊎-ε : ∀ {Φ₁ Φ₂ e} {_≈_ : C → C → Set e} {{_ : HasUnit _≈_ sep ε}} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε × Φ₂ ≡ ε
+
+  ⊎-ε : ∀ {Φ₁ Φ₂} {{_ : HasUnit Eq sep ε}} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε × Φ₂ ≡ ε
   ⊎-ε σ with ⊎-εˡ σ
   ... | P.refl = P.refl , ε-unique (sym $ ⊎-id⁻ˡ σ)
     where open IsEquivalence {{...}}
 
 open IsPositive ⦃...⦄ public
 
-record HasCrossSplit⁺ {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
+record HasCrossSplit⁺ {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) : Set (suc a ⊔ e) where
   open RawSep sep
 
   field
-    overlap {{ isSep }} : IsSep sep
+    overlap {{ isSep }} : IsSep Eq sep
     cross : ∀ {a b c d z}
       → a ⊎ b ≣ z
       → c ⊎ d ≣ z
-      → Σ[ frags ∈ (C × C × C × C) ]
+      → Σ[ frags ∈ (A × A × A × A) ]
         let ac , ad , bc , bd = frags
         in ac ⊎ ad ≣ a
          × bc ⊎ bd ≣ b
@@ -328,16 +323,16 @@ record HasCrossSplit⁺ {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
 
 open HasCrossSplit⁺ ⦃...⦄ public
 
-record HasCrossSplit⁻ {c} {C : Set c} (sep : RawSep C) : Set (suc c) where
+record HasCrossSplit⁻ {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) : Set (suc a ⊔ e) where
   open RawSep sep
   field
-    overlap {{ isSep }} : IsSep sep
+    overlap {{ isSep }} : IsSep Eq sep
     uncross : ∀ {a b c d ac ad bc bd}
       → ac ⊎ ad ≣ a
       → bc ⊎ bd ≣ b
       → ac ⊎ bc ≣ c
       → ad ⊎ bd ≣ d
-      → Σ[ z ∈ C ]
+      → Σ[ z ∈ A ]
           a ⊎ b ≣ z
         × c ⊎ d ≣ z
 
@@ -345,20 +340,17 @@ open HasCrossSplit⁻ {{...}} public
 
 open RawSep {{...}} public
 
-record MonoidalSep {c} (C : Set c) : Set (suc c) where
-  instance constructor monoidal
-  field
-    {unit}        : C
-    {{sep}}       : RawSep C
-    {{isUnital}}  : HasUnit _≡_ sep unit
-    {{hasConcat}} : HasConcat sep
-    {{monoid}}    : IsMonoid {A = C} _≡_ (HasConcat._∙_  hasConcat) unit
+-- record MonoidalSep : Set (suc a ⊔ e) where
+--   instance constructor monoidal
+--   field
+--     {unit}        : A
+--     {{sep}}       : RawSep
+--     {{isUnital}}  : HasUnit sep unit
+--     {{hasConcat}} : HasConcat sep
+--     {{monoid}}    : IsMonoid Eq (HasConcat._∙_  hasConcat) unit
 
-module _ {c} {C : Set c} {{_ : MonoidalSep C}} where
-  open IsMonoid {{...}}
+-- module _ {{_ : MonoidalSep}} where
+--   open IsMonoid {{...}}
 
-  ⊎-∙ : ∀ {Φₗ Φᵣ : C} → Φₗ ⊎ Φᵣ ≣ (Φₗ ∙ Φᵣ)
-  ⊎-∙ {Φₗ} {Φᵣ} =
-    P.subst (λ φ → φ ⊎ Φᵣ ≣ (Φₗ ∙ Φᵣ))
-      (identityʳ Φₗ)
-      (⊎-∙ₗ ⊎-idˡ)
+--   ⊎-∙ : ∀ {Φₗ Φᵣ : A} → Φₗ ⊎ Φᵣ ≣ (Φₗ ∙ Φᵣ)
+--   ⊎-∙ {Φₗ} {Φᵣ} = ⊎-respects-≈ˡ (identityʳ Φₗ) (⊎-∙ₗ ⊎-idˡ)

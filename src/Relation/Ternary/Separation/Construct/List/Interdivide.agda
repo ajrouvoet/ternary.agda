@@ -1,10 +1,12 @@
 {-# OPTIONS --safe #-}
 open import Relation.Ternary.Separation
+open import Relation.Binary.PropositionalEquality as PEq hiding ([_])
 
 module Relation.Ternary.Separation.Construct.List.Interdivide
-  {a} (A : Set a) 
+  {a e} (A : Set a) 
   (division : RawSep A)
-  {{_ : IsSep division}}
+  {_≈_ : A → A → Set e}
+  {{_ : IsSep _≈_ division}}
   where
 
 open import Level
@@ -15,18 +17,16 @@ open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Inductive
 open import Algebra.Structures using (IsMonoid)
 
-open import Relation.Binary.PropositionalEquality as PEq hiding ([_])
 open import Relation.Unary hiding (_∈_; _⊢_)
 
 private
   instance sep-instance = division
+  Carrier = List A
+  variable
+    xˡ xʳ x y z : A
+    xsˡ xsʳ xs ys zs : Carrier
 
 module _ where
-  private 
-    Carrier = List A
-    variable
-      xˡ xʳ x y z : A
-      xsˡ xsʳ xs ys zs : Carrier
 
   data Split : (xs ys zs : Carrier) → Set a where
     divide   : xˡ ⊎ xʳ ≣ x → Split xs ys zs → Split (xˡ ∷ xs) (xʳ ∷ ys) (x ∷ zs)
@@ -40,7 +40,11 @@ module _ where
     splits : RawSep Carrier
     RawSep._⊎_≣_ splits = Split
 
-    split-is-sep : IsSep splits
+    split-is-sep : IsSep _≡_ splits
+    IsSep.≈-equivalence split-is-sep = PEq.isEquivalence
+
+    IsSep.⊎-respects-≈ˡ split-is-sep refl σ = σ
+    IsSep.⊎-respects-≈ split-is-sep refl σ = σ
 
     -- commutes
     IsSep.⊎-comm split-is-sep (divide τ σ) = divide (⊎-comm τ) (⊎-comm σ)
@@ -67,7 +71,6 @@ module _ where
 
 
     split-has-unit : HasUnit _≡_ splits []
-    HasUnit.isEquivalence split-has-unit = PEq.isEquivalence
 
     HasUnit.⊎-idˡ split-has-unit {[]} = []
     HasUnit.⊎-idˡ split-has-unit {x ∷ Φ} = consʳ ⊎-idˡ
@@ -77,12 +80,12 @@ module _ where
     HasUnit.⊎-id⁻ˡ split-has-unit (consʳ σ) = cong (_ ∷_) (⊎-id⁻ˡ σ)
     HasUnit.⊎-id⁻ˡ split-has-unit []        = refl
 
-    split-has-concat : HasConcat splits
+    split-has-concat : HasConcat _≡_ splits
     HasConcat._∙_ split-has-concat = _++_
     HasConcat.⊎-∙ₗ split-has-concat {Φₑ = []} σ = σ
     HasConcat.⊎-∙ₗ split-has-concat {Φₑ = x ∷ Φₑ} σ = consˡ (⊎-∙ₗ σ) 
 
-    list-positive : IsPositive splits []
+    list-positive : IsPositive _≡_ splits []
     list-positive = record
       { ⊎-εˡ = λ where [] → refl }
 
@@ -90,13 +93,13 @@ module _ where
     list-monoid = ++-isMonoid
 
 {- Lemmas about List splittings -}
-module _ where
+-- module _ where
 
-  unspliceᵣ : ∀ {xs ys zs} {y : A} →
-              xs ⊎ (y ∷ ys) ≣ zs →
-              ∃ λ zs₁ → xs ⊎ [ y ] ≣ zs₁ × zs₁ ⊎ ys ≣ zs
-  unspliceᵣ σ with ⊎-unassoc σ (⊎-∙ {Φₗ = [ _ ]})
-  ... | _ , σ₁ , σ₂ = -, σ₁ , σ₂
+--   unspliceᵣ : ∀ {xs ys zs} {y : A} →
+--               xs ⊎ (y ∷ ys) ≣ zs →
+--               ∃ λ zs₁ → xs ⊎ [ y ] ≣ zs₁ × zs₁ ⊎ ys ≣ zs
+--   unspliceᵣ σ with ⊎-unassoc σ (⊎-∙ {Φₗ = [ _ ]})
+--   ... | _ , σ₁ , σ₂ = -, σ₁ , σ₂
 
 -- {- Decorations -}
 -- module Decor {p} {P : A → Set p} (PD : Decoration P) where
