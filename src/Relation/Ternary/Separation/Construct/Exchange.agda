@@ -13,28 +13,24 @@ open import Data.Product
 
 open import Relation.Unary
 open import Relation.Binary hiding (_⇒_)
-open import Relation.Binary.PropositionalEquality as P
+open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Relation.Ternary.Separation
 open import Relation.Ternary.Separation.Morphisms
 
 module _ where
 
-  record Account : Set ℓ where
-    constructor _↕_
-    field
-      up   : A
-      down : A
+  Account : Set ℓ
+  Account = A × A
 
-  open Account public
-
-module _ {ℓ} {uₐ}
+module _ {ℓ e} {uₐ}
   {{sep : RawSep A }}
-  {{_ : HasUnit⁺ sep uₐ}}
+  {eq : A → A → Set e}
+  {{_ : HasUnit eq sep uₐ}}
   where
 
   data ○ (P : Pred A ℓ) : Pred Account ℓ where
-    consumer : ∀ {x} → P x → ○ P (uₐ ↕ x)
+    consumer : ∀ {x} → P x → ○ P (uₐ , x)
 
 module _
   {{ sep : RawSep A }}
@@ -45,23 +41,23 @@ module _
 
   -- lifted pointwise product split
   _×⊎_≣_ : (l r t : Account) → Set ℓ
-  (u₁ ↕ d₁) ×⊎ (u₂ ↕ d₂) ≣ (u ↕ d) = (u₁ , d₁) ⊎ (u₂ , d₂) ≣ (u , d)
+  (u₁ , d₁) ×⊎ (u₂ , d₂) ≣ (u , d) = (u₁ , d₁) ⊎ (u₂ , d₂) ≣ (u , d)
 
   -- subtract some amount from both sides of the balance
   _/_≣_ : Account → A → Account → Set ℓ
-  ud₁ / e ≣ ud₂ = ud₂ ×⊎ (e ↕ e) ≣ ud₁
+  ud₁ / e ≣ ud₂ = ud₂ ×⊎ (e , e) ≣ ud₁
 
   data Split : Account → Account → Account → Set ℓ where
     ex : ∀ {e₁ e₂ u₁ d₁ u₂ d₂ u₁' d₁' u₂' d₂' ud} →
 
          -- bind e₁ and e₂ in oposite side
-         (u₁ ↕ d₂) / e₁ ≣ (u₁' ↕ d₂') →
-         (u₂ ↕ d₁) / e₂ ≣ (u₂' ↕ d₁') →
+         (u₁ , d₂) / e₁ ≣ (u₁' , d₂') →
+         (u₂ , d₁) / e₂ ≣ (u₂' , d₁') →
 
          -- add the remaining supply and demand
-         (u₁' ↕ d₁') ×⊎ (u₂' ↕ d₂') ≣ ud →
+         (u₁' , d₁') ×⊎ (u₂' , d₂') ≣ ud →
 
-         Split (u₁ ↕ d₁) (u₂ ↕ d₂) ud
+         Split (u₁ , d₁) (u₂ , d₂) ud
 
   instance exchange-raw : RawSep Account
   exchange-raw = record { _⊎_≣_ = Split }
@@ -93,26 +89,22 @@ module _
   {{ sep : RawSep A }} {eps}
   {{ cs⁻ : HasCrossSplit⁻ sep }}
   {{ cs⁺ : HasCrossSplit⁺ sep }}
-  {{ un  : HasUnit⁺ sep eps }}
-  where
-
-  open import Relation.Ternary.Separation.Construct.Product
-
-  instance exchange-has-unit⁺ : HasUnit⁺ exchange-raw (eps ↕ eps)
-  HasUnit⁺.⊎-idˡ exchange-has-unit⁺ = ex (⊎-idˡ , ⊎-idʳ) (⊎-idʳ , ⊎-idˡ) ⊎-idˡ
-
-module _
-  {{ sep : RawSep A }} {eps}
-  {{ cs : HasCrossSplit⁻ sep }}
-  {{ cs : HasCrossSplit⁺ sep }}
-  {{ _  : IsUnitalSep sep eps }}
   {{ _  : IsPositive sep eps }}
+  {e} {_≈_ : A → A → Set e}
+  {{ un  : HasUnit _≈_ sep eps }}
   where
 
   open import Relation.Ternary.Separation.Construct.Product
+  open import Data.Product.Relation.Binary.Pointwise.NonDependent
+  open IsEquivalence {{...}} hiding (refl)
 
-  instance exchange-has-unit⁻ : HasUnit⁻ exchange-raw (eps ↕ eps)
-  HasUnit⁻.⊎-id⁻ˡ exchange-has-unit⁻ 
-    (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ⊎-ε x₁₁ | ⊎-ε x₂₂
-  ... | refl , refl | refl , refl with ⊎-id⁻ˡ σ₁ | ⊎-id⁻ˡ σ₂ | ⊎-id⁻ʳ x₂₁ | ⊎-id⁻ʳ x₁₂
-  ... | refl | refl | refl | refl = refl
+  instance exchange-has-unit : HasUnit (Pointwise _≈_ _≈_) exchange-raw (eps , eps)
+  HasUnit.isEquivalence exchange-has-unit = ×-isEquivalence (HasUnit.isEquivalence un) (HasUnit.isEquivalence un)
+  HasUnit.ε-unique exchange-has-unit ρ with ε-unique (proj₁ ρ) | ε-unique (proj₂ ρ)
+  ... | refl | refl = refl
+
+  HasUnit.⊎-idˡ exchange-has-unit =
+    ex (⊎-idˡ , ⊎-idʳ) (⊎-idʳ , ⊎-idˡ) (⊎-idˡ {{×-hasUnit}})
+
+  HasUnit.⊎-id⁻ˡ exchange-has-unit (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ⊎-ε x₁₁ | ⊎-ε x₂₂
+  ... | refl , refl | refl , refl = trans (sym (⊎-id⁻ʳ x₂₁)) (⊎-id⁻ˡ σ₁) , trans (sym (⊎-id⁻ʳ x₁₂)) (⊎-id⁻ˡ σ₂)

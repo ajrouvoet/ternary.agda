@@ -106,6 +106,7 @@ instance
   ... | _ , σ₄ , σ₅ = -, hustle (trans h₁₁ (↭-sym h₃)) refl σ₄ , hustle (trans h₁₂ (↭-sym h₄)) h₂₂ σ₅
 
   hustle-has-unit : HasUnit _↭_ hustle-sep []
+  HasUnit.isEquivalence hustle-has-unit = ↭-isEquivalence
   HasUnit.⊎-idˡ hustle-has-unit = hustle refl refl ⊎-idˡ
   HasUnit.ε-unique hustle-has-unit x = ↭-[] (↭-sym x)
   HasUnit.⊎-id⁻ˡ hustle-has-unit (hustle h₁ h₂ σ₁) with ↭-[] (↭-sym h₁)

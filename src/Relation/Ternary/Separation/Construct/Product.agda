@@ -7,7 +7,7 @@ open import Data.Product
 
 open import Relation.Unary
 open import Relation.Binary
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality as PEq
 open import Relation.Ternary.Separation
 open import Data.Product.Relation.Binary.Pointwise.NonDependent
 
@@ -23,13 +23,13 @@ module _ {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂} where
         (proj₁ Φ₁) R₁.⊎ (proj₁ Φ₂) ≣ proj₁ Φ
       × (proj₂ Φ₁) R₂.⊎ (proj₂ Φ₂) ≣ proj₂ Φ }
 
-  instance ×-rawsep : ⦃ _ : RawSep C₁ ⦄ ⦃ _ : RawSep C₂ ⦄ → RawSep (C₁ × C₂)
-  ×-rawsep ⦃ R₁ ⦄ ⦃ R₂ ⦄ = R₁ ×-⊎ R₂
+  instance ×-rawsep : {{_ : RawSep C₁}} {{_ : RawSep C₂}} → RawSep (C₁ × C₂)
+  ×-rawsep {{R₁}} {{R₂}} = R₁ ×-⊎ R₂
 
 module _
   {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
   {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}}
-  ⦃ s₁ : IsSep R₁ ⦄ ⦃ s₂ : IsSep R₂ ⦄
+  {{s₁ : IsSep R₁}} {{s₂ : IsSep R₂}}
   where
 
   instance ×-isSep : IsSep (R₁ ×-⊎ R₂)
@@ -46,11 +46,13 @@ module _
   {ℓ₁ ℓ₂ e₁ e₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
   {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}} {u₁ u₂}
   {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂}
-  ⦃ s₁ : HasUnit _≈₁_ R₁ u₁ ⦄ ⦃ s₂ : HasUnit _≈₂_ R₂ u₂ ⦄
+  {{e₁ : IsEquivalence _≈₁_}} {{e₂ : IsEquivalence _≈₂_}}
+  {{s₁ : HasUnit _≈₁_ R₁ u₁}} {{s₂ : HasUnit _≈₂_ R₂ u₂}}
   where
 
   instance ×-hasUnit : HasUnit (Pointwise _≈₁_ _≈₂_) ×-rawsep (u₁ , u₂) 
   HasUnit.⊎-idˡ ×-hasUnit = ⊎-idˡ , ⊎-idˡ
+  HasUnit.isEquivalence ×-hasUnit = ×-isEquivalence e₁ e₂
   HasUnit.ε-unique ×-hasUnit (fst , snd) with ε-unique fst | ε-unique snd
   ... | refl | refl = refl
   HasUnit.⊎-id⁻ˡ ×-hasUnit (fst , snd) = (⊎-id⁻ˡ fst) , (⊎-id⁻ˡ snd)
@@ -58,20 +60,20 @@ module _
 module _
   {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
   {{R₁ : RawSep C₁}} {{R₂ : RawSep C₂}} {u₁ u₂}
-  ⦃ s₁ : HasUnit _≡_ R₁ u₁ ⦄ ⦃ s₂ : HasUnit _≡_ R₂ u₂ ⦄
+  {{s₁ : HasUnit _≡_ R₁ u₁}} {{s₂ : HasUnit _≡_ R₂ u₂}}
   where
 
   instance ×-hasUnit-≡ : HasUnit _≡_ ×-rawsep (u₁ , u₂) 
-  HasUnit.⊎-idˡ ×-hasUnit-≡ = ⊎-idˡ , ⊎-idˡ
+  HasUnit.isEquivalence ×-hasUnit-≡ = PEq.isEquivalence
+  HasUnit.⊎-idˡ ×-hasUnit-≡ = ⊎-idˡ {{×-hasUnit}}
   HasUnit.ε-unique ×-hasUnit-≡ refl = refl
-  HasUnit.⊎-id⁻ˡ ×-hasUnit-≡ (fst , snd) with ⊎-id⁻ˡ fst | ⊎-id⁻ˡ snd
-  ... | refl | refl = refl
+  HasUnit.⊎-id⁻ˡ ×-hasUnit-≡ σ = ≡×≡⇒≡ (⊎-id⁻ˡ σ)
 
 module _
   {ℓ₁ ℓ₂}
   {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
-  ⦃ sep₁ : RawSep C₁ ⦄ ⦃ sep₂ : RawSep C₂ ⦄
-  ⦃ s₁ : HasConcat sep₁ ⦄ ⦃ s₂ : HasConcat sep₂ ⦄
+  {{sep₁ : RawSep C₁}} {{sep₂ : RawSep C₂}}
+  {{s₁ : HasConcat sep₁}} {{s₂ : HasConcat sep₂}}
   where
 
   private
@@ -84,7 +86,7 @@ module _
     ; ⊎-∙ₗ = λ where (p , q) → ⊎-∙ₗ p , ⊎-∙ₗ q }
 
 {- Some useful type-formers for this instance -}
-module _ {a b e} {B : Set b} {A : Set a} {{ r : RawSep A }} {u} {eq : A → A → Set e}
+module _ {a b e} {B : Set b} {A : Set a} {{r : RawSep A}} {u} {eq : A → A → Set e}
   {{s : HasUnit eq r u}} where
 
   data Π₁ {p} (P : Pred B p) : Pred (B × A) (a ⊔ b ⊔ p) where

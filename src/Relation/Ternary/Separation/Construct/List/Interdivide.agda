@@ -15,7 +15,7 @@ open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Inductive
 open import Algebra.Structures using (IsMonoid)
 
-open import Relation.Binary.PropositionalEquality as P hiding ([_])
+open import Relation.Binary.PropositionalEquality as PEq hiding ([_])
 open import Relation.Unary hiding (_∈_; _⊢_)
 
 private
@@ -67,6 +67,8 @@ module _ where
 
 
     split-has-unit : HasUnit _≡_ splits []
+    HasUnit.isEquivalence split-has-unit = PEq.isEquivalence
+
     HasUnit.⊎-idˡ split-has-unit {[]} = []
     HasUnit.⊎-idˡ split-has-unit {x ∷ Φ} = consʳ ⊎-idˡ
 
