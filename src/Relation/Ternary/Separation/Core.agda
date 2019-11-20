@@ -204,7 +204,8 @@ open IsSep {{...}} public
 
 record HasUnit {a e} {A : Set a} (Eq : A → A → Set e) (sep : RawSep A) (unit : A) : Set (a ⊔ e) where
   field
-    overlap {{ isSep }}  : IsSep sep
+    overlap {{ isEquivalence }} : IsEquivalence Eq
+    overlap {{ isSep }}         : IsSep sep
 
   open RawSep sep
 
@@ -303,10 +304,10 @@ record IsPositive {c} {C : Set c} (sep : RawSep C) ε : Set (suc c) where
   field
     ⊎-εˡ : ∀ {Φ₁ Φ₂} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε
   
-  ⊎-ε : ∀ {Φ₁ Φ₂} {{_ : HasUnit _≡_ sep ε}} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε × Φ₂ ≡ ε
+  ⊎-ε : ∀ {Φ₁ Φ₂ e} {_≈_ : C → C → Set e} {{_ : HasUnit _≈_ sep ε}} → Φ₁ ⊎ Φ₂ ≣ ε → Φ₁ ≡ ε × Φ₂ ≡ ε
   ⊎-ε σ with ⊎-εˡ σ
-  ... | P.refl with ⊎-id⁻ˡ σ
-  ... | P.refl = P.refl , P.refl
+  ... | P.refl = P.refl , ε-unique (sym $ ⊎-id⁻ˡ σ)
+    where open IsEquivalence {{...}}
 
 open IsPositive ⦃...⦄ public
 
