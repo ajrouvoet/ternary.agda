@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --overlapping-instances #-}
 open import Relation.Binary.Structures
 
 module Relation.Ternary.Monad {a e}
