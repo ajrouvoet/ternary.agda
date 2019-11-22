@@ -36,12 +36,15 @@ record IsPartialCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
       let _ , σ₃ , σ₄ = ∙-assocᵣ′ (∙-comm σ₂) (∙-comm σ₁)
       in -, ∙-comm σ₄ , ∙-comm σ₃
 
-  instance is-partial-semigroup : IsPartialSemigroup rel
-  IsPartialSemigroup.∙-respects-≈ is-partial-semigroup = ∙-respects-≈′
-  IsPartialSemigroup.∙-respects-≈ˡ is-partial-semigroup = ∙-respects-≈ˡ′
-  IsPartialSemigroup.∙-respects-≈ʳ is-partial-semigroup = ∙-respects-≈ʳ′ 
-  IsPartialSemigroup.∙-assocᵣ is-partial-semigroup = ∙-assocᵣ′
-  IsPartialSemigroup.∙-assocₗ is-partial-semigroup = ∙-assocₗ′
+  instance is-partial-semigroup′ : IsPartialSemigroup rel
+  IsPartialSemigroup.∙-respects-≈ is-partial-semigroup′ = ∙-respects-≈′
+  IsPartialSemigroup.∙-respects-≈ˡ is-partial-semigroup′ = ∙-respects-≈ˡ′
+  IsPartialSemigroup.∙-respects-≈ʳ is-partial-semigroup′ = ∙-respects-≈ʳ′ 
+  IsPartialSemigroup.∙-assocᵣ is-partial-semigroup′ = ∙-assocᵣ′
+  IsPartialSemigroup.∙-assocₗ is-partial-semigroup′ = ∙-assocₗ′
+
+  private
+    instance _ = is-partial-semigroup′
      
   module _ where
     resplit : ∀ {a b c d ab cd abcd} →

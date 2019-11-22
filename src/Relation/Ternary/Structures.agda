@@ -5,4 +5,5 @@ module Relation.Ternary.Structures
 open import Relation.Ternary.Structures.PartialSemigroup _≈_ public
 open import Relation.Ternary.Structures.PartialCommutativeSemigroup _≈_ public
 open import Relation.Ternary.Structures.PartialMonoid _≈_ public
+open import Relation.Ternary.Structures.PartialCommutativeMonoid _≈_ public
 open import Relation.Ternary.Structures.Total _≈_ public

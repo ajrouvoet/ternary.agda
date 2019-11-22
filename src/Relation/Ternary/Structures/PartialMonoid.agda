@@ -28,7 +28,7 @@ record IsPartialMonoid (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
   field
     ε-unique : ∀[ _≈_ ε ⇒ Emp ]
 
-    ∙-idˡ    : ∀ {Φ} →  ε ∙ Φ ≣ Φ
+    ∙-idˡ    : ∀ {Φ} → ε ∙ Φ ≣ Φ
     ∙-idʳ    : ∀ {Φ} → Φ ∙ ε ≣ Φ
 
     ∙-id⁻ˡ   : ∀ {Φ} → ∀[ ε ∙ Φ ⇒ _≈_ Φ ]

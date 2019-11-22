@@ -1,50 +1,54 @@
-{-# OPTIONS --safe #-}
-open import Relation.Ternary.Separation
+{-# OPTIONS --safe --overlapping-instances #-}
+open import Relation.Ternary.Core
 
-module Relation.Ternary.Separation.Allstar
-  {ℓ}
+module Relation.Ternary.Data.Allstar
   {i} {I : Set i}
-  {c} {C : Set c} {{rc : RawSep C}}
+  {c} {C : Set c} {{rc : Rel₃ C}}
   where
 
 open import Level
 open import Data.Product
 open import Data.List hiding (concat)
-open import Relation.Unary
-
-open import Relation.Ternary.Separation.Construct.List.Interleave I
 open import Data.List.Relation.Ternary.Interleaving.Propositional as I
 
-module _ {u} {{_ : HasUnit⁺ rc u}} where
-  data Allstar (P : I → Pred C ℓ) : List I → SPred (ℓ ⊔ c ⊔ i) where
+open import Relation.Unary
+open import Relation.Binary.PropositionalEquality hiding ([_])
+open import Relation.Ternary.Structures {A = C} _≡_
+open import Relation.Ternary.Construct.List.Interleave I
+
+module _ {u : C} {{m : IsPartialMonoid rc u}} where
+
+  data Allstar {ℓ} (P : I → Pred C ℓ) : List I → Pred C (ℓ ⊔ c ⊔ i) where
     nil  :            ε[ Allstar P [] ]
-    cons : ∀ {x xs} → ∀[ P x ✴ Allstar P xs ⇒ Allstar P (x ∷ xs) ]
+    cons : ∀ {x xs} → ∀[ P x ⊙ Allstar P xs ⇒ Allstar P (x ∷ xs) ]
 
-  singleton : ∀ {P x} → ∀[ P x ⇒ Allstar P [ x ] ]
-  singleton v = cons (v ×⟨ ⊎-idʳ ⟩ nil)
+module _ {ℓ} {P : I → Pred C ℓ} {u : C} {{m : IsPartialMonoid rc u}} where
 
-  repartition : ∀ {P} {Σ₁ Σ₂ Σ} →
-                Σ₁ ⊎ Σ₂ ≣ Σ → ∀[ Allstar P Σ ⇒ Allstar P Σ₁ ✴ Allstar P Σ₂ ]
-  repartition [] nil   = nil ×⟨ ⊎-idˡ ⟩ nil
-  repartition (consˡ σ) (cons (a ×⟨ σ′ ⟩ qx)) = 
-    let
-      xs ×⟨ σ′′ ⟩ ys = repartition σ qx
-      _ , τ₁ , τ₂    = ⊎-unassoc σ′ σ′′
-    in (cons (a ×⟨ τ₁ ⟩ xs)) ×⟨ τ₂ ⟩ ys
-  repartition (consʳ σ) (cons (a ×⟨ σ′ ⟩ qx)) =
-    let
-      xs ×⟨ σ′′ ⟩ ys = repartition σ qx
-      _ , τ₁ , τ₂    = ⊎-unassoc σ′ (⊎-comm σ′′)
-    in xs ×⟨ ⊎-comm τ₂ ⟩ (cons (a ×⟨ τ₁ ⟩ ys))
-
-{- Inductive separating forall over a list -}
-module _ {u} {{sc : IsUnitalSep rc u}} where
-  -- not typed well in non-pattern positions
   infixr 5 _:⟨_⟩:_
-  pattern _:⟨_⟩:_ x p xs = cons (x ×⟨ p ⟩ xs)
+  pattern _:⟨_⟩:_ x p xs = cons (x ∙⟨ p ⟩ xs)
 
-  concat : ∀ {P} {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ✴ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ] 
-  concat (nil ×⟨ s ⟩ env₂) rewrite ⊎-id⁻ˡ s = env₂
-  concat (cons (v ×⟨ s ⟩ env₁) ×⟨ s' ⟩ env₂) =
-    let _ , eq₁ , eq₂ = ⊎-assoc s s' in
-    cons (v ×⟨ eq₁ ⟩ (concat (env₁ ×⟨ eq₂ ⟩ env₂)))
+  singleton : ∀ {x} → ∀[ P x ⇒ Allstar P [ x ] ]
+  singleton v = v :⟨ ∙-idʳ ⟩: nil
+
+  concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ⊙ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ] 
+  concat (nil ∙⟨ s ⟩ env₂) rewrite ∙-id⁻ˡ s = env₂
+  concat ((v :⟨ s ⟩: env₁) ∙⟨ s' ⟩ env₂) =
+    let _ , eq₁ , eq₂ = ∙-assocᵣ s s' in
+    v :⟨ eq₁ ⟩: (concat (env₁ ∙⟨ eq₂ ⟩ env₂))
+
+module _ {u : C} {{m : IsPartialCommutativeMonoid rc u}} where
+
+  repartition : ∀ {ℓ} {P : I → Pred C ℓ} {Σ₁ Σ₂ Σ} →
+                Σ₁ ∙ Σ₂ ≣ Σ → ∀[ Allstar P Σ ⇒ Allstar P Σ₁ ⊙ Allstar P Σ₂ ]
+  repartition [] nil   = nil ∙⟨ ∙-idˡ ⟩ nil
+  repartition (consˡ σ) (cons (a ∙⟨ σ′ ⟩ qx)) = 
+    let
+      xs ∙⟨ σ′′ ⟩ ys = repartition σ qx
+      _ , τ₁ , τ₂    = ∙-assocₗ σ′ σ′′
+    in (a :⟨ τ₁ ⟩: xs) ∙⟨ τ₂ ⟩ ys
+  repartition (consʳ σ) (cons (a ∙⟨ σ′ ⟩ qx)) =
+    let
+      xs ∙⟨ σ′′ ⟩ ys = repartition σ qx
+      _ , τ₁ , τ₂    = ∙-assocᵣ σ′′ (∙-comm σ′)
+    in xs ∙⟨ τ₁ ⟩ (a :⟨ ∙-comm τ₂ ⟩: ys) 
+
