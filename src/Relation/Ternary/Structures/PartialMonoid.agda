@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Structures.PartialMonoid {a e} {A : Set a} (_≈_ : A → A → Set e) where
 
 open import Level
@@ -7,7 +8,7 @@ open import Relation.Unary hiding (Empty)
 open import Relation.Binary.Structures
 open import Relation.Binary.Bundles
 open import Relation.Binary.PropositionalEquality
-open import Relation.Ternary.Core
+open import Relation.Ternary.Core using (Rel₃; Exactly; Respect; coe)
 open import Relation.Ternary.Structures.PartialSemigroup _≈_
 
 open import Data.Product
@@ -22,7 +23,7 @@ record IsPartialMonoid (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
   ε = unit
 
   Emp : Pred A a
-  Emp = ｛ ε ｝
+  Emp = Exactly ε
 
   field
     ε-unique : ∀[ _≈_ ε ⇒ Emp ]

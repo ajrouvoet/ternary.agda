@@ -1,16 +1,18 @@
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Structures.Total {a e} {A : Set a} (_≈_ : A → A → Set e) where
 
 open import Level
 open import Function using (_∘_)
+open import Algebra
 
 open import Relation.Unary hiding (Empty)
 open import Relation.Binary.Structures
 open import Relation.Binary.Bundles
 open import Relation.Binary.PropositionalEquality
-open import Relation.Ternary.Core
+
+open import Relation.Ternary.Core using (Rel₃)
 open import Relation.Ternary.Structures.PartialSemigroup _≈_
 open import Relation.Ternary.Structures.PartialMonoid _≈_
-open import Algebra
 
 open IsMonoid {{...}}
 

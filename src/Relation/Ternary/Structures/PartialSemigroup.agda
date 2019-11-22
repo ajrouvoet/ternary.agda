@@ -1,9 +1,10 @@
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Structures.PartialSemigroup {a e} {A : Set a} (_≈_ : A → A → Set e) where
 
 open import Level
 open import Relation.Unary
 open import Relation.Binary.Structures
-open import Relation.Ternary.Core
+open import Relation.Ternary.Core using (Rel₃)
 
 open import Function using (_∘_)
 open import Data.Product

@@ -10,6 +10,9 @@ open import Data.Product
 open import Relation.Unary hiding (Empty)
 open import Relation.Binary hiding (_⇒_)
 
+open import Relation.Unary
+  using () renaming (｛_｝ to Exactly) public
+
 record Rel₃ {a} (A : Set a) : Set (suc a) where
 
   field
@@ -67,6 +70,15 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
     infixr 8 _─⊙_ 
     _─⊙_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
     _─⊙_ = _─⊙[ id ]_
+
+open Rel₃ {{...}} public
+
+module _ {a} {A : Set a} where
+
+  open import Data.List
+
+  Just : A → Pred (List A) _
+  Just t = Exactly [ t ]
 
 module _ {a} {A : Set a} where
   record Respect {e p} (_≈_ : A → A → Set e) (P : Pred A p) : Set (a ⊔ e ⊔ p) where

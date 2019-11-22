@@ -1,49 +1,48 @@
-module Relation.Ternary.Structures.PartialCommutativeSemigroup {a e} {A : Set a} (_≈_ : A → A → Set e) where
+{-# OPTIONS --safe #-}
+module Relation.Ternary.Structures.PartialCommutativeSemigroup
+  {a e} {A : Set a} (_≈_ : A → A → Set e) where
 
 open import Level
 open import Relation.Unary
 open import Relation.Binary.Structures
-open import Relation.Ternary.Core
 
 open import Function using (_∘_)
 open import Data.Product
 
-open import Relation.Ternary.Structures.PartialSemigroup _≈_ using (IsPartialSemigroup)
+open import Relation.Ternary.Core using (Rel₃)
+open import Relation.Ternary.Structures.PartialSemigroup _≈_
 
 record IsPartialCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
 
   field
     {{≈-equivalence}} : IsEquivalence _≈_
-    ∙-respects-≈  : ∀ {Φ₁ Φ₂ Φ Φ′} → Φ ≈ Φ′ → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ Φ₂ ≣ Φ′
-    ∙-respects-≈ˡ : ∀ {Φ₁ Φ₂ Φ₁′}  → Φ₁ ≈ Φ₁′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁′ ∙ Φ₂ ]
+    ∙-respects-≈′  : ∀ {Φ₁ Φ₂ Φ Φ′} → Φ ≈ Φ′ → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ Φ₂ ≣ Φ′
+    ∙-respects-≈ˡ′ : ∀ {Φ₁ Φ₂ Φ₁′}  → Φ₁ ≈ Φ₁′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁′ ∙ Φ₂ ]
 
-    ∙-assocᵣ : ∀ {a b ab c abc}
+    ∙-assocᵣ′ : ∀ {a b ab c abc}
                → a ∙ b ≣ ab → ab ∙ c ≣ abc
                → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc
     ∙-comm   : ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab
 
   module _ where
     ∙-respects-≈ʳ′ : ∀ {Φ₁ Φ₂ Φ₂′} → Φ₂ ≈ Φ₂′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁ ∙ Φ₂′ ]
-    ∙-respects-≈ʳ′ eq = ∙-comm ∘ ∙-respects-≈ˡ eq ∘ ∙-comm
+    ∙-respects-≈ʳ′ eq = ∙-comm ∘ ∙-respects-≈ˡ′ eq ∘ ∙-comm
 
     ∙-assocₗ′ : ∀ {b c bc a abc}
                → a ∙ bc ≣ abc → b ∙ c ≣ bc
                → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
     ∙-assocₗ′ σ₁ σ₂ =
-      let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁)
+      let _ , σ₃ , σ₄ = ∙-assocᵣ′ (∙-comm σ₂) (∙-comm σ₁)
       in -, ∙-comm σ₄ , ∙-comm σ₃
 
-    is-partial-semigroup : IsPartialSemigroup rel
-    IsPartialSemigroup.∙-respects-≈ is-partial-semigroup = ∙-respects-≈
-    IsPartialSemigroup.∙-respects-≈ˡ is-partial-semigroup = ∙-respects-≈ˡ
-    IsPartialSemigroup.∙-respects-≈ʳ is-partial-semigroup = ∙-respects-≈ʳ′ 
-    IsPartialSemigroup.∙-assocᵣ is-partial-semigroup = ∙-assocᵣ
-    IsPartialSemigroup.∙-assocₗ is-partial-semigroup = ∙-assocₗ′
+  instance is-partial-semigroup : IsPartialSemigroup rel
+  IsPartialSemigroup.∙-respects-≈ is-partial-semigroup = ∙-respects-≈′
+  IsPartialSemigroup.∙-respects-≈ˡ is-partial-semigroup = ∙-respects-≈ˡ′
+  IsPartialSemigroup.∙-respects-≈ʳ is-partial-semigroup = ∙-respects-≈ʳ′ 
+  IsPartialSemigroup.∙-assocᵣ is-partial-semigroup = ∙-assocᵣ′
+  IsPartialSemigroup.∙-assocₗ is-partial-semigroup = ∙-assocₗ′
      
-    open IsPartialSemigroup is-partial-semigroup public
-      hiding (∙-assocᵣ; ∙-respects-≈; ∙-respects-≈ˡ)
-
   module _ where
     resplit : ∀ {a b c d ab cd abcd} →
               a ∙ b ≣ ab → c ∙ d ≣ cd → ab ∙ cd ≣ abcd →

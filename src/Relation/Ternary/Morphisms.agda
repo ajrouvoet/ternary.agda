@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Relation.Ternary.Separation.Morphisms where
+module Relation.Ternary.Morphisms where
 
 open import Level
 open import Relation.Unary
@@ -8,7 +8,7 @@ open import Relation.Binary.PropositionalEquality as P
 open import Data.Product
 open import Function using (_∘_)
 
-open import Relation.Ternary.Separation.Core
+open import Relation.Ternary.Core
 import Function.Definitions as Functions
 
 module _ {a b e₁ e₂} (Aₛ : Setoid a e₁) (Bₛ : Setoid b e₂) where
@@ -17,8 +17,8 @@ module _ {a b e₁ e₂} (Aₛ : Setoid a e₁) (Bₛ : Setoid b e₂) where
   open Setoid Bₛ renaming (Carrier to B; _≈_ to _≈₂_)
 
   record Morphism 
-    {{r : RawSep A}} {u} {{s₁ : HasUnit _≈₁_ r u}}
-    {{rb : RawSep B}} : Set (a ⊔ b ⊔ e₁ ⊔ e₂) where
+    {{r : Rel₃ A}} {u} {{s₁ : HasUnit _≈₁_ r u}}
+    {{rb : Rel₃ B}} : Set (a ⊔ b ⊔ e₁ ⊔ e₂) where
 
     open Functions _≈₁_ _≈₂_
     field
@@ -58,7 +58,7 @@ module _ {a b e₁ e₂} (Aₛ : Setoid a e₁) (Bₛ : Setoid b e₂) where
     -- ... | refl = f px
 
 {- identity morphism -}
-module _ {a} {A : Set a} {{r : RawSep A}} {u} {{s₁ : HasUnit _≡_ r u}} where
+module _ {a} {A : Set a} {{r : Rel₃ A}} {u} {{s₁ : HasUnit _≡_ r u}} where
 
   open import Function
 
