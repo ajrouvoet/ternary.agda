@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 open import Relation.Binary.Structures
 
 module Relation.Ternary.Separation.Monad {a e}

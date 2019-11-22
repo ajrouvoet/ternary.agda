@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 open import Relation.Binary.Structures
 
 module Relation.Ternary.Separation.Monad.Quotient {a} {A : Set a} where
@@ -21,7 +22,7 @@ module _ {e} {_≈_ : A → A → Set e} {{eq : IsEquivalence _≈_ }} where
   instance /≈-respect-≈ : ∀ {p} {P : Pred A p} → Respect _≈_ (P / _≈_) 
   Respect.coe /≈-respect-≈ eq₁ (px div eq₂) = px div (trans eq₂ eq₁)
 
-module _ {e} {_≈_ : A → A → Set e} {{r : RawSep A}} where
+module Quotiented {e} (_≈_ : A → A → Set e) {{r : RawSep A}} where
 
   {- Arrows module equivalence -}
   _≈>_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a ⊔ e)
@@ -34,6 +35,6 @@ module _ {e} {_≈_ : A → A → Set e} {{r : RawSep A}} {u} {{_ : HasUnit _≈
   open import Relation.Ternary.Separation.Monad _≈_
   open import Data.Unit
 
-  instance /-monad : ∀ {p} → Monad ⊤ (e ⊔ p ⊔ a) (λ _ _ P → P / _≈_)
+  instance /-monad : Monad ⊤ (e ⊔ a) (λ _ _ P → P / _≈_)
   Monad.return /-monad px = px div refl
   Monad.bind /-monad f ⟨ σ ⟩ (px div eq) = f ⟨ ⊎-respects-≈ʳ (sym eq) σ ⟩ px

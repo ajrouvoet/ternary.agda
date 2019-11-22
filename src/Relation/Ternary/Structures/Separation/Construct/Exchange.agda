@@ -40,7 +40,10 @@ module _ where
 module _ {uₐ} {{sep : RawSep A }} {{_ : HasUnit _≈ₐ_ sep uₐ}} where
 
   data ○ (P : Pred A ℓ) : Pred Account ℓ where
-    consumer : ∀ {x} → P x → ○ P (uₐ ↕ x)
+    ↓ : ∀ {x} → P x → ○ P (uₐ ↕ x)
+
+  data ● (P : Pred A ℓ) : Pred Account ℓ where
+    ↑ : ∀ {x} → P x → ● P (x ↕ uₐ)
 
 module _
   {{ sep : RawSep A }}
