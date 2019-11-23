@@ -4,7 +4,7 @@ module Relation.Ternary.Structures.PartialSemigroup {a e} {A : Set a} (_≈_ : A
 open import Level
 open import Relation.Unary
 open import Relation.Binary.Structures
-open import Relation.Ternary.Core using (Rel₃)
+open import Relation.Ternary.Core using (Rel₃; Respect)
 
 open import Function using (_∘_)
 open import Data.Product
@@ -16,9 +16,9 @@ record IsPartialSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
     overlap {{ ≈-equivalence }} : IsEquivalence _≈_
 
     -- the relation respects the equivalence in all positions
-    ∙-respects-≈  : ∀ {Φ₁ Φ₂ Φ Φ′} → _≈_ Φ Φ′ → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ Φ₂ ≣ Φ′
-    ∙-respects-≈ˡ : ∀ {Φ₁ Φ₂ Φ₁′}  → _≈_ Φ₁ Φ₁′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁′ ∙ Φ₂ ]
-    ∙-respects-≈ʳ : ∀ {Φ₁ Φ₂ Φ₂′}  → _≈_ Φ₂ Φ₂′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁ ∙ Φ₂′ ]
+    {{∙-respects-≈}}  : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂)
+    {{∙-respects-≈ˡ}} : ∀ {Φ₂ Φ}  → Respect _≈_ (_∙ Φ₂ ≣ Φ)
+    {{∙-respects-≈ʳ}} : ∀ {Φ₁ Φ}  → Respect _≈_ (Φ₁ ∙_≣ Φ)
 
     ∙-assocᵣ : ∀ {a b ab c abc}
                → a ∙ b ≣ ab → ab ∙ c ≣ abc

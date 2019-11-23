@@ -57,22 +57,22 @@ instance
 
 instance
   comm-semigroup : IsPartialCommutativeSemigroup interleave
-  IsPartialCommutativeSemigroup.≈-equivalence comm-semigroup = isEquivalence
-  IsPartialCommutativeSemigroup.∙-respects-≈′ comm-semigroup  refl = id
-  IsPartialCommutativeSemigroup.∙-respects-≈ˡ′ comm-semigroup refl = id
-  IsPartialCommutativeSemigroup.∙-assocᵣ′ comm-semigroup = interleaving-assoc
-  IsPartialCommutativeSemigroup.∙-comm comm-semigroup = I.swap
+  comm-semigroup = pcsg {{isEquivalence}} interleaving-assoc I.swap
 
   comm-monoid : IsPartialCommutativeMonoid interleave []
-  IsPartialCommutativeMonoid.ε-unique′ comm-monoid = id
-  IsPartialCommutativeMonoid.∙-idˡ′ comm-monoid = right (≡⇒≋ P.refl)
-  IsPartialCommutativeMonoid.∙-id⁻ˡ′ comm-monoid [] = refl
-  IsPartialCommutativeMonoid.∙-id⁻ˡ′ comm-monoid (consʳ σ) = cong (_ ∷_) (∙-id⁻ˡ′ σ)
+  comm-monoid = pcm id (right (≡⇒≋ P.refl)) id⁻
+    where
+      id⁻ : ∀ {Φ} → ∀[ [] ∙ Φ ⇒ _≡_ Φ ]
+      id⁻ = λ where
+        [] → refl
+        (consʳ σ) → cong (_ ∷_) (id⁻ σ)
 
   monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
   monoid = ++-isMonoid
 
   total : IsTotal interleave _++_ []
+
+  IsTotal.isPartialMonoid total = IsPartialCommutativeMonoid.isPartialMonoid comm-monoid
 
   IsTotal.∙-∙ₗ total {Φₑ = []} σ = σ
   IsTotal.∙-∙ₗ total {Φₑ = x ∷ _} σ = consˡ (∙-∙ₗ σ)

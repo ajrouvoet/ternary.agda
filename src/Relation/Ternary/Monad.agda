@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --overlapping-instances #-}
+{-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
 
 module Relation.Ternary.Monad {a e}

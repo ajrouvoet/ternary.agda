@@ -10,7 +10,7 @@ open import Relation.Binary.Structures
 open import Relation.Binary.Bundles
 open import Relation.Binary.PropositionalEquality
 
-open import Relation.Ternary.Core using (Rel₃)
+open import Relation.Ternary.Core using (Rel₃; coe)
 open import Relation.Ternary.Structures.PartialSemigroup _≈_
 open import Relation.Ternary.Structures.PartialMonoid _≈_
 
@@ -26,6 +26,6 @@ record IsTotal (rel : Rel₃ A) (_∙_ : A → A → A) (unit : A) : Set (suc a 
     ∙-∙ᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ (Φₑ ∙ Φ₂) ≣ (Φₑ ∙ Φ)
 
   ∙-∙ : ∀ {Φₗ Φᵣ : A} → Φₗ ∙ Φᵣ ≣ (Φₗ ∙ Φᵣ)
-  ∙-∙ {Φₗ} {Φᵣ} = ∙-respects-≈ˡ (identityʳ Φₗ) (∙-∙ₗ ∙-idˡ)
+  ∙-∙ {Φₗ} {Φᵣ} = coe (identityʳ Φₗ) (∙-∙ₗ ∙-idˡ)
 
 open IsTotal {{...}} public

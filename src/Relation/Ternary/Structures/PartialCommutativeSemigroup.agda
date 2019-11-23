@@ -9,7 +9,7 @@ open import Relation.Binary.Structures
 open import Function using (_∘_)
 open import Data.Product
 
-open import Relation.Ternary.Core using (Rel₃)
+open import Relation.Ternary.Core using (Rel₃; Respect; coe)
 open import Relation.Ternary.Structures.PartialSemigroup _≈_
 
 Commutative : Rel₃ A → Set a
@@ -87,26 +87,21 @@ record IsPartialCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
 {- Smart constructor; exploiting comm to default some fields -}
 pcsg : ∀ {rel : Rel₃ A} →
        let open Rel₃ rel in
-       (≈-equivalence  : IsEquivalence _≈_)
-       (∙-respects-≈   : ∀ {Φ₁ Φ₂ Φ Φ′}  → Φ ≈ Φ′ → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ Φ₂ ≣ Φ′)
-       (∙-respects-≈ˡ  : ∀ {Φ₁ Φ₂ Φ₁′} → Φ₁ ≈ Φ₁′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁′ ∙ Φ₂ ])
+       {{≈-equivalence  : IsEquivalence _≈_}}
+       {{∙-respects-≈   : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂)}}
+       {{∙-respects-≈ˡ  : ∀ {Φ₂ Φ} → Respect _≈_ (_∙ Φ₂ ≣ Φ)}}
        (∙-assocᵣ′      : ∀ {a b ab c abc} → a ∙ b ≣ ab → ab ∙ c ≣ abc
                        → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc)
        (∙-comm         : ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab)
   → IsPartialCommutativeSemigroup rel
-IsPartialCommutativeSemigroup.isPSG
-  (pcsg ≈-eq ∙-respects-≈ ∙-respects-≈ˡ ∙-assocᵣ ∙-comm)
+IsPartialCommutativeSemigroup.isPSG (pcsg ∙-assocᵣ ∙-comm)
   = record
-      { ≈-equivalence = ≈-eq
-      ; ∙-respects-≈  = ∙-respects-≈
-      ; ∙-respects-≈ˡ = ∙-respects-≈ˡ
-      ; ∙-respects-≈ʳ = λ eq → ∙-comm ∘ ∙-respects-≈ˡ eq ∘ ∙-comm
+      { ∙-respects-≈ʳ = record { coe = λ eq → ∙-comm ∘ coe eq ∘ ∙-comm }
       ; ∙-assocᵣ = ∙-assocᵣ
       ; ∙-assocₗ = λ σ₁ σ₂ →
         let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁)
         in -, ∙-comm σ₄ , ∙-comm σ₃
       }
-IsPartialCommutativeSemigroup.∙-comm
-  (pcsg ≈-eq ∙-respects-≈′ ∙-respects-≈ˡ′ ∙-assocᵣ′ ∙-comm) = ∙-comm
+IsPartialCommutativeSemigroup.∙-comm (pcsg ∙-assocᵣ′ ∙-comm) = ∙-comm
 
 open IsPartialCommutativeSemigroup {{...}} public

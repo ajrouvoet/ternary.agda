@@ -23,25 +23,24 @@ record IsPartialCommutativeMonoid (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) wh
 {- Smart constructor -}
 pcm : ∀ {rel : Rel₃ A} {unit : A} →
       let open Rel₃ rel in
-        (pcsg     : IsPartialCommutativeSemigroup rel)
+        {{pcsg     : IsPartialCommutativeSemigroup rel}}
       → (ε-unique : ∀[ _≈_ unit ⇒ Exactly unit ])
       → (idˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ)
       → (id⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ])
-      → (comm : ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab)
       → IsPartialCommutativeMonoid rel unit
-pcm {rel} {unit} pcsg ε-unique idˡ id⁻ˡ comm =
+pcm {rel} {unit} ε-unique idˡ id⁻ˡ =
   record
     { isPartialMonoid = isPartialMonoid′
-    ; ∙-comm          = comm }
+    ; ∙-comm          = ∙-comm }
 
   where
     open Rel₃ rel
 
     idʳ : ∀ {Φ} → Φ ∙ unit ≣ Φ
-    idʳ = comm idˡ
+    idʳ = ∙-comm idˡ
 
     id⁻ʳ   : ∀ {Φ} → ∀[ Φ ∙ unit ⇒ _≈_ Φ ]
-    id⁻ʳ = id⁻ˡ ∘ comm
+    id⁻ʳ = id⁻ˡ ∘ ∙-comm
 
     isPartialMonoid′ : IsPartialMonoid rel unit
     IsPartialMonoid.ε-unique isPartialMonoid′ = ε-unique
