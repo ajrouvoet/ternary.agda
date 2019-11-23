@@ -12,39 +12,15 @@ open import Data.Product
 open import Relation.Ternary.Core using (Rel₃)
 open import Relation.Ternary.Structures.PartialSemigroup _≈_
 
+Commutative : Rel₃ A → Set a
+Commutative rel = let open Rel₃ rel in ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab
+
 record IsPartialCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
 
   field
-    {{≈-equivalence}} : IsEquivalence _≈_
-    ∙-respects-≈′  : ∀ {Φ₁ Φ₂ Φ Φ′} → Φ ≈ Φ′ → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ Φ₂ ≣ Φ′
-    ∙-respects-≈ˡ′ : ∀ {Φ₁ Φ₂ Φ₁′}  → Φ₁ ≈ Φ₁′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁′ ∙ Φ₂ ]
-
-    ∙-assocᵣ′ : ∀ {a b ab c abc}
-               → a ∙ b ≣ ab → ab ∙ c ≣ abc
-               → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc
-    ∙-comm   : ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab
-
-  module _ where
-    ∙-respects-≈ʳ′ : ∀ {Φ₁ Φ₂ Φ₂′} → Φ₂ ≈ Φ₂′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁ ∙ Φ₂′ ]
-    ∙-respects-≈ʳ′ eq = ∙-comm ∘ ∙-respects-≈ˡ′ eq ∘ ∙-comm
-
-    ∙-assocₗ′ : ∀ {b c bc a abc}
-               → a ∙ bc ≣ abc → b ∙ c ≣ bc
-               → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
-    ∙-assocₗ′ σ₁ σ₂ =
-      let _ , σ₃ , σ₄ = ∙-assocᵣ′ (∙-comm σ₂) (∙-comm σ₁)
-      in -, ∙-comm σ₄ , ∙-comm σ₃
-
-  instance is-partial-semigroup′ : IsPartialSemigroup rel
-  IsPartialSemigroup.∙-respects-≈ is-partial-semigroup′ = ∙-respects-≈′
-  IsPartialSemigroup.∙-respects-≈ˡ is-partial-semigroup′ = ∙-respects-≈ˡ′
-  IsPartialSemigroup.∙-respects-≈ʳ is-partial-semigroup′ = ∙-respects-≈ʳ′ 
-  IsPartialSemigroup.∙-assocᵣ is-partial-semigroup′ = ∙-assocᵣ′
-  IsPartialSemigroup.∙-assocₗ is-partial-semigroup′ = ∙-assocₗ′
-
-  private
-    instance _ = is-partial-semigroup′
+    overlap {{isPSG}} : IsPartialSemigroup rel
+    ∙-comm            : Commutative rel
      
   module _ where
     resplit : ∀ {a b c d ab cd abcd} →
@@ -107,5 +83,30 @@ record IsPartialCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
     ⊙-uncurry : ∀[ (P ⊙ Q ─⊙ R) ⇒ P ─⊙ (Q ─⊙ R) ]
     ⊙-uncurry f ⟨ σ₁ ⟩ p ⟨ σ₂ ⟩ q =
       let _ , σ₃ , σ₄ = ∙-rotateₗ σ₂ (∙-comm σ₁) in f ⟨ ∙-comm σ₃ ⟩ (p ∙⟨ σ₄ ⟩ q)
+
+{- Smart constructor; exploiting comm to default some fields -}
+pcsg : ∀ {rel : Rel₃ A} →
+       let open Rel₃ rel in
+       (≈-equivalence  : IsEquivalence _≈_)
+       (∙-respects-≈   : ∀ {Φ₁ Φ₂ Φ Φ′}  → Φ ≈ Φ′ → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ Φ₂ ≣ Φ′)
+       (∙-respects-≈ˡ  : ∀ {Φ₁ Φ₂ Φ₁′} → Φ₁ ≈ Φ₁′ → ∀[ Φ₁ ∙ Φ₂ ⇒ Φ₁′ ∙ Φ₂ ])
+       (∙-assocᵣ′      : ∀ {a b ab c abc} → a ∙ b ≣ ab → ab ∙ c ≣ abc
+                       → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc)
+       (∙-comm         : ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab)
+  → IsPartialCommutativeSemigroup rel
+IsPartialCommutativeSemigroup.isPSG
+  (pcsg ≈-eq ∙-respects-≈ ∙-respects-≈ˡ ∙-assocᵣ ∙-comm)
+  = record
+      { ≈-equivalence = ≈-eq
+      ; ∙-respects-≈  = ∙-respects-≈
+      ; ∙-respects-≈ˡ = ∙-respects-≈ˡ
+      ; ∙-respects-≈ʳ = λ eq → ∙-comm ∘ ∙-respects-≈ˡ eq ∘ ∙-comm
+      ; ∙-assocᵣ = ∙-assocᵣ
+      ; ∙-assocₗ = λ σ₁ σ₂ →
+        let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁)
+        in -, ∙-comm σ₄ , ∙-comm σ₃
+      }
+IsPartialCommutativeSemigroup.∙-comm
+  (pcsg ≈-eq ∙-respects-≈′ ∙-respects-≈ˡ′ ∙-assocᵣ′ ∙-comm) = ∙-comm
 
 open IsPartialCommutativeSemigroup {{...}} public

@@ -17,25 +17,37 @@ record IsPartialCommutativeMonoid (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) wh
   open Rel₃ rel
 
   field
-    overlap {{isPartialCommutativeSemigroup}} : IsPartialCommutativeSemigroup rel
+    overlap {{isPartialMonoid}} : IsPartialMonoid rel unit
+    ∙-comm                      : Commutative rel
 
-    ε-unique′ : ∀[ _≈_ unit ⇒ Exactly unit ]
-    ∙-idˡ′    : ∀ {Φ} →  unit ∙ Φ ≣ Φ
-    ∙-id⁻ˡ′   : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ]
+{- Smart constructor -}
+pcm : ∀ {rel : Rel₃ A} {unit : A} →
+      let open Rel₃ rel in
+        (pcsg     : IsPartialCommutativeSemigroup rel)
+      → (ε-unique : ∀[ _≈_ unit ⇒ Exactly unit ])
+      → (idˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ)
+      → (id⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ])
+      → (comm : ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab)
+      → IsPartialCommutativeMonoid rel unit
+pcm {rel} {unit} pcsg ε-unique idˡ id⁻ˡ comm =
+  record
+    { isPartialMonoid = isPartialMonoid′
+    ; ∙-comm          = comm }
 
-  module _ where
+  where
+    open Rel₃ rel
 
-    ∙-idʳ′ : ∀ {Φ} → Φ ∙ unit ≣ Φ
-    ∙-idʳ′ = ∙-comm ∙-idˡ′
+    idʳ : ∀ {Φ} → Φ ∙ unit ≣ Φ
+    idʳ = comm idˡ
 
-    ∙-id⁻ʳ′   : ∀ {Φ} → ∀[ Φ ∙ unit ⇒ _≈_ Φ ]
-    ∙-id⁻ʳ′ = ∙-id⁻ˡ′ ∘ ∙-comm
+    id⁻ʳ   : ∀ {Φ} → ∀[ Φ ∙ unit ⇒ _≈_ Φ ]
+    id⁻ʳ = id⁻ˡ ∘ comm
 
-    instance isPartialMonoid′ : IsPartialMonoid rel unit
-    IsPartialMonoid.ε-unique isPartialMonoid′ = ε-unique′
-    IsPartialMonoid.∙-idˡ isPartialMonoid′ = ∙-idˡ′
-    IsPartialMonoid.∙-idʳ isPartialMonoid′ = ∙-idʳ′
-    IsPartialMonoid.∙-id⁻ˡ isPartialMonoid′ = ∙-id⁻ˡ′
-    IsPartialMonoid.∙-id⁻ʳ isPartialMonoid′ = ∙-id⁻ʳ′
+    isPartialMonoid′ : IsPartialMonoid rel unit
+    IsPartialMonoid.ε-unique isPartialMonoid′ = ε-unique
+    IsPartialMonoid.∙-idˡ isPartialMonoid′ = idˡ
+    IsPartialMonoid.∙-idʳ isPartialMonoid′ = idʳ
+    IsPartialMonoid.∙-id⁻ˡ isPartialMonoid′ = id⁻ˡ
+    IsPartialMonoid.∙-id⁻ʳ isPartialMonoid′ = id⁻ʳ
 
 open IsPartialCommutativeMonoid {{...}} public
