@@ -4,7 +4,7 @@ module Relation.Ternary.Structures.PartialSemigroup {a e} {A : Set a} (_≈_ : A
 open import Level
 open import Relation.Unary
 open import Relation.Binary.Structures
-open import Relation.Ternary.Core using (Rel₃; Respect)
+open import Relation.Ternary.Core using (Rel₃; Respect; coe)
 
 open import Function using (_∘_)
 open import Data.Product
@@ -26,6 +26,15 @@ record IsPartialSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
     ∙-assocₗ : ∀ {a bc b c abc}
                → a ∙ bc ≣ abc → b ∙ c ≣ bc
                → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
+
+  -- the "product" and arrow respect the equivalence
+  module _ where
+
+    instance ⊙-respect-≈ : ∀ {p q} {P : Pred A p} {Q : Pred A q} → Respect _≈_ (P ⊙ Q)
+    Respect.coe ⊙-respect-≈ eq (px ∙⟨ σ ⟩ qx) = px ∙⟨ coe eq σ ⟩ qx
+
+    instance ─⊙-respect-≈ : ∀ {p q} {P : Pred A p} {Q : Pred A q} → Respect _≈_ (P ─⊙ Q)
+    Respect.coe ─⊙-respect-≈ eq f ⟨ σ ⟩ px = f ⟨ coe (IsEquivalence.sym ≈-equivalence eq) σ ⟩ px
 
   -- pairs rotate and reassociate
   module _ {p q r} {P : Pred A p} {Q : Pred A q} {R : Pred A r} where

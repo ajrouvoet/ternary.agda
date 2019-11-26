@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --overlapping-instances #-}
+{-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
@@ -23,11 +23,17 @@ open import Relation.Ternary.Upto {A = C} _≈_
 
 open import Relation.Ternary.Construct.List.Interleave I
 
-module _ where
+module _ {ℓ} (P : I → Pred C ℓ) where
 
-  data Allstar {ℓ} (P : I → Pred C ℓ) : List I → Pred C (ℓ ⊔ i) where
-    nil  :            ε[ Allstar P [] ]
-    cons : ∀ {x xs} → ∀[ P x ⊙ Allstar P xs ⇒ Allstar P (x ∷ xs) ]
+  data Allstar : List I → Pred C (ℓ ⊔ i) where
+    nil  :            ε[ Allstar [] ]
+    cons : ∀ {x xs} → ∀[ P x ⊙ Allstar xs ⇒ Allstar (x ∷ xs) ]
+
+module _ {ℓ} {P : I → Pred C ℓ} where
+  instance allstar-respects-≈ : ∀ {is} → Respect _≈_ (Allstar P is)
+  Respect.coe allstar-respects-≈ eq nil with ε-unique eq
+  ... | refl = nil
+  Respect.coe allstar-respects-≈ eq (cons x) = cons (coe eq x)
 
 module _ {ℓ} {P : I → Pred C ℓ} {u : C} {{m : IsPartialMonoid {_≈_ = _≈_} rel u}} where
 
@@ -36,6 +42,14 @@ module _ {ℓ} {P : I → Pred C ℓ} {u : C} {{m : IsPartialMonoid {_≈_ = _�
 
   singleton : ∀ {x} → ∀[ P x ⇒ Allstar P [ x ] ]
   singleton v = v :⟨ ∙-idʳ ⟩: nil
+
+  concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ⊙ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ] 
+  concat (nil ∙⟨ s ⟩ env₂) = coe (∙-id⁻ˡ s) env₂
+  concat ((v :⟨ s ⟩: env₁) ∙⟨ s' ⟩ env₂) =
+    let
+      _ , eq₁ , eq₂ = ∙-assocᵣ s s'
+      vs            = concat (env₁ ∙⟨ eq₂ ⟩ env₂)
+    in (v :⟨ eq₁ ⟩: vs)
 
 module _ {{_ : IsCommutative {_≈_ = _≈_} rel}} where
 
@@ -52,15 +66,3 @@ module _ {{_ : IsCommutative {_≈_ = _≈_} rel}} where
       xs ∙⟨ σ′′ ⟩ ys = repartition σ qx
       _ , τ₁ , τ₂    = ∙-assocᵣ σ′′ (∙-comm σ′)
     in xs ∙⟨ τ₁ ⟩ (a :⟨ ∙-comm τ₂ ⟩: ys) 
-
-module _
-  {{_ : IsCommutative {_≈_ = _≈_} rel}}
-  {{re : Upto i}}
-  {P : I → Pred C i} where
-
-  concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ⊙ Allstar P Γ₂ ∼> Allstar P (Γ₁ ++ Γ₂) ] 
-  concat (nil ∙⟨ s ⟩ env₂) = env₂ over (∙-id⁻ˡ s) 
-  concat ((v :⟨ s ⟩: env₁) ∙⟨ s' ⟩ env₂) = do
-    let _ , eq₁ , eq₂ = ∙-assocᵣ s s'
-    vs ∙⟨ σ ⟩ v ← concat (env₁ ∙⟨ eq₂ ⟩ env₂) &⟨ ∙-comm eq₁ ⟩ v
-    return (v :⟨ ∙-comm σ ⟩: vs)

@@ -56,10 +56,6 @@ module ReaderTransformer
           ⟨ σ₄ ⟩
           (mp ⟨ σ₃ ⟩ env)
 
-    instance
-      reader-respects : {P : Pred C a} → Respect _≈_ (Reader Γ₁ Γ₂ P)
-      Respect.coe reader-respects eq m ⟨ σ ⟩ env = m ⟨ coe (≈-sym eq) σ ⟩ env
-
   module _ where
 
     ask : ε[ Reader Γ [] (Allstar V Γ) ]
@@ -88,13 +84,11 @@ module ReaderTransformer
 
     prepend : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₁ ++ Γ₂) Emp ]
     prepend env₁ ⟨ σ ⟩ env₂ =
-      let (env / eq) = concat (env₁ ∙⟨ ∙-comm σ ⟩ env₂)
-      in return (env ∙⟨ ∙-id⁺ʳ eq ⟩ refl)
+      return (concat (env₁ ∙⟨ ∙-comm σ ⟩ env₂) ∙⟨ ∙-idʳ ⟩ refl)
 
     append : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₂ ++ Γ₁) Emp ]
     append env₁ ⟨ σ ⟩ env₂ =
-      let (env / eq) = concat (env₂ ∙⟨ σ ⟩ env₁)
-      in return (env ∙⟨ ∙-id⁺ʳ eq ⟩ refl)
+      return (concat (env₂ ∙⟨ σ ⟩ env₁) ∙⟨ ∙-idʳ ⟩ refl)
 
 --     runReader : ∀[ Allstar V Γ ⇒ⱼ Reader Γ ε P ─✴ M P ]
 --     app (runReader env) mp σ = do

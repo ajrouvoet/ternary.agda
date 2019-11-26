@@ -13,6 +13,13 @@ open import Relation.Binary hiding (_⇒_)
 open import Relation.Unary
   using () renaming (｛_｝ to Exactly) public
 
+module _ {a} {A : Set a} where
+  record Respect {e p} (_≈_ : A → A → Set e) (P : Pred A p) : Set (a ⊔ e ⊔ p) where
+    field
+      coe : P Respects _≈_
+
+  open Respect {{...}} public
+
 record Rel₃ {a} (A : Set a) : Set (suc a) where
 
   field
@@ -79,10 +86,3 @@ module _ {a} {A : Set a} where
 
   Just : A → Pred (List A) _
   Just t = Exactly [ t ]
-
-module _ {a} {A : Set a} where
-  record Respect {e p} (_≈_ : A → A → Set e) (P : Pred A p) : Set (a ⊔ e ⊔ p) where
-    field
-      coe : P Respects _≈_
-
-  open Respect {{...}} public
