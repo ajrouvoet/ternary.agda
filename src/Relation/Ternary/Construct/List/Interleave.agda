@@ -17,7 +17,7 @@ open import Relation.Binary.PropositionalEquality as P hiding ([_])
 open import Relation.Unary hiding (_∈_; _⊢_)
 
 open import Relation.Ternary.Core
-open import Relation.Ternary.Structures {A = List A} _≡_
+open import Relation.Ternary.Structures
 
 private C = List A
 
@@ -56,10 +56,13 @@ instance
 ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consʳ τ₂ , τ₃ , consʳ τ₄
 
 instance
-  comm-semigroup : IsPartialCommutativeSemigroup interleave
-  comm-semigroup = pcsg {{isEquivalence}} interleaving-assoc I.swap
+  comm : IsCommutative {_≈_ = _≡_} interleave
+  IsCommutative.∙-comm comm = I.swap
+  
+  comm-semigroup : IsPartialSemigroup {_≈_ = _≡_} interleave
+  comm-semigroup = psg {{isEquivalence}} interleaving-assoc
 
-  comm-monoid : IsPartialCommutativeMonoid interleave []
+  comm-monoid : IsPartialMonoid {_≈_ = _≡_} interleave []
   comm-monoid = pcm id (right (≡⇒≋ P.refl)) id⁻
     where
       id⁻ : ∀ {Φ} → ∀[ [] ∙ Φ ⇒ _≡_ Φ ]
@@ -70,9 +73,7 @@ instance
   monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
   monoid = ++-isMonoid
 
-  total : IsTotal interleave _++_ []
-
-  IsTotal.isPartialMonoid total = IsPartialCommutativeMonoid.isPartialMonoid comm-monoid
+  total : IsTotal {_≈_ = _≡_} interleave _++_ []
 
   IsTotal.∙-∙ₗ total {Φₑ = []} σ = σ
   IsTotal.∙-∙ₗ total {Φₑ = x ∷ _} σ = consˡ (∙-∙ₗ σ)

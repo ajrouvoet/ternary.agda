@@ -20,12 +20,12 @@ record IsTotal (rel : Rel₃ A) (_∙_ : A → A → A) (unit : A) : Set (suc a 
   open Rel₃ rel hiding (_∙_)
 
   field
-    overlap {{ isPartialMonoid }} : IsPartialMonoid rel unit
-    overlap {{ isMonoid }}        : IsMonoid _≈_ _∙_ unit
     ∙-∙ₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → (Φₑ ∙ Φ₁) ∙ Φ₂ ≣ (Φₑ ∙ Φ)
     ∙-∙ᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ (Φₑ ∙ Φ₂) ≣ (Φₑ ∙ Φ)
 
-  ∙-∙ : ∀ {Φₗ Φᵣ : A} → Φₗ ∙ Φᵣ ≣ (Φₗ ∙ Φᵣ)
+  ∙-∙ : ∀ {Φₗ Φᵣ : A}
+      → {{_ : IsPartialMonoid rel unit}} {{_ : IsMonoid _≈_ _∙_ unit}}
+      → Φₗ ∙ Φᵣ ≣ (Φₗ ∙ Φᵣ)
   ∙-∙ {Φₗ} {Φᵣ} = coe (identityʳ Φₗ) (∙-∙ₗ ∙-idˡ)
 
 open IsTotal {{...}} public

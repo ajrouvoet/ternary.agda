@@ -3,7 +3,7 @@ open import Relation.Ternary.Core
 
 module Relation.Ternary.Monad {a e}
   {A : Set a}
-  (_≈_ : A → A → Set e)
+  {_≈_ : A → A → Set e}
   {{ra : Rel₃ A}}
   where
 
@@ -12,18 +12,18 @@ open import Data.Product
 open import Function using (_∘_)
 
 open import Relation.Unary
-open import Relation.Unary.PredicateTransformer using (Pt)
+open import Relation.Unary.PredicateTransformer using (PT)
 open import Relation.Binary.Structures
 open import Relation.Ternary.Core
-open import Relation.Ternary.Structures _≈_
+open import Relation.Ternary.Structures
 
 {- strong indexed monads on predicates over PRSAs -}
-module _  {{ eqv : IsEquivalence _≈_ }} where
+module _ where
 
-  RawMonad : ∀ {i} (I : Set i) → (ℓ : Level) → Set _
-  RawMonad I ℓ = (i j : I) → Pt A ℓ
+  RawMonad : ∀ {i} (I : Set i) → (ℓ₁ ℓ₂ : Level) → Set _
+  RawMonad I ℓ₁ ℓ₂ = (i j : I) → PT A A ℓ₁ ℓ₂
 
-  record Monad {i} (I : Set i) ℓ (M : RawMonad I ℓ) : Set (a ⊔ suc ℓ ⊔ i) where
+  record Monad {i ℓ₁ ℓ₂} (I : Set i) (M : RawMonad I ℓ₁ ℓ₂) : Set (a ⊔ suc ℓ₁ ⊔ ℓ₂ ⊔ i) where
     field
       return : ∀ {P i₁}         → ∀[ P ⇒ M i₁ i₁ P ]
       bind   : ∀ {P i₁ i₂ i₃ Q} → ∀[ (P ─⊙ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─⊙ M i₁ i₃ Q) ]
@@ -36,7 +36,7 @@ module _  {{ eqv : IsEquivalence _≈_ }} where
 
   {- Monadic strength -}
   module _
-    {i} {I : Set i} {M : RawMonad I a} {{ monad : Monad I a M }}
+    {i ℓ₂} {I : Set i} {M : RawMonad I a ℓ₂} {{ monad : Monad I M }}
     {i₁ i₂} {P : Pred A a} where
     infixl 5 str
     str  : ∀ {Q : Pred A a} → M i₁ i₂ P Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → Q Φ₂ → M i₁ i₂ (P ⊙ Q) Φ
@@ -52,8 +52,8 @@ module _  {{ eqv : IsEquivalence _≈_ }} where
 
 {- Having identities begets you external operations -}
 module _
-  {u} {{pm : IsPartialMonoid ra u}}
-  {i ℓ} {I : Set i} {M : RawMonad I ℓ} {{ monad : Monad I ℓ M }}
+  {u} {{pm : IsPartialMonoid {_≈_ = _≈_} ra u}}
+  {i ℓ₁ ℓ₂} {I : Set i} {M : RawMonad I ℓ₁ ℓ₂} {{ monad : Monad I M }}
   where
 
   module _ {P Q} {{ _ : ∀ {i₁ i₂} → Respect _≈_ (M i₁ i₂ Q) }} where
@@ -71,8 +71,8 @@ module _
 
 {- Additional level restrictions give you a nice strength shorthand -}
 module _
-  {u} {{pm : IsPartialMonoid ra u}}
-  {i} {I : Set i} {M : RawMonad I a} {{ monad : Monad I a M }}
+  {u} {{pm : IsPartialMonoid {_≈_ = _≈_} ra u}}
+  {i ℓ₂} {I : Set i} {M : RawMonad I a ℓ₂} {{ monad : Monad I M }}
   where
 
     _&_ : ∀ {i₁ i₂ P Q} → M i₁ i₂ P ε → ∀[ Q ⇒ M i₁ i₂ (P ⊙ Q) ]

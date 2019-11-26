@@ -1,109 +1,118 @@
-module Relation.Ternary.Separation.Monad.Reader where
+{-# OPTIONS --safe #-}
+open import Relation.Ternary.Core
+open import Relation.Ternary.Structures
+
+module Relation.Ternary.Monad.Reader
+  {a} {A : Set a}
+  {C : Set a} {{rel : Rel₃ C}}
+  {_≈_ : C → C → Set a}
+  {u} {{_ : IsPartialMonoid {_≈_ = _≈_} rel u}} 
+  where
 
 open import Level
 open import Function using (_∘_; case_of_)
-open import Relation.Binary.PropositionalEquality using (refl)
-open import Relation.Unary
-open import Relation.Unary.PredicateTransformer using (PT)
-open import Relation.Ternary.Separation
-open import Relation.Ternary.Separation.Morphisms
-open import Relation.Ternary.Separation.Monad
-open import Relation.Ternary.Separation.Allstar
 
 open import Data.Product
 open import Data.List hiding (concat; lookup)
 open import Data.Unit
 
+open import Relation.Unary
+open import Relation.Unary.PredicateTransformer using (Pt)
+
+open import Relation.Ternary.Monad {_≈_ = _≈_}
+open import Relation.Ternary.Data.Allstar A _≈_
+
 private
   variable
     ℓv : Level
-    A  : Set ℓv
     Γ Γ₁ Γ₂ Γ₃ : List A
 
-{- Something not unlike a indexed relative monad transformer in a bicartesian closed category -}
-module ReaderTransformer {ℓ}
-  -- types
-  {T : Set ℓ}
-  -- runtime resource
-  {C : Set ℓ} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}} {{cc : HasConcat rc}}
-  --
-  {B : Set ℓ} {{rb : RawSep B}}
-  (j : Morphism C B) {{sb : IsUnitalSep rb (Morphism.j j u)}}
-  (V : T → Pred C ℓ) -- values
-  (M : PT C B ℓ ℓ)
-  {{monad : Monads.Monad {{jm = j}} ⊤ ℓ (λ _ _ → M) }} 
+module ReaderTransformer
+  (V : A → Pred C a)
+  (M : Pt C a) {{monad : Monad ⊤ (λ _ _ → M)}}
+  {{_ : ∀ {P} → Respect _≈_ (M P) }}
   where
 
-  open Morphism j hiding (j) public
-  open Monads {{jm = j}} using (Monad; str; typed-str)
-  open import Relation.Ternary.Separation.Construct.List.Interleave T
+  open import Relation.Ternary.Construct.List.Interleave A
+
+  variable
+    P Q R : Pred C a
 
   module _ where
-    open Monad monad
 
-    variable
-      P Q R : Pred C ℓ
-
-    Reader : ∀ (Γ₁ Γ₂ : List T) (P : Pred C ℓ) → Pred B ℓ
-    Reader Γ₁ Γ₂ P = J (Allstar V Γ₁) ─✴ M (P ✴ Allstar V Γ₂)
+    Reader : ∀ (Γ₁ Γ₂ : List A) → Pt C a
+    Reader Γ₁ Γ₂ P = (Allstar V Γ₁) ─⊙ M (Allstar V Γ₂ ⊙ P)
 
     instance
-      reader-monad : Monad (List T) _ Reader
-      app (Monad.return reader-monad px) (inj e) s = return px &⟨ s ⟩ e
-      app (app (Monad.bind reader-monad f) mp σ₁) env σ₂ =
-        let _ , σ₃ , σ₄ = ⊎-assoc σ₁ σ₂ in
-        app (bind (wand λ where
-          (px ×⟨ σ₅ ⟩ env') σ₆ →
-            let _ , τ₁ , τ₂ = ⊎-unassoc σ₆ (j-⊎ σ₅) in
-            app (app f px τ₁) (inj env') τ₂)) (app mp env σ₄) σ₃
-
-    frame : Γ₁ ⊎ Γ₃ ≣ Γ₂ → ∀[ Reader Γ₁ ε P ⇒ Reader Γ₂ Γ₃ P ]
-    app (frame sep c) (inj env) σ = do
-      let E₁ ×⟨ σ₁ ⟩ E₂ = repartition sep env
-      let Φ , σ₂ , σ₃   = ⊎-unassoc σ (j-⊎ σ₁)
-      (v ×⟨ σ₄ ⟩ nil) ×⟨ σ₅ ⟩ E₃ ← app c (inj E₁) σ₂ &⟨ Allstar _ _ ∥ σ₃ ⟩ E₂
-      case ⊎-id⁻ʳ σ₄ of λ where
-        refl → return (v ×⟨ σ₅ ⟩ E₃)
-
-    ask : ε[ Reader Γ ε (Allstar V Γ) ]
-    app ask (inj env) σ with ⊎-id⁻ˡ σ
-    ... | refl = return (env ×⟨ ⊎-idʳ ⟩ nil)
-
-    prepend : ∀[ Allstar V Γ₁ ⇒ⱼ Reader Γ₂ (Γ₁ ∙ Γ₂) Emp ]
-    app (prepend env₁) (inj env₂) s with j-⊎⁻ s
-    ... | _ , refl , s' = return (empty ×⟨ ⊎-idˡ ⟩ (concat (env₁ ×⟨ s' ⟩ env₂)))
-
-    append : ∀[ Allstar V Γ₁ ⇒ⱼ Reader Γ₂ (Γ₂ ∙ Γ₁) Emp ]
-    app (append env₁) (inj env₂) s with j-⊎⁻ s
-    ... | _ , refl , s' = return (empty ×⟨ ⊎-idˡ ⟩ (concat (✴-swap (env₁ ×⟨ s' ⟩ env₂))))
-  
-    liftM : ∀[ M P ⇒ Reader Γ Γ P ]
-    app (liftM mp) (inj env) σ = do
-      mp &⟨ σ ⟩ env
-
-    runReader : ∀[ Allstar V Γ ⇒ⱼ Reader Γ ε P ─✴ M P ]
-    app (runReader env) mp σ = do
-      px ×⟨ σ ⟩ nil ← app mp (inj env) (⊎-comm σ)
-      case ⊎-id⁻ʳ σ of λ where
-        refl → return px 
+      reader-monad : Monad (List A) Reader
+      Monad.return reader-monad px ⟨ σ ⟩ env =
+        Monad.return monad env &⟨ σ ⟩ px
+      Monad.bind reader-monad f ⟨ σ₁ ⟩ mp ⟨ σ₂ ⟩ env =
+        let _ , σ₃ , σ₄ = ∙-assocₗ σ₂ σ₁ in
+        bind
+          (arr λ where
+            σ₅ (env' ∙⟨ σ₆ ⟩ px) → let _ , σ₇ , σ₈ = ∙-assocᵣ σ₆ σ₅ in f ⟨ σ₈ ⟩ px ⟨ σ₇ ⟩ env')
+          ⟨ σ₄ ⟩
+          (mp ⟨ σ₃ ⟩ env)
 
   module _ where
-    open Monad reader-monad
 
-    lookup : ∀ {a} → ε[ Reader [ a ] [] (V a) ]
-    lookup = do
-      v :⟨ σ ⟩: nil ← ask
-      case ⊎-id⁻ʳ σ of λ where
-        refl → return v
+    ask : ε[ Reader Γ [] (Allstar V Γ) ]
+    ask ⟨ σ ⟩ env = return (nil ∙⟨ ∙-id⁺ˡ (∙-id⁻ʳ σ) ⟩ env)
 
-module ReaderMonad {ℓ}
-  -- types
-  {T : Set ℓ}
-  -- runtime resource
-  {C : Set ℓ} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}} {{cc : HasConcat rc}}
-  -- values
-  (V : T → Pred C ℓ)
-  where
+  module _ {{_ : IsCommutative rel}} where
 
-  open import Relation.Ternary.Separation.Monad.Identity
-  open ReaderTransformer id-morph V Identity.Id {{ monad = Identity.id-monad }} public
+    frame : Γ₁ ∙ Γ₃ ≣ Γ₂ → ∀[ Reader Γ₁ [] P ⇒ Reader Γ₂ Γ₃ P ]
+    frame sep c ⟨ σ ⟩ env = do
+      let E₁ ∙⟨ σ₁ ⟩ E₂ = repartition sep env
+      let _ , σ₂ , σ₃   = ∙-assocᵣ (∙-comm σ₁) σ 
+      (nil ∙⟨ σ₆ ⟩ px) ∙⟨ σ₅ ⟩ E₂ ← (c ⟨ σ₃ ⟩ E₁) &⟨ Allstar _ _ ∥ ∙-comm σ₂ ⟩ E₂
+      return (E₂ ∙⟨ coe (≈-sym (∙-id⁻ˡ σ₆)) (∙-comm σ₅) ⟩ px)
+
+  module _ {_+++_}
+    {{_ : IsCommutative rel}}
+    {{_ : IsTotal {_≈_ = _≈_} rel _+++_ u}} where
+
+    open import Relation.Ternary.Upto.Quotient
+    open import Relation.Binary.PropositionalEquality
+
+    prepend : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₁ ++ Γ₂) Emp ]
+    prepend env₁ ⟨ σ ⟩ env₂ =
+      let (env / eq) = concat (env₁ ∙⟨ ∙-comm σ ⟩ env₂)
+      in return (env ∙⟨ ∙-id⁺ʳ eq ⟩ refl)
+
+    append : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₂ ++ Γ₁) Emp ]
+    append env₁ ⟨ σ ⟩ env₂ =
+      let (env / eq) = concat (env₂ ∙⟨ σ ⟩ env₁)
+      in return (env ∙⟨ ∙-id⁺ʳ eq ⟩ refl)
+
+    liftM : ∀[ M P ⇒ Reader Γ Γ P ]
+    liftM mp ⟨ σ ⟩ env =
+      mapM (mp &⟨ ∙-comm σ ⟩ env) ⊙-swap
+
+--     runReader : ∀[ Allstar V Γ ⇒ⱼ Reader Γ ε P ─✴ M P ]
+--     app (runReader env) mp σ = do
+--       px ×⟨ σ ⟩ nil ← app mp (inj env) (⊎-comm σ)
+--       case ⊎-id⁻ʳ σ of λ where
+--         refl → return px 
+
+--   module _ where
+--     open Monad reader-monad
+
+--     lookup : ∀ {a} → ε[ Reader [ a ] [] (V a) ]
+--     lookup = do
+--       v :⟨ σ ⟩: nil ← ask
+--       case ⊎-id⁻ʳ σ of λ where
+--         refl → return v
+
+-- module ReaderMonad {ℓ}
+--   -- types
+--   {T : Set ℓ}
+--   -- runtime resourele
+--   {C : Set ℓ} {{rel : Rel₃ C}} {u} {{sc : IsUnitalSep rel u}} {{cc : HasConcat rel}}
+--   -- values
+--   (V : T → Pred C ℓ)
+--   where
+
+--   open import Relation.Ternary.Separation.Monad.Identity
+--   open ReaderTransformer id-morph V Identity.Id {{ monad = Identity.id-monad }} public

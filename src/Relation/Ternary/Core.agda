@@ -87,6 +87,7 @@ module _ {a} {A : Set a} where
 
   open Respect {{...}} public
 
-  open import Relation.Binary.PropositionalEquality
-  instance respect-≡ : ∀ {p} {P : Pred A p} → Respect _≡_ P
-  Respect.coe respect-≡ refl = id
+  module Instances where
+    open import Relation.Binary.PropositionalEquality
+    instance respect-≡ : ∀ {p} {P : Pred A p} → Respect _≡_ P
+    Respect.coe respect-≡ refl = id

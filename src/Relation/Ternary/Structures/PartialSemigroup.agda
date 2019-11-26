@@ -16,9 +16,9 @@ record IsPartialSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
     overlap {{ ≈-equivalence }} : IsEquivalence _≈_
 
     -- the relation respects the equivalence in all positions
-    {{∙-respects-≈}}  : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂)
-    {{∙-respects-≈ˡ}} : ∀ {Φ₂ Φ}  → Respect _≈_ (_∙ Φ₂ ≣ Φ)
-    {{∙-respects-≈ʳ}} : ∀ {Φ₁ Φ}  → Respect _≈_ (Φ₁ ∙_≣ Φ)
+    overlap {{∙-respects-≈}}  : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂)
+    overlap {{∙-respects-≈ˡ}} : ∀ {Φ₂ Φ}  → Respect _≈_ (_∙ Φ₂ ≣ Φ)
+    overlap {{∙-respects-≈ʳ}} : ∀ {Φ₁ Φ}  → Respect _≈_ (Φ₁ ∙_≣ Φ)
 
     ∙-assocᵣ : ∀ {a b ab c abc}
                → a ∙ b ≣ ab → ab ∙ c ≣ abc

@@ -41,6 +41,12 @@ record IsPartialMonoid (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
   ε[_] : ∀ {ℓ} → Pred A ℓ → Set ℓ
   ε[ P ] = P ε
 
+  ∙-id⁺ˡ : ∀ {Φ} → ∀[ _≈_ Φ ⇒ ε ∙ Φ ]
+  ∙-id⁺ˡ eq = coe eq ∙-idˡ
+
+  ∙-id⁺ʳ : ∀ {Φ} → ∀[ _≈_ Φ ⇒ Φ ∙ ε ]
+  ∙-id⁺ʳ eq = coe eq ∙-idʳ
+
   {- Emptyness -}
   module _ where
 

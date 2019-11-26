@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Relation.Ternary.Structures.PartialCommutativeSemigroup
+module Relation.Ternary.Structures.Commutative
   {a e} {A : Set a} (_≈_ : A → A → Set e) where
 
 open import Level
@@ -9,20 +9,31 @@ open import Relation.Binary.Structures
 open import Function using (_∘_)
 open import Data.Product
 
-open import Relation.Ternary.Core using (Rel₃; Respect; coe)
+open import Relation.Ternary.Core using (Rel₃; Respect; coe; Exactly)
 open import Relation.Ternary.Structures.PartialSemigroup _≈_
+open import Relation.Ternary.Structures.PartialMonoid _≈_
 
 Commutative : Rel₃ A → Set a
 Commutative rel = let open Rel₃ rel in ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab
 
-record IsPartialCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
+record IsCommutative (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
 
   field
-    overlap {{isPSG}} : IsPartialSemigroup rel
     ∙-comm            : Commutative rel
+
+open IsCommutative {{...}} public
      
+module _
+  {rel : Rel₃ A}
+  {{_ : IsPartialSemigroup rel}}
+  {{_ : IsCommutative rel}}
+  where
+
+  open Rel₃ rel
+
   module _ where
+
     resplit : ∀ {a b c d ab cd abcd} →
               a ∙ b ≣ ab → c ∙ d ≣ cd → ab ∙ cd ≣ abcd →
               ∃₂ λ ac bd → a ∙ c ≣ ac × b ∙ d ≣ bd × ac ∙ bd ≣ abcd
@@ -84,24 +95,48 @@ record IsPartialCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
     ⊙-uncurry f ⟨ σ₁ ⟩ p ⟨ σ₂ ⟩ q =
       let _ , σ₃ , σ₄ = ∙-rotateₗ σ₂ (∙-comm σ₁) in f ⟨ ∙-comm σ₃ ⟩ (p ∙⟨ σ₄ ⟩ q)
 
-{- Smart constructor; exploiting comm to default some fields -}
-pcsg : ∀ {rel : Rel₃ A} →
-       let open Rel₃ rel in
-       {{≈-equivalence  : IsEquivalence _≈_}}
-       {{∙-respects-≈   : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂)}}
-       {{∙-respects-≈ˡ  : ∀ {Φ₂ Φ} → Respect _≈_ (_∙ Φ₂ ≣ Φ)}}
-       (∙-assocᵣ′      : ∀ {a b ab c abc} → a ∙ b ≣ ab → ab ∙ c ≣ abc
-                       → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc)
-       (∙-comm         : ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab)
-  → IsPartialCommutativeSemigroup rel
-IsPartialCommutativeSemigroup.isPSG (pcsg ∙-assocᵣ ∙-comm)
-  = record
-      { ∙-respects-≈ʳ = record { coe = λ eq → ∙-comm ∘ coe eq ∘ ∙-comm }
-      ; ∙-assocᵣ = ∙-assocᵣ
-      ; ∙-assocₗ = λ σ₁ σ₂ →
-        let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁)
-        in -, ∙-comm σ₄ , ∙-comm σ₃
-      }
-IsPartialCommutativeSemigroup.∙-comm (pcsg ∙-assocᵣ′ ∙-comm) = ∙-comm
+{- Some smart constructors for semigroups and monoids -}
+module _ where
 
-open IsPartialCommutativeSemigroup {{...}} public
+  psg : ∀ {rel : Rel₃ A} →
+         let open Rel₃ rel in
+         {{≈-equivalence  : IsEquivalence _≈_}}
+         {{∙-respects-≈   : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂)}}
+         {{∙-respects-≈ˡ  : ∀ {Φ₂ Φ} → Respect _≈_ (_∙ Φ₂ ≣ Φ)}}
+         {{comm           : IsCommutative rel}}
+         (∙-assocᵣ′      : ∀ {a b ab c abc} → a ∙ b ≣ ab → ab ∙ c ≣ abc
+                         → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc)
+    → IsPartialSemigroup rel
+  psg ∙-assocᵣ
+    = record
+        { ∙-respects-≈ʳ = record { coe = λ eq → ∙-comm ∘ coe eq ∘ ∙-comm }
+        ; ∙-assocᵣ = ∙-assocᵣ
+        ; ∙-assocₗ = λ σ₁ σ₂ →
+          let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁)
+          in -, ∙-comm σ₄ , ∙-comm σ₃
+        }
+
+  pcm : ∀ {rel : Rel₃ A} {unit : A} →
+        let open Rel₃ rel in
+        {{psg : IsPartialSemigroup rel}}
+        {{cm  : IsCommutative rel}}
+        → (ε-unique : ∀[ _≈_ unit ⇒ Exactly unit ])
+        → (idˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ)
+        → (id⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ])
+        → IsPartialMonoid rel unit
+  pcm {rel} {unit} {{pcsg}} ε-unique idˡ id⁻ˡ = isPartialMonoid′
+    where
+      open Rel₃ rel
+
+      idʳ : ∀ {Φ} → Φ ∙ unit ≣ Φ
+      idʳ = ∙-comm idˡ
+
+      id⁻ʳ   : ∀ {Φ} → ∀[ Φ ∙ unit ⇒ _≈_ Φ ]
+      id⁻ʳ = id⁻ˡ ∘ ∙-comm
+
+      isPartialMonoid′ : IsPartialMonoid rel unit
+      IsPartialMonoid.ε-unique isPartialMonoid′ = ε-unique
+      IsPartialMonoid.∙-idˡ isPartialMonoid′ = idˡ
+      IsPartialMonoid.∙-idʳ isPartialMonoid′ = idʳ
+      IsPartialMonoid.∙-id⁻ˡ isPartialMonoid′ = id⁻ˡ
+      IsPartialMonoid.∙-id⁻ʳ isPartialMonoid′ = id⁻ʳ
