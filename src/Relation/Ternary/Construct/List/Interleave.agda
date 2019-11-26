@@ -18,6 +18,7 @@ open import Relation.Unary hiding (_∈_; _⊢_)
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Respect.Propositional
 
 private C = List A
 

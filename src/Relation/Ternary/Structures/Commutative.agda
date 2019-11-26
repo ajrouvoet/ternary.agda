@@ -95,6 +95,18 @@ module _
     ⊙-uncurry f ⟨ σ₁ ⟩ p ⟨ σ₂ ⟩ q =
       let _ , σ₃ , σ₄ = ∙-rotateₗ σ₂ (∙-comm σ₁) in f ⟨ ∙-comm σ₃ ⟩ (p ∙⟨ σ₄ ⟩ q)
 
+{- Combined structures for abstract usage -}
+module _ where
+  record IsCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
+    field
+      {{isSemigroup}}   : IsPartialSemigroup rel
+      {{isCommutative}} : IsCommutative rel
+
+  record IsCommutativeMonoid (rel : Rel₃ A) u : Set (a ⊔ e) where
+    field
+      {{isMonoid}}      : IsPartialMonoid rel u
+      {{isCommutative}} : IsCommutative rel
+
 {- Some smart constructors for semigroups and monoids -}
 module _ where
 

@@ -18,9 +18,11 @@ open import Data.Unit
 
 open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Relation.Ternary.Monad {_≈_ = _≈_}
 open import Relation.Ternary.Data.Allstar A _≈_
+open import Relation.Ternary.Upto.Quotient
 
 private
   variable
@@ -30,7 +32,6 @@ private
 module ReaderTransformer
   (V : A → Pred C a)
   (M : Pt C a) {{monad : Monad ⊤ (λ _ _ → M)}}
-  {{_ : ∀ {P} → Respect _≈_ (M P) }}
   where
 
   open import Relation.Ternary.Construct.List.Interleave A
@@ -55,26 +56,35 @@ module ReaderTransformer
           ⟨ σ₄ ⟩
           (mp ⟨ σ₃ ⟩ env)
 
+    instance
+      reader-respects : {P : Pred C a} → Respect _≈_ (Reader Γ₁ Γ₂ P)
+      Respect.coe reader-respects eq m ⟨ σ ⟩ env = m ⟨ coe (≈-sym eq) σ ⟩ env
+
   module _ where
 
     ask : ε[ Reader Γ [] (Allstar V Γ) ]
     ask ⟨ σ ⟩ env = return (nil ∙⟨ ∙-id⁺ˡ (∙-id⁻ʳ σ) ⟩ env)
 
-  module _ {{_ : IsCommutative rel}} where
+  module _
+    {{_ : ∀ {P} → Respect _≈_ (M P) }}
+    {{_ : IsCommutative {_≈_ = _≈_} rel}} where
 
     frame : Γ₁ ∙ Γ₃ ≣ Γ₂ → ∀[ Reader Γ₁ [] P ⇒ Reader Γ₂ Γ₃ P ]
     frame sep c ⟨ σ ⟩ env = do
       let E₁ ∙⟨ σ₁ ⟩ E₂ = repartition sep env
       let _ , σ₂ , σ₃   = ∙-assocᵣ (∙-comm σ₁) σ 
       (nil ∙⟨ σ₆ ⟩ px) ∙⟨ σ₅ ⟩ E₂ ← (c ⟨ σ₃ ⟩ E₁) &⟨ Allstar _ _ ∥ ∙-comm σ₂ ⟩ E₂
-      return (E₂ ∙⟨ coe (≈-sym (∙-id⁻ˡ σ₆)) (∙-comm σ₅) ⟩ px)
+      return (E₂ ∙⟨ coe {{ ∙-respects-≈ʳ }} (≈-sym (∙-id⁻ˡ σ₆)) (∙-comm σ₅) ⟩ px)
 
-  module _ {_+++_}
-    {{_ : IsCommutative rel}}
-    {{_ : IsTotal {_≈_ = _≈_} rel _+++_ u}} where
+    liftM : ∀[ M P ⇒ Reader Γ Γ P ]
+    liftM mp ⟨ σ ⟩ env =
+      mapM (mp &⟨ ∙-comm σ ⟩ env) ⊙-swap
 
-    open import Relation.Ternary.Upto.Quotient
-    open import Relation.Binary.PropositionalEquality
+    lookup : ∀ {a} → ε[ Reader [ a ] [] (V a) ]
+    lookup =
+      do
+      v :⟨ σ ⟩: nil ←  ask
+      coe (∙-id⁻ʳ σ) (return v)
 
     prepend : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₁ ++ Γ₂) Emp ]
     prepend env₁ ⟨ σ ⟩ env₂ =
@@ -86,10 +96,6 @@ module ReaderTransformer
       let (env / eq) = concat (env₂ ∙⟨ σ ⟩ env₁)
       in return (env ∙⟨ ∙-id⁺ʳ eq ⟩ refl)
 
-    liftM : ∀[ M P ⇒ Reader Γ Γ P ]
-    liftM mp ⟨ σ ⟩ env =
-      mapM (mp &⟨ ∙-comm σ ⟩ env) ⊙-swap
-
 --     runReader : ∀[ Allstar V Γ ⇒ⱼ Reader Γ ε P ─✴ M P ]
 --     app (runReader env) mp σ = do
 --       px ×⟨ σ ⟩ nil ← app mp (inj env) (⊎-comm σ)
@@ -98,12 +104,6 @@ module ReaderTransformer
 
 --   module _ where
 --     open Monad reader-monad
-
---     lookup : ∀ {a} → ε[ Reader [ a ] [] (V a) ]
---     lookup = do
---       v :⟨ σ ⟩: nil ← ask
---       case ⊎-id⁻ʳ σ of λ where
---         refl → return v
 
 -- module ReaderMonad {ℓ}
 --   -- types
