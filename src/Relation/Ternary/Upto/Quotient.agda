@@ -13,6 +13,6 @@ open import Function using (id)
 open import Relation.Ternary.Upto {A = A} _≈_
 open import Relation.Ternary.Monad.Quotient _≈_ public
 
-instance quotiented-program : Program (a ⊔ e)
-Program.⌈ quotiented-program ⌉   = 𝑸
-Program.monad quotiented-program = /-monad
+instance quotiented-upto : Upto (a ⊔ e)
+Upto.⌈ quotiented-upto ⌉   = 𝑸
+Upto.monad quotiented-upto = /-monad

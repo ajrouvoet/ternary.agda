@@ -9,7 +9,8 @@ module Relation.Ternary.Upto.Propositional
 open import Function using (id)
 open import Relation.Ternary.Upto {A = A} _≡_
 open import Relation.Ternary.Monad.Identity
+open import Relation.Ternary.Respect.Propositional
 
-instance ≡-program : ∀ {p} → Program p
-Program.⌈ ≡-program ⌉ = id
-Program.monad ≡-program = id-monad
+instance ≡-upto : ∀ {p} → Upto p
+Upto.⌈ ≡-upto ⌉ = id
+Upto.monad ≡-upto = id-monad

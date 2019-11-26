@@ -16,7 +16,7 @@ open import Relation.Ternary.Monad {_≈_ = _≈_}
 module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid {_≈_ = _≈_} r u }} where
   open import Data.Unit
 
-  record Program p : Set (e ⊔ suc p ⊔ a) where
+  record Upto p : Set (e ⊔ suc p ⊔ a) where
     field
       ⌈_⌉                    : Pt A p
       overlap {{respectful}} : ∀ {P : Pred A p} → Respect _≈_ ⌈ P ⌉
@@ -33,4 +33,4 @@ module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid {_≈_ = _≈_} r u }} where
     _∼⊙_ : ∀ {q} (P : Pred A q) (Q : Pred A p) → Pred A (a ⊔ p ⊔ q)
     P ∼⊙ Q = P ─⊙ ⌈ Q ⌉
 
-  open Program {{...}} public
+  open Upto {{...}} public

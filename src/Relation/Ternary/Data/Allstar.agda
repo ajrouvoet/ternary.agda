@@ -55,7 +55,7 @@ module _ {{_ : IsCommutative {_≈_ = _≈_} rel}} where
 
 module _
   {{_ : IsCommutative {_≈_ = _≈_} rel}}
-  {{re : Program i}}
+  {{re : Upto i}}
   {P : I → Pred C i} where
 
   concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ⊙ Allstar P Γ₂ ∼> Allstar P (Γ₁ ++ Γ₂) ] 
