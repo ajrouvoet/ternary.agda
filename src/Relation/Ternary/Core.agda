@@ -78,7 +78,49 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
     _─⊙_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
     _─⊙_ = _─⊙[ id ]_
 
-open Rel₃ {{...}} public
+{- Properties of ternary relations -}
+module _ {a} {A : Set a} where
+
+  Commutative : Rel₃ A → Set a
+  Commutative rel = let open Rel₃ rel
+    in ∀ {a b ab : A} → a ∙ b ≣ ab → b ∙ a ≣ ab
+
+  -- (a - b) - c ≈> a - (b + c)
+  RightAssoc′ : (add : Rel₃ A) → (sub : Rel₃ A) → Set a
+  RightAssoc′ add sub =
+    let open Rel₃ add renaming (_∙_≣_ to _+_≣_)
+        open Rel₃ sub renaming (_∙_≣_ to _∸_≣_)
+    in ∀ {a₁ a₂ a₃ a₁-₂ a₀ a₂+₃} →
+         a₁ ∸ a₂ ≣ a₁-₂ → a₁-₂ ∸ a₃ ≣ a₀ → a₂ + a₃ ≣ a₂+₃ →
+         a₁ ∸ a₂+₃ ≣ a₀
+
+  -- a - (b + c) ≈> (a - b) - c
+  LeftAssoc′ : (add : Rel₃ A) → (sub : Rel₃ A) → Set a
+  LeftAssoc′ add sub =
+    let open Rel₃ add renaming (_∙_≣_ to _+_≣_)
+        open Rel₃ sub renaming (_∙_≣_ to _∸_≣_)
+    in ∀ {a₁ a₂ a₃ a₂+₃ a₀} →
+         a₁ ∸ a₂+₃ ≣ a₀ → a₂ + a₃ ≣ a₂+₃ →
+         ∃ λ a₁-₂ → 
+           a₁ ∸ a₂ ≣ a₁-₂ × a₁-₂ ∸ a₃ ≣ a₀
+
+  -- (a ∪ b) - c => (a - c) ∪ (b - c)
+  Distribᵣ : (cup : Rel₃ A) → (sub : Rel₃ A) → Set a
+  Distribᵣ cup sub =
+    let open Rel₃ cup renaming (_∙_≣_ to _⊎_≣_)
+        open Rel₃ sub renaming (_∙_≣_ to _∸_≣_)
+    in ∀ {a b c a∪b d}
+      → a ⊎ b ≣ a∪b → a∪b ∸ c ≣ d
+      → ∃₂ λ a-c b-c → a ∸ c ≣ a-c × b ∸ c ≣ b-c × a-c ⊎ b-c ≣ d
+
+  -- (a ∪ b) - c <= (a - c) ∪ (b - c)
+  Distribₗ : (cup : Rel₃ A) → (sub : Rel₃ A) → Set a
+  Distribₗ cup sub =
+    let open Rel₃ cup renaming (_∙_≣_ to _⊎_≣_)
+        open Rel₃ sub renaming (_∙_≣_ to _∸_≣_)
+    in ∀ {a b c d a-c b-c}
+      → a ∸ c ≣ a-c → b ∸ c ≣ b-c → a-c ⊎ b-c ≣ d
+      → ∃ λ a∪b → a ⊎ b ≣ a∪b × a∪b ∸ c ≣ d
 
 module _ {a} {A : Set a} where
 
@@ -86,3 +128,5 @@ module _ {a} {A : Set a} where
 
   Just : A → Pred (List A) _
   Just t = Exactly [ t ]
+
+open Rel₃ {{...}} public

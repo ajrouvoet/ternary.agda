@@ -9,6 +9,17 @@ open import Relation.Ternary.Core using (Rel₃; Respect; coe)
 open import Function using (_∘_)
 open import Data.Product
 
+RightAssoc : Rel₃ A → Set a
+RightAssoc rel = let open Rel₃ rel in
+  ∀ {a b ab c abc}
+    → a ∙ b ≣ ab → ab ∙ c ≣ abc
+    → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc
+
+LeftAssoc : Rel₃ A → Set a
+LeftAssoc rel = let open Rel₃ rel in
+  ∀ {a bc b c abc}
+    → a ∙ bc ≣ abc → b ∙ c ≣ bc
+    → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
 record IsPartialSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
 
@@ -20,12 +31,8 @@ record IsPartialSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
     overlap {{∙-respects-≈ˡ}} : ∀ {Φ₂ Φ}  → Respect _≈_ (_∙ Φ₂ ≣ Φ)
     overlap {{∙-respects-≈ʳ}} : ∀ {Φ₁ Φ}  → Respect _≈_ (Φ₁ ∙_≣ Φ)
 
-    ∙-assocᵣ : ∀ {a b ab c abc}
-               → a ∙ b ≣ ab → ab ∙ c ≣ abc
-               → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc
-    ∙-assocₗ : ∀ {a bc b c abc}
-               → a ∙ bc ≣ abc → b ∙ c ≣ bc
-               → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
+    ∙-assocᵣ : RightAssoc rel
+    ∙-assocₗ : LeftAssoc rel
 
   -- the "product" and arrow respect the equivalence
   module _ where

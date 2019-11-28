@@ -9,12 +9,9 @@ open import Relation.Binary.Structures
 open import Function using (_∘_)
 open import Data.Product
 
-open import Relation.Ternary.Core using (Rel₃; Respect; coe; Exactly)
+open import Relation.Ternary.Core using (Rel₃; Respect; coe; Exactly; Commutative)
 open import Relation.Ternary.Structures.PartialSemigroup _≈_
 open import Relation.Ternary.Structures.PartialMonoid _≈_
-
-Commutative : Rel₃ A → Set a
-Commutative rel = let open Rel₃ rel in ∀ {a b ab} → a ∙ b ≣ ab → b ∙ a ≣ ab
 
 record IsCommutative (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
