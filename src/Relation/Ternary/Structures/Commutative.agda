@@ -111,26 +111,28 @@ module _ where
 {- Some smart constructors for semigroups and monoids -}
 module _ where
 
-  psg : ∀ {e} {rel : Rel₃ A} →
+  partialSemigroupˡ : ∀ {e} {rel : Rel₃ A} →
          let open Rel₃ rel in
          {_≈_ : A → A → Set e}
          {{≈-equivalence  : IsEquivalence _≈_}}
-         {{∙-respects-≈   : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂)}}
-         {{∙-respects-≈ˡ  : ∀ {Φ₂ Φ} → Respect _≈_ (_∙ Φ₂ ≣ Φ)}}
+         (∙-respects-≈   : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂))
+         (∙-respects-≈ˡ  : ∀ {Φ₂ Φ} → Respect _≈_ (_∙ Φ₂ ≣ Φ))
          {{comm           : IsCommutative rel}}
          (∙-assocᵣ′      : ∀ {a b ab c abc} → a ∙ b ≣ ab → ab ∙ c ≣ abc
                          → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc)
     → IsPartialSemigroup _≈_ rel
-  psg ∙-assocᵣ
+  partialSemigroupˡ ∙-respects-≈ ∙-respects-≈ˡ ∙-assocᵣ
     = record
-        { ∙-respects-≈ʳ = record { coe = λ eq → ∙-comm ∘ coe eq ∘ ∙-comm }
+        { ∙-respects-≈ʳ = record { coe = λ eq → ∙-comm ∘ Respect.coe ∙-respects-≈ˡ eq ∘ ∙-comm }
+        ; ∙-respects-≈ˡ = ∙-respects-≈ˡ
+        ; ∙-respects-≈  = ∙-respects-≈
         ; ∙-assocᵣ = ∙-assocᵣ
         ; ∙-assocₗ = λ σ₁ σ₂ →
           let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁)
           in -, ∙-comm σ₄ , ∙-comm σ₃
         }
 
-  pcm : ∀ {e} {rel : Rel₃ A} {unit : A} →
+  partialMonoidˡ : ∀ {e} {rel : Rel₃ A} {unit : A} →
         let open Rel₃ rel in
         {_≈_ : A → A → Set e}
         {{psg : IsPartialSemigroup _≈_ rel}}
@@ -139,7 +141,7 @@ module _ where
         → (idˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ)
         → (id⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ])
         → IsPartialMonoid _≈_ rel unit
-  pcm {rel = rel} {unit} {_≈_} {{pcsg}} ε-unique idˡ id⁻ˡ = isPartialMonoid′
+  partialMonoidˡ {rel = rel} {unit} {_≈_} {{pcsg}} ε-unique idˡ id⁻ˡ = isPartialMonoid′
     where
       open Rel₃ rel
 

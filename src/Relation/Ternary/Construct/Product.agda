@@ -28,59 +28,59 @@ R₁ ×-∙ R₂ =
 instance ×-rel : {{_ : Rel₃ C₁}} {{_ : Rel₃ C₂}} → Rel₃ (C₁ × C₂)
 ×-rel {{R₁}} {{R₂}} = R₁ ×-∙ R₂
 
-module _ {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} where
+module _
+  {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
+  {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
+  {{s₁ : IsPartialSemigroup _≈₁_ R₁}} {{s₂ : IsPartialSemigroup _≈₂_ R₂}}
+  where
 
-  module _
-    {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
-    {{s₁ : IsPartialSemigroup _≈₁_ R₁}} {{s₂ : IsPartialSemigroup _≈₂_ R₂}}
-    where
+  instance ×-equiv : IsEquivalence (Pointwise _≈₁_ _≈₂_)
+  ×-equiv = ×-isEquivalence ≈-equivalence ≈-equivalence
 
-    instance ×-equiv : IsEquivalence (Pointwise _≈₁_ _≈₂_)
-    ×-equiv = ×-isEquivalence ≈-equivalence ≈-equivalence
+  instance ×-isSG : IsPartialSemigroup (Pointwise _≈₁_ _≈₂_) (R₁ ×-∙ R₂)
 
-    instance ×-isSG : IsPartialSemigroup (Pointwise _≈₁_ _≈₂_) (R₁ ×-∙ R₂)
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
+    coe eq₁ σ₁ , coe eq₂ σ₂
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
+    coe eq₁ σ₁ , coe eq₂ σ₂
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
+    coe eq₁ σ₁ , coe eq₂ σ₂
 
-    Respect.coe (IsPartialSemigroup.∙-respects-≈ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
-      coe eq₁ σ₁ , coe eq₂ σ₂
-    Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
-      coe eq₁ σ₁ , coe eq₂ σ₂
-    Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
-      coe eq₁ σ₁ , coe eq₂ σ₂
+  IsPartialSemigroup.∙-assocᵣ ×-isSG (l₁  , r₁) (l₂ , r₂) =
+    let
+      _ , l₃ , l₄ = ∙-assocᵣ l₁ l₂
+      _ , r₃ , r₄ = ∙-assocᵣ r₁ r₂
+    in -, (l₃ , r₃) , l₄ , r₄
 
-    IsPartialSemigroup.∙-assocᵣ ×-isSG (l₁  , r₁) (l₂ , r₂) =
-      let
-        _ , l₃ , l₄ = ∙-assocᵣ l₁ l₂
-        _ , r₃ , r₄ = ∙-assocᵣ r₁ r₂
-      in -, (l₃ , r₃) , l₄ , r₄
+  IsPartialSemigroup.∙-assocₗ ×-isSG (l₁  , r₁) (l₂ , r₂) =
+    let
+      _ , l₃ , l₄ = ∙-assocₗ l₁ l₂
+      _ , r₃ , r₄ = ∙-assocₗ r₁ r₂
+    in -, (l₃ , r₃) , l₄ , r₄
 
-    IsPartialSemigroup.∙-assocₗ ×-isSG (l₁  , r₁) (l₂ , r₂) =
-      let
-        _ , l₃ , l₄ = ∙-assocₗ l₁ l₂
-        _ , r₃ , r₄ = ∙-assocₗ r₁ r₂
-      in -, (l₃ , r₃) , l₄ , r₄
+module _
+  {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}} {u₁ u₂}
+  {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
+  {{s₁ : IsPartialMonoid _≈₁_ R₁ u₁}} {{s₂ : IsPartialMonoid _≈₂_ R₂ u₂}}
+  where
 
-  module _
-    {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}} {u₁ u₂}
-    {{s₁ : IsPartialMonoid _≈₁_ R₁ u₁}} {{s₂ : IsPartialMonoid _≈₂_ R₂ u₂}}
-    where
+  instance ×-IsPartialMonoid : IsPartialMonoid (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂) 
+  IsPartialMonoid.ε-unique ×-IsPartialMonoid (fst , snd) with ε-unique fst | ε-unique snd
+  ... | refl | refl = refl
 
-    instance ×-IsPartialMonoid : IsPartialMonoid (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂) 
-    IsPartialMonoid.ε-unique ×-IsPartialMonoid (fst , snd) with ε-unique fst | ε-unique snd
-    ... | refl | refl = refl
+  IsPartialMonoid.∙-idˡ ×-IsPartialMonoid = ∙-idˡ , ∙-idˡ
+  IsPartialMonoid.∙-idʳ ×-IsPartialMonoid = ∙-idʳ , ∙-idʳ
 
-    IsPartialMonoid.∙-idˡ ×-IsPartialMonoid = ∙-idˡ , ∙-idˡ
-    IsPartialMonoid.∙-idʳ ×-IsPartialMonoid = ∙-idʳ , ∙-idʳ
+  IsPartialMonoid.∙-id⁻ˡ ×-IsPartialMonoid (fst , snd) = (∙-id⁻ˡ fst) , (∙-id⁻ˡ snd)
+  IsPartialMonoid.∙-id⁻ʳ ×-IsPartialMonoid (fst , snd) = (∙-id⁻ʳ fst) , (∙-id⁻ʳ snd)
 
-    IsPartialMonoid.∙-id⁻ˡ ×-IsPartialMonoid (fst , snd) = (∙-id⁻ˡ fst) , (∙-id⁻ˡ snd)
-    IsPartialMonoid.∙-id⁻ʳ ×-IsPartialMonoid (fst , snd) = (∙-id⁻ʳ fst) , (∙-id⁻ʳ snd)
+module _
+  {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
+  {{s₁ : IsCommutative R₁}} {{s₂ : IsCommutative R₂}}
+  where
 
-  module _
-    {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
-    {{s₁ : IsCommutative R₁}} {{s₂ : IsCommutative R₂}}
-    where
-
-    instance ×-isCommutative : IsCommutative ×-rel
-    IsCommutative.∙-comm ×-isCommutative (fst , snd) = ∙-comm fst , ∙-comm snd
+  instance ×-isCommutative : IsCommutative ×-rel
+  IsCommutative.∙-comm ×-isCommutative (fst , snd) = ∙-comm fst , ∙-comm snd
 
 --   module _
 --     {{sep₁ : Rel₃ C₁}} {{sep₂ : Rel₃ C₂}}
@@ -96,15 +96,18 @@ module _ {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ �
 --       { _∙_ = (λ where (a , b) (c , d) → (a S₁.∙ c , b S₂.∙ d))
 --       ; ∙-∙ₗ = λ where (p , q) → ∙-∙ₗ p , ∙-∙ₗ q }
 
---   {- Some useful type-formers for this instance -}
---   module _ {a b e} {B : Set b} {A : Set a} {{r : Rel₃ A}} {u} {eq : A → A → Set e}
---     {{s : HasUnit eq r u}} where
+{- Some useful type-formers for this instance -}
+module _
+  {e}
+  {{r : Rel₃ C₁}}
+  {_≈ₐ_ : C₁ → C₁ → Set e}
+  {u} {{s : IsPartialMonoid _≈ₐ_ r u}} where
 
---     data Π₁ {p} (P : Pred B p) : Pred (B × A) (a ⊔ b ⊔ p) where
---       fst : ∀ {b : B} → P b → Π₁ P (b , ε)
+  data Π₁ {p} (P : Pred C₂ p) : Pred (C₂ × C₁) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
+    fst : ∀ {b : C₂} → P b → Π₁ P (b , ε)
 
---     data Π₂ {p} (P : Pred B p) : Pred (A × B) (a ⊔ b ⊔ p) where
---       snd : ∀ {b : B} → P b → Π₂ P (ε , b)
+  data Π₂ {p} (P : Pred C₂ p) : Pred (C₁ × C₂) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
+    snd : ∀ {b : C₂} → P b → Π₂ P (ε , b)
 
 -- module Propositional
 --   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}} {u₁ u₂}

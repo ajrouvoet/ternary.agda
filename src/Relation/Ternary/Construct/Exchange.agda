@@ -6,7 +6,7 @@
 -- At every node in the splitting tree, two accounts can "exchange" some amount,
 -- meaning that the demand on the left can be fulfilled by some supply on the right and vice versa.
 
-module Relation.Ternary.Separation.Construct.Exchange {ℓ e} {A : Set ℓ} (_≈ₐ_ : A → A → Set e) where
+module Relation.Ternary.Construct.Exchange {ℓ e} {A : Set ℓ} (_≈ₐ_ : A → A → Set e) where
 
 open import Level hiding (Lift)
 open import Data.Product
@@ -17,8 +17,8 @@ open import Relation.Binary.Structures
 open import Relation.Binary.PropositionalEquality as PEq using (_≡_)
 open IsEquivalence {{...}}
 
-open import Relation.Ternary.Separation
-open import Relation.Ternary.Separation.Morphisms
+open import Relation.Ternary.Core
+open import Relation.Ternary.Structures
 
 module _ where
 
@@ -37,7 +37,7 @@ module _ where
   _≈_ : Account → Account → Set _
   a ≈ b = Pointwise _≈ₐ_ _≈ₐ_ (pair a) (pair b)
 
-module _ {uₐ} {{sep : RawSep A }} {{_ : HasUnit _≈ₐ_ sep uₐ}} where
+module _ {uₐ} {{sep : Rel₃ A }} {{_ : IsPartialMonoid _≈ₐ_ sep uₐ}} where
 
   data ○ (P : Pred A ℓ) : Pred Account ℓ where
     ↓ : ∀ {x} → P x → ○ P (uₐ ↕ x)
@@ -46,11 +46,13 @@ module _ {uₐ} {{sep : RawSep A }} {{_ : HasUnit _≈ₐ_ sep uₐ}} where
     ↑ : ∀ {x} → P x → ● P (x ↕ uₐ)
 
 module _
-  {{ sep : RawSep A }}
-  {{_ : HasCrossSplit⁺ _≈ₐ_ sep}}
-  {{_ : HasCrossSplit⁻ _≈ₐ_ sep}} where
+  {{ sep : Rel₃ A }}
+  {{ _ : IsPartialSemigroup _≈ₐ_ sep }}
+  {{ _ : IsCrosssplittable _≈ₐ_ sep }}
+  {{ _ : IsCommutative sep }}
+  where
 
-  open import Relation.Ternary.Separation.Construct.Product
+  open import Relation.Ternary.Construct.Product
 
   instance account-equiv : IsEquivalence _≈_
   IsEquivalence.refl account-equiv  = refl , refl
@@ -58,12 +60,12 @@ module _
   IsEquivalence.trans account-equiv (e₁ , e₂) (e₃ , e₄) = trans e₁ e₃ , trans e₂ e₄
 
   -- lifted pointwise product split
-  _×⊎_≣_ : (l r t : Account) → Set ℓ
-  (u₁ ↕ d₁) ×⊎ (u₂ ↕ d₂) ≣ (u ↕ d) = (u₁ , d₁) ⊎ (u₂ , d₂) ≣ (u , d)
+  _×∙_≣_ : (l r t : Account) → Set ℓ
+  (u₁ ↕ d₁) ×∙ (u₂ ↕ d₂) ≣ (u ↕ d) = (u₁ , d₁) ∙ (u₂ , d₂) ≣ (u , d)
 
   -- subtract some amount from both sides of the balance
   _/_≣_ : Account → A → Account → Set ℓ
-  ud₁ / e ≣ ud₂ = ud₂ ×⊎ (e ↕ e) ≣ ud₁
+  ud₁ / e ≣ ud₂ = ud₂ ×∙ (e ↕ e) ≣ ud₁
 
   data Split : Account → Account → Account → Set ℓ where
     ex : ∀ {e₁ e₂ u₁ d₁ u₂ d₂ u₁' d₁' u₂' d₂' ud} →
@@ -73,58 +75,63 @@ module _
          (u₂ ↕ d₁) / e₂ ≣ (u₂' ↕ d₁') →
 
          -- add the remaining supply and demand
-         (u₁' ↕ d₁') ×⊎ (u₂' ↕ d₂') ≣ ud →
+         (u₁' ↕ d₁') ×∙ (u₂' ↕ d₂') ≣ ud →
 
          Split (u₁ ↕ d₁) (u₂ ↕ d₂) ud
 
-  instance exchange-raw : RawSep Account
-  exchange-raw = record { _⊎_≣_ = Split }
+  instance exchange-raw : Rel₃ Account
+  exchange-raw = record { _∙_≣_ = Split }
 
-  instance exchange-is-sep : IsSep _≈_ exchange-raw
+  instance exchange-comm : IsCommutative exchange-raw
+  IsCommutative.∙-comm exchange-comm (ex x₁ x₂ σ) = ex x₂ x₁ (∙-comm σ)
 
-  IsSep.⊎-respects-≈ˡ exchange-is-sep (eq₁ , eq₂) (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) σ)
-    = ex (⊎-respects-≈ eq₁ x₁₁ , x₁₂) (x₂₁ , ⊎-respects-≈ eq₂ x₂₂) σ 
-  IsSep.⊎-respects-≈  exchange-is-sep (eq₁ , eq₂) (ex x₁ x₂ (σ₁ , σ₂))
-    = ex x₁ x₂ (⊎-respects-≈ eq₁ σ₁ , ⊎-respects-≈ eq₂ σ₂)
+  instance exchange-isSemigroup : IsPartialSemigroup _≈_ exchange-raw
 
-  IsSep.⊎-comm exchange-is-sep (ex x₁ x₂ σ) = ex x₂ x₁ (⊎-comm σ)
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ exchange-isSemigroup) (eq₁ , eq₂) (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) σ)
+    = ex (coe eq₁ x₁₁ , x₁₂) (x₂₁ , coe eq₂ x₂₂) σ 
+  Respect.coe (IsPartialSemigroup.∙-respects-≈  exchange-isSemigroup) (eq₁ , eq₂) (ex x₁ x₂ (σ₁ , σ₂))
+    = ex x₁ x₂ (coe eq₁ σ₁ , coe eq₂ σ₂)
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ exchange-isSemigroup) (eq₁ , eq₂) (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) σ)
+    = ex (x₁₁ , coe eq₂ x₁₂) (coe eq₁ x₂₁ , x₂₂) σ 
 
-  -- A visualization of this proof is included in the notes of this repository
-  IsSep.⊎-assoc exchange-is-sep
+  IsPartialSemigroup.∙-assocᵣ exchange-isSemigroup
     (ex {a>b}  {b>a}  {a↑}  {a↓}  {b↑} {b↓} {a↑'}  {a↓'}  {b↑'} {b↓'} x₁ x₂ σ₁)
     (ex {ab>c} {c>ab} {ab↑} {ab↓} {c↑} {c↓} {ab↑'} {ab↓'} {c↑'} {c↓'} x₃ x₄ σ₂)
     with cross (proj₁ σ₁) (proj₁ x₃) | cross (proj₂ σ₁) (proj₂ x₄)
   ... | (a↑'' , a>c , b↑'' , b>c) , z₁ , z₂ , z₃ , z₄
       | (a↓'' , c>a , b↓'' , c>b) , m₁ , m₂ , m₃ , m₄
-      with ⊎-assoc z₃ (proj₁ σ₂) | ⊎-assoc z₁ (proj₁ x₁)
-         | recombine z₂ (proj₁ x₂) | ⊎-assoc (⊎-comm m₄) (⊎-comm (proj₁ x₄))
-         | ⊎-assoc m₃ (proj₂ σ₂) | ⊎-assoc m₁ (proj₂ x₂)
-         | recombine m₂ (proj₂ x₁) | ⊎-assoc (⊎-comm z₄) (⊎-comm (proj₂ x₃))
+      with ∙-assocᵣ z₃ (proj₁ σ₂) | ∙-assocᵣ z₁ (proj₁ x₁)
+         | recombine z₂ (proj₁ x₂) | ∙-assocᵣ (∙-comm m₄) (∙-comm (proj₁ x₄))
+         | ∙-assocᵣ m₃ (proj₂ σ₂) | ∙-assocᵣ m₁ (proj₂ x₂)
+         | recombine m₂ (proj₂ x₁) | ∙-assocᵣ (∙-comm z₄) (∙-comm (proj₂ x₃))
   ... | bc↑ , z₅ , σ₃ | a>bc , x₅ , k₃ | _ , k₁ , k₂ | _ , x₆ , x₇
       | bc↓ , σ₄ , m₅ | bc>a , y₁ , k₄ | _ , y₃ , y₄ | _ , y₅ , y₆
-      with uncross (⊎-comm k₁) x₇ (⊎-comm k₄) σ₃
-         | uncross (⊎-comm y₆) y₃ (⊎-comm m₅) k₃
+      with uncross (∙-comm k₁) x₇ (∙-comm k₄) σ₃
+         | uncross (∙-comm y₆) y₃ (∙-comm m₅) k₃
   ... | _  , x₈ , x₉ | _ , y₇ , y₈ =
-    -, ex (x₅ , y₈) (⊎-comm x₉ , y₁) (z₅  , σ₄)
-     , ex (k₂ , ⊎-comm y₅) (⊎-comm x₆ , y₄) (x₈ , ⊎-comm y₇)
+    -, ex (x₅ , y₈) (∙-comm x₉ , y₁) (z₅  , σ₄)
+     , ex (k₂ , ∙-comm y₅) (∙-comm x₆ , y₄) (x₈ , ∙-comm y₇)
 
-module _
-  {{ sep : RawSep A }} {eps}
-  {{ cs⁻ : HasCrossSplit⁻ _≈ₐ_ sep }}
-  {{ cs⁺ : HasCrossSplit⁺ _≈ₐ_ sep }}
-  {{ _  : IsPositive _≈ₐ_ sep eps }}
-  {{ un  : HasUnit _≈ₐ_ sep eps }}
-  where
+  IsPartialSemigroup.∙-assocₗ exchange-isSemigroup σ₁ σ₂ =
+    let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁) in -, ∙-comm σ₄ , ∙-comm σ₃
 
-  open import Relation.Ternary.Separation.Construct.Product
+-- module _
+--   {{ sep : Rel₃ A }} {eps}
+--   {{ cs⁻ : HasCrossSplit⁻ _≈ₐ_ sep }}
+--   {{ cs⁺ : HasCrossSplit⁺ _≈ₐ_ sep }}
+--   {{ _  : IsPositive _≈ₐ_ sep eps }}
+--   {{ un  : IsPartialMonoid _≈ₐ_ sep eps }}
+--   where
 
-  instance exchange-has-unit : HasUnit _≈_ exchange-raw (eps ↕ eps)
-  HasUnit.ε-unique exchange-has-unit ρ with ε-unique (proj₁ ρ) | ε-unique (proj₂ ρ)
-  ... | PEq.refl | PEq.refl = PEq.refl
+--   open import Relation.Ternary.Separation.Construct.Product
 
-  HasUnit.⊎-idˡ exchange-has-unit =
-    ex (⊎-idˡ , ⊎-idʳ) (⊎-idʳ , ⊎-idˡ) (⊎-idˡ {{×-hasUnit}})
+--   instance exchange-has-unit : IsPartialMonoid _≈_ exchange-raw (eps ↕ eps)
+--   IsPartialMonoid.ε-unique exchange-has-unit ρ with ε-unique (proj₁ ρ) | ε-unique (proj₂ ρ)
+--   ... | PEq.refl | PEq.refl = PEq.refl
 
-  HasUnit.⊎-id⁻ˡ exchange-has-unit (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ⊎-ε x₁₁ | ⊎-ε x₂₂
-  ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl =
-    trans (sym (⊎-id⁻ʳ x₂₁)) (⊎-id⁻ˡ σ₁) , trans (sym (⊎-id⁻ʳ x₁₂)) (⊎-id⁻ˡ σ₂)
+--   IsPartialMonoid.∙-idˡ exchange-has-unit =
+--     ex (∙-idˡ , ∙-idʳ) (∙-idʳ , ∙-idˡ) (∙-idˡ {{×-hasUnit}})
+
+--   IsPartialMonoid.∙-id⁻ˡ exchange-has-unit (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ∙-ε x₁₁ | ∙-ε x₂₂
+--   ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl =
+--     trans (sym (∙-id⁻ʳ x₂₁)) (∙-id⁻ˡ σ₁) , trans (sym (∙-id⁻ʳ x₁₂)) (∙-id⁻ˡ σ₂)
