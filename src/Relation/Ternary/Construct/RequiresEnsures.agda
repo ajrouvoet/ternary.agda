@@ -5,11 +5,16 @@ open import Relation.Ternary.Structures as Tern
 module Relation.Ternary.Construct.RequiresEnsures
   {a ℓe} {A : Set a}
   {_≈_ : A → A → Set ℓe} {{_ : IsEquivalence _≈_}}
-  {or  : Rel₃ A} {sub : Rel₃ A} (and : Rel₃ A)
+
+  (and : Rel₃ A)
+
+  -- the relation between ∪ and -
+  {or  : Rel₃ A} {sub : Rel₃ A}
   (or-sub-assocₗ  : LeftAssoc′ or sub)
   (or-sub-assocᵣ  : RightAssoc′ or sub)
   (or-sub-distribₗ : Distribₗ or sub)
   (or-sub-distribᵣ : Distribᵣ or sub)
+
   where
 
 open import Level
@@ -54,6 +59,8 @@ module _ where
 
   ∥-rel : Rel₃ Conditions
   Rel₃._∙_≣_ ∥-rel = _∥_≣_
+
+  open Rel₃ ∥-rel using () renaming (_⊙_ to _∥_) public
 
 module _
   {{ or-sg  : IsPartialSemigroup {_≈_ = _≈_} or }}
@@ -122,6 +129,8 @@ module _ where
 
   ▹-rel : Rel₃ Conditions
   Rel₃._∙_≣_ ▹-rel = _▹_≣_
+
+  open Rel₃ ▹-rel using () renaming (_⊙_ to _▹_) public
 
 module _
   {{ -respectsʳ   : ∀ {a b} → Respect _≈_ (a -_≣ b) }}
