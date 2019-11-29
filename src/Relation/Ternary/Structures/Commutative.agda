@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 module Relation.Ternary.Structures.Commutative
-  {a e} {A : Set a} (_≈_ : A → A → Set e) where
+  {a} {A : Set a} where
 
 open import Level
 open import Relation.Unary
@@ -10,10 +10,10 @@ open import Function using (_∘_)
 open import Data.Product
 
 open import Relation.Ternary.Core using (Rel₃; Respect; coe; Exactly; Commutative)
-open import Relation.Ternary.Structures.PartialSemigroup _≈_
-open import Relation.Ternary.Structures.PartialMonoid _≈_
+open import Relation.Ternary.Structures.PartialSemigroup
+open import Relation.Ternary.Structures.PartialMonoid
 
-record IsCommutative (rel : Rel₃ A) : Set (a ⊔ e) where
+record IsCommutative (rel : Rel₃ A) : Set (a) where
   open Rel₃ rel
 
   field
@@ -22,8 +22,9 @@ record IsCommutative (rel : Rel₃ A) : Set (a ⊔ e) where
 open IsCommutative {{...}} public
      
 module _
+  {e} {_≈_ : A → A → Set e}
   {rel : Rel₃ A}
-  {{_ : IsPartialSemigroup rel}}
+  {{_ : IsPartialSemigroup _≈_ rel}}
   {{_ : IsCommutative rel}}
   where
 
@@ -95,30 +96,31 @@ module _
 {- Combined structures for abstract usage -}
 module _ where
 
-  record IsCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
+  record IsCommutativeSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (a ⊔ e) where
     instance constructor isCommSemigroup
     field
-      {{isSemigroup}}   : IsPartialSemigroup rel
+      {{isSemigroup}}   : IsPartialSemigroup _≈_ rel
       {{isCommutative}} : IsCommutative rel
 
-  record IsCommutativeMonoid (rel : Rel₃ A) u : Set (a ⊔ e) where
+  record IsCommutativeMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) u : Set (a ⊔ e) where
     instance constructor isCommMonoid
     field
-      {{isMonoid}}      : IsPartialMonoid rel u
+      {{isMonoid}}      : IsPartialMonoid _≈_ rel u
       {{isCommutative}} : IsCommutative rel
 
 {- Some smart constructors for semigroups and monoids -}
 module _ where
 
-  psg : ∀ {rel : Rel₃ A} →
+  psg : ∀ {e} {rel : Rel₃ A} →
          let open Rel₃ rel in
+         {_≈_ : A → A → Set e}
          {{≈-equivalence  : IsEquivalence _≈_}}
          {{∙-respects-≈   : ∀ {Φ₁ Φ₂} → Respect _≈_ (Φ₁ ∙ Φ₂)}}
          {{∙-respects-≈ˡ  : ∀ {Φ₂ Φ} → Respect _≈_ (_∙ Φ₂ ≣ Φ)}}
          {{comm           : IsCommutative rel}}
          (∙-assocᵣ′      : ∀ {a b ab c abc} → a ∙ b ≣ ab → ab ∙ c ≣ abc
                          → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc)
-    → IsPartialSemigroup rel
+    → IsPartialSemigroup _≈_ rel
   psg ∙-assocᵣ
     = record
         { ∙-respects-≈ʳ = record { coe = λ eq → ∙-comm ∘ coe eq ∘ ∙-comm }
@@ -128,15 +130,16 @@ module _ where
           in -, ∙-comm σ₄ , ∙-comm σ₃
         }
 
-  pcm : ∀ {rel : Rel₃ A} {unit : A} →
+  pcm : ∀ {e} {rel : Rel₃ A} {unit : A} →
         let open Rel₃ rel in
-        {{psg : IsPartialSemigroup rel}}
+        {_≈_ : A → A → Set e}
+        {{psg : IsPartialSemigroup _≈_ rel}}
         {{cm  : IsCommutative rel}}
         → (ε-unique : ∀[ _≈_ unit ⇒ Exactly unit ])
         → (idˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ)
         → (id⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ])
-        → IsPartialMonoid rel unit
-  pcm {rel} {unit} {{pcsg}} ε-unique idˡ id⁻ˡ = isPartialMonoid′
+        → IsPartialMonoid _≈_ rel unit
+  pcm {rel = rel} {unit} {_≈_} {{pcsg}} ε-unique idˡ id⁻ˡ = isPartialMonoid′
     where
       open Rel₃ rel
 
@@ -146,7 +149,7 @@ module _ where
       id⁻ʳ   : ∀ {Φ} → ∀[ Φ ∙ unit ⇒ _≈_ Φ ]
       id⁻ʳ = id⁻ˡ ∘ ∙-comm
 
-      isPartialMonoid′ : IsPartialMonoid rel unit
+      isPartialMonoid′ : IsPartialMonoid _≈_ rel unit
       IsPartialMonoid.ε-unique isPartialMonoid′ = ε-unique
       IsPartialMonoid.∙-idˡ isPartialMonoid′ = idˡ
       IsPartialMonoid.∙-idʳ isPartialMonoid′ = idʳ

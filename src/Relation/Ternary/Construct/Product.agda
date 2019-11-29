@@ -76,10 +76,10 @@ module _ {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ �
 
   module _
     {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
-    {{s₁ : IsCommutative _≈₁_ R₁}} {{s₂ : IsCommutative _≈₂_ R₂}}
+    {{s₁ : IsCommutative R₁}} {{s₂ : IsCommutative R₂}}
     where
 
-    instance ×-isCommutative : IsCommutative (Pointwise _≈₁_ _≈₂_) ×-rel
+    instance ×-isCommutative : IsCommutative ×-rel
     IsCommutative.∙-comm ×-isCommutative (fst , snd) = ∙-comm fst , ∙-comm snd
 
 --   module _

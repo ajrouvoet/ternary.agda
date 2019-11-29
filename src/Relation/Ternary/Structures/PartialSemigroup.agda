@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Relation.Ternary.Structures.PartialSemigroup {a e} {A : Set a} (_≈_ : A → A → Set e) where
+module Relation.Ternary.Structures.PartialSemigroup {a} {A : Set a} where
 
 open import Level
 open import Relation.Unary
@@ -21,7 +21,7 @@ LeftAssoc rel = let open Rel₃ rel in
     → a ∙ bc ≣ abc → b ∙ c ≣ bc
     → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
 
-record IsPartialSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
+record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
 
   field

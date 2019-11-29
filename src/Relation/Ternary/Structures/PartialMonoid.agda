@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Relation.Ternary.Structures.PartialMonoid {a e} {A : Set a} (_≈_ : A → A → Set e) where
+module Relation.Ternary.Structures.PartialMonoid {a} {A : Set a} where
 
 open import Level
 open import Function using (_∘_)
@@ -9,13 +9,13 @@ open import Relation.Binary.Structures
 open import Relation.Binary.Bundles
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core using (Rel₃; Exactly; Respect; coe)
-open import Relation.Ternary.Structures.PartialSemigroup _≈_
+open import Relation.Ternary.Structures.PartialSemigroup
 
 open import Data.Product
 
-record IsPartialMonoid (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
+record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
   field
-    overlap {{ isPartialSemigroup }} : IsPartialSemigroup rel
+    overlap {{ isPartialSemigroup }} : IsPartialSemigroup _≈_ rel
 
   open Rel₃ rel
 

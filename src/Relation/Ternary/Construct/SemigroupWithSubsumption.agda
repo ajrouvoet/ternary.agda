@@ -17,7 +17,7 @@ module Relation.Ternary.Construct.SemigroupWithSubsumption {a e}
 open import Level
 open import Data.Product
 open import Relation.Ternary.Core hiding (_∙_; _≤_)
-open import Relation.Ternary.Structures _≈_
+open import Relation.Ternary.Structures
 
 open IsPreorder
 open IsSemigroup sg
@@ -31,7 +31,7 @@ Rel₃._∙_≣_ ∙≥-rel = _∙_≥_
 
 module _ where
 
-  ∙≥-isSemigroup : IsPartialSemigroup ∙≥-rel
+  ∙≥-isSemigroup : IsPartialSemigroup _≈_ ∙≥-rel
   IsPartialSemigroup.≈-equivalence ∙≥-isSemigroup = IsSemigroup.isEquivalence sg
 
   Respect.coe (IsPartialSemigroup.∙-respects-≈ ∙≥-isSemigroup) eq (bysub x) =

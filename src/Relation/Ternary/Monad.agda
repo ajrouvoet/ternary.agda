@@ -52,7 +52,7 @@ module _ where
 
 {- Having identities begets you external operations -}
 module _
-  {u} {{pm : IsPartialMonoid {_≈_ = _≈_} ra u}}
+  {u} {{pm : IsPartialMonoid _≈_ ra u}}
   {i ℓ₁ ℓ₂} {I : Set i} {M : RawMonad I ℓ₁ ℓ₂} {{ monad : Monad I M }}
   where
 
@@ -71,7 +71,7 @@ module _
 
 {- Additional level restrictions give you a nice strength shorthand -}
 module _
-  {u} {{pm : IsPartialMonoid {_≈_ = _≈_} ra u}}
+  {u} {{pm : IsPartialMonoid _≈_ ra u}}
   {i ℓ₂} {I : Set i} {M : RawMonad I a ℓ₂} {{ monad : Monad I M }}
   where
 
