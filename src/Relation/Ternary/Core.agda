@@ -105,6 +105,7 @@ module _ {a} {A : Set a} where
            a₁ ∸ a₂ ≣ a₁-₂ × a₁-₂ ∸ a₃ ≣ a₀
 
   -- (a ∪ b) - c => (a - c) ∪ (b - c)
+  -- sub distributes over cup
   Distribᵣ : (cup : Rel₃ A) → (sub : Rel₃ A) → Set a
   Distribᵣ cup sub =
     let open Rel₃ cup renaming (_∙_≣_ to _⊎_≣_)
@@ -151,6 +152,17 @@ module _ {a} {A : Set a} where
 
   Idempotent⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e)
   Idempotent⁻ _≈_ rel = let open Rel₃ rel in ∀ {Φ Φ′} → Φ ∙ Φ ≣ Φ′ → Φ ≈ Φ′
+
+  -- a ∸ (b ∩ c) ≈ (a ∸ b) ∪ (a ∸ c)
+  DeMorganʳ : (sub cap cup : Rel₃ A) → Set a
+  DeMorganʳ sub cap cup =
+    let open Rel₃ cup renaming (_∙_≣_ to _⊎_≣_)
+        open Rel₃ sub renaming (_∙_≣_ to _∸_≣_)
+        open Rel₃ cap renaming (_∙_≣_ to _∩_≣_)
+    in
+      ∀ {a b c b∩c a-b∩c} → b ∩ c ≣ b∩c → a ∸ b∩c ≣ a-b∩c →
+      ∃₂ λ a-b a-c → (a ∸ b ≣ a-b) × (a ∸ c ≣ a-c) × (a-b ⊎ a-c ≣ a-b∩c)
+      
 
 module _ {a} {A : Set a} where
 

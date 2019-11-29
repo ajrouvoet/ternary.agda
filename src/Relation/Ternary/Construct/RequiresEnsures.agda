@@ -118,15 +118,19 @@ module ReqEnsJoinoid
   {{ -respectsʳ : ∀ {a b} → Respect _≈_ (a -_≣ b) }}
   {{ -respectsˡ : ∀ {a b} → Respect _≈_ (_- a ≣ b) }}
 
-  {⊥            : A}
-  {{ or-sg      : IsPartialMonoid _≈_ or ⊥ }}
-  {{ or-comm    : IsCommutative or }}
-  {{ and-sg     : IsPartialSemigroup _≈_ and }}
+  {⊥               : A}
+  {{ or-sg         : IsPartialMonoid _≈_ or ⊥ }}
+  {_∨_} {{ or-tots : IsTotal or _∨_ }}
+  {{ or-comm       : IsCommutative or }}
+  {{ and-sg        : IsPartialSemigroup _≈_ and }}
 
-  (∸-idʳ        : RightIdentity sub ⊥) 
-  (∸-id⁻ʳ       : RightIdentity⁻ _≈_ sub ⊥) 
-  (∸-zeroˡ      : LeftZero sub ⊥) 
-  (∸-zero⁻ˡ     : LeftZero⁻ _≈_ sub ⊥) 
+  (∸-idʳ           : RightIdentity sub ⊥) 
+  (∸-id⁻ʳ          : RightIdentity⁻ _≈_ sub ⊥) 
+  (∸-zeroˡ         : LeftZero sub ⊥) 
+  (∸-zero⁻ˡ        : LeftZero⁻ _≈_ sub ⊥) 
+  (deMorganʳ       : DeMorganʳ sub and or)
+  (or-and-distribᵣ : Distribᵣ and or)
+  (∪-idem          : Idempotent or)
   where
 
   instance ▹-isPartialMonoid : IsPartialMonoid (Pointwise _≈_ _≈_) ▹-rel (⊥ , ⊥)
@@ -141,5 +145,21 @@ module ReqEnsJoinoid
   IsPartialMonoid.∙-id⁻ʳ ▹-isPartialMonoid (seq s req ens) = ∙-id⁻ʳ (coe (∸-zero⁻ˡ s) req)   , (∙-id⁻ʳ ens)
 
   instance joinoid : IsJoinoid (Pointwise _≈_ _≈_) ▹-rel ∥-rel ∣-rel (⊥ , ⊥)
-  IsJoinoid.▹-distrib-∣ joinoid = {!!}
-  IsJoinoid.∥-distrib-∣ joinoid = {!!}
+
+  IsJoinoid.▹-distrib-∣ joinoid {a} {b} {c} {a∣b} {d} (pre , post) (seq s req ens) with deMorganʳ post s
+  ... | cᵣ-aₑ , cᵣ-bₑ , τ₁ , τ₂ , τ₃ with resplit pre τ₃ req
+  ... | _ , _ , τ₄ , τ₅ , τ₆ with or-and-distribᵣ post ens
+  ... | _ , _ , τ₇ , τ₈ , τ₉ =
+    -,
+    -, seq τ₁ τ₄ τ₇
+     , seq τ₂ τ₅ τ₈
+     , (τ₆ , τ₉)
+
+  IsJoinoid.∥-distrib-∣ joinoid {a} {b} {c} {a∥b} {d} (pre₁ , post₁) (pre₂ , post₂) 
+    with resplit pre₁ ∪-idem pre₂ | or-and-distribᵣ post₁ post₂
+  ... | _ , _ , τ₁ , τ₂ , τ₃ | _ , _ , τ₄ , τ₅ , τ₆
+    = -,
+    -, (τ₁ , τ₄)
+     , (τ₂ , τ₅)
+     , (τ₃ , τ₆)
+
