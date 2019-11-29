@@ -29,13 +29,17 @@ instance ×-rel : {{_ : Rel₃ C₁}} {{_ : Rel₃ C₂}} → Rel₃ (C₁ × C�
 ×-rel {{R₁}} {{R₂}} = R₁ ×-∙ R₂
 
 module _
+  {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
+  {{ eq₁ : IsEquivalence _≈₁_ }} {{ eq₂ : IsEquivalence _≈₂_ }} where
+
+  instance ×-equiv : IsEquivalence (Pointwise _≈₁_ _≈₂_)
+  ×-equiv = ×-isEquivalence eq₁ eq₂
+
+module _
   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
   {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
   {{s₁ : IsPartialSemigroup _≈₁_ R₁}} {{s₂ : IsPartialSemigroup _≈₂_ R₂}}
   where
-
-  instance ×-equiv : IsEquivalence (Pointwise _≈₁_ _≈₂_)
-  ×-equiv = ×-isEquivalence ≈-equivalence ≈-equivalence
 
   instance ×-isSG : IsPartialSemigroup (Pointwise _≈₁_ _≈₂_) (R₁ ×-∙ R₂)
 
@@ -64,15 +68,15 @@ module _
   {{s₁ : IsPartialMonoid _≈₁_ R₁ u₁}} {{s₂ : IsPartialMonoid _≈₂_ R₂ u₂}}
   where
 
-  instance ×-IsPartialMonoid : IsPartialMonoid (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂) 
-  IsPartialMonoid.ε-unique ×-IsPartialMonoid (fst , snd) with ε-unique fst | ε-unique snd
+  instance ×-isPartialMonoid : IsPartialMonoid (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂) 
+  IsPartialMonoid.ε-unique ×-isPartialMonoid (fst , snd) with ε-unique fst | ε-unique snd
   ... | refl | refl = refl
 
-  IsPartialMonoid.∙-idˡ ×-IsPartialMonoid = ∙-idˡ , ∙-idˡ
-  IsPartialMonoid.∙-idʳ ×-IsPartialMonoid = ∙-idʳ , ∙-idʳ
+  IsPartialMonoid.∙-idˡ ×-isPartialMonoid = ∙-idˡ , ∙-idˡ
+  IsPartialMonoid.∙-idʳ ×-isPartialMonoid = ∙-idʳ , ∙-idʳ
 
-  IsPartialMonoid.∙-id⁻ˡ ×-IsPartialMonoid (fst , snd) = (∙-id⁻ˡ fst) , (∙-id⁻ˡ snd)
-  IsPartialMonoid.∙-id⁻ʳ ×-IsPartialMonoid (fst , snd) = (∙-id⁻ʳ fst) , (∙-id⁻ʳ snd)
+  IsPartialMonoid.∙-id⁻ˡ ×-isPartialMonoid (fst , snd) = (∙-id⁻ˡ fst) , (∙-id⁻ˡ snd)
+  IsPartialMonoid.∙-id⁻ʳ ×-isPartialMonoid (fst , snd) = (∙-id⁻ʳ fst) , (∙-id⁻ʳ snd)
 
 module _
   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}

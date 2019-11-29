@@ -8,6 +8,7 @@ open IsEquivalence {{...}}
 
 open import Relation.Ternary.Structures.PartialSemigroup public
 open import Relation.Ternary.Structures.PartialMonoid public
+open import Relation.Ternary.Structures.PartialJoinoid public
 open import Relation.Ternary.Structures.Commutative public
 open import Relation.Ternary.Structures.Total public
 open import Relation.Ternary.Structures.Positive public

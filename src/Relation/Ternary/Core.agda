@@ -122,6 +122,36 @@ module _ {a} {A : Set a} where
       → a ∸ c ≣ a-c → b ∸ c ≣ b-c → a-c ⊎ b-c ≣ d
       → ∃ λ a∪b → a ⊎ b ≣ a∪b × a∪b ∸ c ≣ d
 
+  LeftIdentity : Rel₃ A → A → Set a
+  LeftIdentity rel ε = let open Rel₃ rel in ∀ {Φ} → ε ∙ Φ ≣ Φ
+
+  LeftIdentity⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → A → Set (a ⊔ e)
+  LeftIdentity⁻ _≈_ rel ε = let open Rel₃ rel in ∀ {Φ Φ′} → ε ∙ Φ ≣ Φ′ → Φ ≈ Φ′
+
+  RightIdentity : Rel₃ A → A → Set a
+  RightIdentity rel ε = let open Rel₃ rel in ∀ {Φ} → Φ ∙ ε ≣ Φ
+
+  RightIdentity⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → A → Set (a ⊔ e)
+  RightIdentity⁻ _≈_ rel ε = let open Rel₃ rel in ∀ {Φ Φ′} → Φ ∙ ε ≣ Φ′ → Φ ≈ Φ′
+
+  LeftZero : Rel₃ A → A → Set a
+  LeftZero rel z = let open Rel₃ rel in ∀ {Φ} → z ∙ Φ ≣ z
+
+  LeftZero⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → A → Set (a ⊔ e)
+  LeftZero⁻ _≈_ rel z = let open Rel₃ rel in ∀ {Φ Φ′} → z ∙ Φ ≣ Φ′ → Φ ≈ Φ′
+
+  RightZero : Rel₃ A → A → Set a
+  RightZero rel z = let open Rel₃ rel in ∀ {Φ} → Φ ∙ z ≣ z
+
+  RightZero⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → A → Set (a ⊔ e)
+  RightZero⁻ _≈_ rel z = let open Rel₃ rel in ∀ {Φ Φ′} → z ∙ Φ ≣ Φ′ → Φ ≈ Φ′
+
+  Idempotent : Rel₃ A → Set a
+  Idempotent rel = let open Rel₃ rel in ∀ {Φ} → Φ ∙ Φ ≣ Φ
+
+  Idempotent⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e)
+  Idempotent⁻ _≈_ rel = let open Rel₃ rel in ∀ {Φ Φ′} → Φ ∙ Φ ≣ Φ′ → Φ ≈ Φ′
+
 module _ {a} {A : Set a} where
 
   open import Data.List
