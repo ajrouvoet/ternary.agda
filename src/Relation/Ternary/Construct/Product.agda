@@ -41,22 +41,22 @@ module _
   {{s₁ : IsPartialSemigroup _≈₁_ R₁}} {{s₂ : IsPartialSemigroup _≈₂_ R₂}}
   where
 
-  instance ×-isSG : IsPartialSemigroup (Pointwise _≈₁_ _≈₂_) (R₁ ×-∙ R₂)
+  instance ×-isSemigroup : IsPartialSemigroup (Pointwise _≈₁_ _≈₂_) (R₁ ×-∙ R₂)
 
-  Respect.coe (IsPartialSemigroup.∙-respects-≈ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ ×-isSemigroup) (eq₁ , eq₂) (σ₁ , σ₂) =
     coe eq₁ σ₁ , coe eq₂ σ₂
-  Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ ×-isSemigroup) (eq₁ , eq₂) (σ₁ , σ₂) =
     coe eq₁ σ₁ , coe eq₂ σ₂
-  Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ ×-isSG) (eq₁ , eq₂) (σ₁ , σ₂) =
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ ×-isSemigroup) (eq₁ , eq₂) (σ₁ , σ₂) =
     coe eq₁ σ₁ , coe eq₂ σ₂
 
-  IsPartialSemigroup.∙-assocᵣ ×-isSG (l₁  , r₁) (l₂ , r₂) =
+  IsPartialSemigroup.∙-assocᵣ ×-isSemigroup (l₁  , r₁) (l₂ , r₂) =
     let
       _ , l₃ , l₄ = ∙-assocᵣ l₁ l₂
       _ , r₃ , r₄ = ∙-assocᵣ r₁ r₂
     in -, (l₃ , r₃) , l₄ , r₄
 
-  IsPartialSemigroup.∙-assocₗ ×-isSG (l₁  , r₁) (l₂ , r₂) =
+  IsPartialSemigroup.∙-assocₗ ×-isSemigroup (l₁  , r₁) (l₂ , r₂) =
     let
       _ , l₃ , l₄ = ∙-assocₗ l₁ l₂
       _ , r₃ , r₄ = ∙-assocₗ r₁ r₂

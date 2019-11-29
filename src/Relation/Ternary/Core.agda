@@ -138,13 +138,13 @@ module _ {a} {A : Set a} where
   LeftZero rel z = let open Rel₃ rel in ∀ {Φ} → z ∙ Φ ≣ z
 
   LeftZero⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → A → Set (a ⊔ e)
-  LeftZero⁻ _≈_ rel z = let open Rel₃ rel in ∀ {Φ Φ′} → z ∙ Φ ≣ Φ′ → Φ ≈ Φ′
+  LeftZero⁻ _≈_ rel z = let open Rel₃ rel in ∀ {Φ Φ′} → z ∙ Φ ≣ Φ′ → Φ′ ≈ z
 
   RightZero : Rel₃ A → A → Set a
   RightZero rel z = let open Rel₃ rel in ∀ {Φ} → Φ ∙ z ≣ z
 
   RightZero⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → A → Set (a ⊔ e)
-  RightZero⁻ _≈_ rel z = let open Rel₃ rel in ∀ {Φ Φ′} → z ∙ Φ ≣ Φ′ → Φ ≈ Φ′
+  RightZero⁻ _≈_ rel z = let open Rel₃ rel in ∀ {Φ Φ′} → Φ ∙ z ≣ Φ′ → Φ′ ≈ z
 
   Idempotent : Rel₃ A → Set a
   Idempotent rel = let open Rel₃ rel in ∀ {Φ} → Φ ∙ Φ ≣ Φ
