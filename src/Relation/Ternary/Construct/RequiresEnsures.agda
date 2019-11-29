@@ -63,10 +63,10 @@ module _ where
   open Rel₃ ∥-rel using () renaming (_⊙_ to _∥_) public
 
 module _
-  {{ or-sg  : IsPartialSemigroup {_≈_ = _≈_} or }}
-  {{ and-sg : IsPartialSemigroup {_≈_ = _≈_} and }} where
+  {{ or-sg  : IsPartialSemigroup _≈_ or }}
+  {{ and-sg : IsPartialSemigroup _≈_ and }} where
 
-  instance ∥-sg : IsPartialSemigroup {_≈_ = _≈c_} ∥-rel
+  instance ∥-sg : IsPartialSemigroup _≈c_ ∥-rel
 
   Respect.coe (IsPartialSemigroup.∙-respects-≈ ∥-sg) (eq₁ , eq₂) (par req ens) =
     par (coe eq₁ req) (coe eq₂ ens)
@@ -89,10 +89,10 @@ module _
 
 module _
   {⊥ ⊤}
-  {{ or-sg  : IsPartialMonoid {_≈_ = _≈_} or ⊥ }}
-  {{ and-sg : IsPartialMonoid {_≈_ = _≈_} and ⊤ }} where
+  {{ or-sg  : IsPartialMonoid _≈_ or ⊥ }}
+  {{ and-sg : IsPartialMonoid _≈_ and ⊤ }} where
 
-  instance ∥-monoid : IsPartialMonoid {_≈_ = _≈c_} ∥-rel (⊥ ▸ ⊤)
+  instance ∥-monoid : IsPartialMonoid _≈c_ ∥-rel (⊥ ▸ ⊤)
 
   IsPartialMonoid.ε-unique ∥-monoid (eq₁ , eq₂) with ε-unique eq₁ | ε-unique eq₂
   ... | refl | refl = refl
@@ -104,11 +104,11 @@ module _
   IsPartialMonoid.∙-id⁻ʳ ∥-monoid (par σ₁ σ₂) = (∙-id⁻ʳ σ₁) , (∙-id⁻ʳ σ₂)
 
 module _
-  {{ or-comm  : IsCommutative {_≈_ = _≈_} or }}
-  {{ and-comm : IsCommutative {_≈_ = _≈_} and }}
+  {{ or-comm  : IsCommutative _≈_ or }}
+  {{ and-comm : IsCommutative _≈_ and }}
   where
 
-  instance comm : IsCommutative {_≈_ = _≈c_} ∥-rel
+  instance comm : IsCommutative _≈c_ ∥-rel
   IsCommutative.∙-comm comm (par σ₁ σ₂) = par (∙-comm σ₁) (∙-comm σ₂)
 
 {- Sequential composition -}
@@ -135,11 +135,11 @@ module _ where
 module _
   {{ -respectsʳ   : ∀ {a b} → Respect _≈_ (a -_≣ b) }}
   {{ -respectsˡ   : ∀ {a b} → Respect _≈_ (_- a ≣ b) }}
-  {{ or-sg        : IsPartialSemigroup {_≈_ = _≈_} or }}
-  {{ or-comm      : IsCommutative {_≈_ = _≈_} or }}
+  {{ or-sg        : IsPartialSemigroup _≈_ or }}
+  {{ or-comm      : IsCommutative _≈_ or }}
   where
   
-  assocᵣ : RightAssoc {_≈_ = _≈c_} ▹-rel
+  assocᵣ : RightAssoc _≈c_ ▹-rel
   assocᵣ {r₁ ▸ e₁} {r₂ ▸ e₂} {r₁∪r₂-e₁ ▸ e₁∪e₂} {r₃ ▸ e₃} {r₁∪r₂-e₁∪r₃-es ▸ e₁∪e₂∪e₃}
     record { subtract = s₁ ; seq-req = req₁ ; seq-ens = ens₁ }
     record { subtract = s₂ ; seq-req = req₂ ; seq-ens = ens₂ } =
@@ -152,7 +152,7 @@ module _
       -, seq τ₆ τ₃ ens₃
        , seq τ₁ τ₅ ens₄
 
-  assocₗ : LeftAssoc {_≈_ = _≈c_} ▹-rel
+  assocₗ : LeftAssoc _≈c_ ▹-rel
   assocₗ {r₁ ▸ e₁} {_} {r₂ ▸ e₂} {r₃ ▸ e₃} {abc}
     record { subtract = s₁ ; seq-req = req₁ ; seq-ens = ens₁ }
     record { subtract = s₂ ; seq-req = req₂ ; seq-ens = ens₂ } =
@@ -165,7 +165,7 @@ module _
       -, seq τ₁ τ₄ ens₃
        , seq τ₇ τ₅ ens₄
 
-  instance ▹-sg : IsPartialSemigroup {_≈_ = _≈c_} ▹-rel
+  instance ▹-sg : IsPartialSemigroup _≈c_ ▹-rel
 
   Respect.coe (IsPartialSemigroup.∙-respects-≈ ▹-sg) (eq₁ , eq₂) (seq s₁ req ens) =
     seq s₁ (coe eq₁ req) (coe eq₂ ens)

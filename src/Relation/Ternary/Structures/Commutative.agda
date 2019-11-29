@@ -94,12 +94,15 @@ module _
 
 {- Combined structures for abstract usage -}
 module _ where
+
   record IsCommutativeSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
+    instance constructor isCommSemigroup
     field
       {{isSemigroup}}   : IsPartialSemigroup rel
       {{isCommutative}} : IsCommutative rel
 
   record IsCommutativeMonoid (rel : Rel₃ A) u : Set (a ⊔ e) where
+    instance constructor isCommMonoid
     field
       {{isMonoid}}      : IsPartialMonoid rel u
       {{isCommutative}} : IsCommutative rel

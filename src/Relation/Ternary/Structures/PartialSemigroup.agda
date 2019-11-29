@@ -20,6 +20,7 @@ LeftAssoc rel = let open Rel₃ rel in
   ∀ {a bc b c abc}
     → a ∙ bc ≣ abc → b ∙ c ≣ bc
     → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
+
 record IsPartialSemigroup (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
 
