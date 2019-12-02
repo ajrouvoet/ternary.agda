@@ -37,7 +37,7 @@ module _ {{r : Rel₃ A}} where
   _~⊙_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a ⊔ e)
   P ~⊙ Q = P ─⊙ (𝑸 Q)
 
-module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid {_≈_ = _≈_} r u }} where
+module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid _≈_ r u }} where
   open import Data.Unit
 
   instance /-monad : ∀ {ℓ} → Monad {ℓ₁ = ℓ} ⊤ (λ _ _ P → 𝑸 P)

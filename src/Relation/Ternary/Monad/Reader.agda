@@ -6,7 +6,7 @@ module Relation.Ternary.Monad.Reader
   {a} {A : Set a}
   {C : Set a} {{rel : Rel₃ C}}
   {_≈_ : C → C → Set a}
-  {u} {{_ : IsPartialMonoid {_≈_ = _≈_} rel u}} 
+  {u} {{_ : IsPartialMonoid _≈_ rel u}} 
   where
 
 open import Level
@@ -63,7 +63,7 @@ module ReaderTransformer
 
   module _
     {{_ : ∀ {P} → Respect _≈_ (M P) }}
-    {{_ : IsCommutative {_≈_ = _≈_} rel}} where
+    {{_ : IsCommutative rel}} where
 
     frame : Γ₁ ∙ Γ₃ ≣ Γ₂ → ∀[ Reader Γ₁ [] P ⇒ Reader Γ₂ Γ₃ P ]
     frame sep c ⟨ σ ⟩ env = do

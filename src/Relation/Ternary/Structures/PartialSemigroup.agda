@@ -4,22 +4,10 @@ module Relation.Ternary.Structures.PartialSemigroup {a} {A : Set a} where
 open import Level
 open import Relation.Unary
 open import Relation.Binary.Structures
-open import Relation.Ternary.Core using (Rel₃; Respect; coe)
+open import Relation.Ternary.Core using (Rel₃; Respect; coe; RightAssoc; LeftAssoc)
 
 open import Function using (_∘_)
 open import Data.Product
-
-RightAssoc : Rel₃ A → Set a
-RightAssoc rel = let open Rel₃ rel in
-  ∀ {a b ab c abc}
-    → a ∙ b ≣ ab → ab ∙ c ≣ abc
-    → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc
-
-LeftAssoc : Rel₃ A → Set a
-LeftAssoc rel = let open Rel₃ rel in
-  ∀ {a bc b c abc}
-    → a ∙ bc ≣ abc → b ∙ c ≣ bc
-    → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
 
 record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel

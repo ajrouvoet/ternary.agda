@@ -57,14 +57,14 @@ instance
 ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consʳ τ₂ , τ₃ , consʳ τ₄
 
 instance
-  comm : IsCommutative {_≈_ = _≡_} interleave
+  comm : IsCommutative interleave
   IsCommutative.∙-comm comm = I.swap
   
-  comm-semigroup : IsPartialSemigroup {_≈_ = _≡_} interleave
-  comm-semigroup = psg {{isEquivalence}} interleaving-assoc
+  comm-semigroup : IsPartialSemigroup _≡_ interleave
+  comm-semigroup = partialSemigroupˡ {{isEquivalence}} respect-≡ respect-≡ interleaving-assoc
 
-  comm-monoid : IsPartialMonoid {_≈_ = _≡_} interleave []
-  comm-monoid = pcm id (right (≡⇒≋ P.refl)) id⁻
+  comm-monoid : IsPartialMonoid _≡_ interleave []
+  comm-monoid = partialMonoidˡ id (right (≡⇒≋ P.refl)) id⁻
     where
       id⁻ : ∀ {Φ} → ∀[ [] ∙ Φ ⇒ _≡_ Φ ]
       id⁻ = λ where
@@ -74,7 +74,7 @@ instance
   monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
   monoid = ++-isMonoid
 
-  total : IsTotal {_≈_ = _≡_} interleave _++_ []
+  total : IsTotal interleave _++_
 
   IsTotal.∙-∙ₗ total {Φₑ = []} σ = σ
   IsTotal.∙-∙ₗ total {Φₑ = x ∷ _} σ = consˡ (∙-∙ₗ σ)

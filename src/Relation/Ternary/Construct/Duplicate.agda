@@ -1,29 +1,26 @@
-module Relation.Ternary.Separation.Construct.Duplicate {a} (A : Set a) where
+module Relation.Ternary.Construct.Duplicate {a} (A : Set a) where
 
 open import Function
 open import Data.Product
 open import Relation.Unary
 open import Relation.Binary.PropositionalEquality
-open import Relation.Ternary.Separation
+open import Relation.Ternary.Core
+open import Relation.Ternary.Structures
 
 data Dup : A → A → A → Set a where
   dup : ∀ {a} → Dup a a a
 
-instance
-  dup-sep : RawSep A
-  dup-sep = record { _⊎_≣_ = Dup }
+instance dup-sep : Rel₃ A
+dup-sep = record { _∙_≣_ = Dup }
 
-  dup-is-sep : IsSep _≡_ dup-sep
-  IsSep.≈-equivalence dup-is-sep = isEquivalence
-  IsSep.⊎-respects-≈ dup-is-sep refl = id
-  IsSep.⊎-respects-≈ˡ dup-is-sep refl = id
-  IsSep.⊎-comm dup-is-sep dup = dup
-  IsSep.⊎-assoc dup-is-sep dup dup = -, dup , dup
+instance dup-is-comm : IsCommutative dup-sep
+IsCommutative.∙-comm dup-is-comm dup = dup
 
--- decorations are trivial
--- module _ {p} (P : Pred A p) where
---   open import Relation.Ternary.Separation.Decoration
---   open Decoration 
+dup-is-semigroupˡ : IsPartialSemigroupˡ _≡_ dup-sep
+IsPartialSemigroupˡ.≈-equivalence dup-is-semigroupˡ = isEquivalence
+Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ dup-is-semigroupˡ) refl = id
+Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ dup-is-semigroupˡ) refl = id
+IsPartialSemigroupˡ.assocᵣ dup-is-semigroupˡ dup dup = -, dup , dup
 
---   dup-decor : Decoration P
---   decorˡ dup-decor dup = id
+instance dup-is-semigroup : IsPartialSemigroup _≡_ dup-sep
+dup-is-semigroup = IsPartialSemigroupˡ.semigroupˡ dup-is-semigroupˡ

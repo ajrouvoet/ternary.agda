@@ -85,6 +85,18 @@ module _ {a} {A : Set a} where
   Commutative rel = let open Rel₃ rel
     in ∀ {a b ab : A} → a ∙ b ≣ ab → b ∙ a ≣ ab
 
+  RightAssoc : Rel₃ A → Set a
+  RightAssoc rel = let open Rel₃ rel in
+    ∀ {a b ab c abc}
+      → a ∙ b ≣ ab → ab ∙ c ≣ abc
+      → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc
+
+  LeftAssoc : Rel₃ A → Set a
+  LeftAssoc rel = let open Rel₃ rel in
+    ∀ {a bc b c abc}
+      → a ∙ bc ≣ abc → b ∙ c ≣ bc
+      → ∃ λ ab → a ∙ b ≣ ab × ab ∙ c ≣ abc
+
   -- (a - b) - c ≈> a - (b + c)
   RightAssoc′ : (add : Rel₃ A) → (sub : Rel₃ A) → Set a
   RightAssoc′ add sub =

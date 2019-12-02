@@ -13,7 +13,7 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Monad {_≈_ = _≈_}
 
-module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid {_≈_ = _≈_} r u }} where
+module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid _≈_ r u }} where
   open import Data.Unit
 
   record Upto p : Set (e ⊔ suc p ⊔ a) where

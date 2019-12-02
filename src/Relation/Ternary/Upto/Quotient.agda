@@ -6,7 +6,7 @@ open import Relation.Ternary.Structures
 module Relation.Ternary.Upto.Quotient
   {a} {A : Set a} {{rel : Rel₃ A}}
   {e} {_≈_ : A → A → Set e}
-  {unit} {{_ : IsPartialMonoid {_≈_ = _≈_} rel unit}} where
+  {unit} {{_ : IsPartialMonoid _≈_ rel unit}} where
 
 open import Level
 open import Function using (id)
