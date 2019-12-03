@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --without-K #-}
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Separation where
 
 open import Relation.Ternary.Core public
@@ -7,3 +7,5 @@ open import Relation.Ternary.Core public
     ; _∙⟨_⟩_ to _×⟨_⟩_
     ; _⊙_ to _✴_
     ; _─⊙_ to _─✴_)
+
+open import Relation.Ternary.Structures public

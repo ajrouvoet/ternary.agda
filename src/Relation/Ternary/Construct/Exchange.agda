@@ -79,13 +79,13 @@ module _
 
          Split (u₁ ↕ d₁) (u₂ ↕ d₂) ud
 
-  instance exchange-raw : Rel₃ Account
-  exchange-raw = record { _∙_≣_ = Split }
+  instance exchange-rel : Rel₃ Account
+  exchange-rel = record { _∙_≣_ = Split }
 
-  instance exchange-comm : IsCommutative exchange-raw
+  instance exchange-comm : IsCommutative exchange-rel
   IsCommutative.∙-comm exchange-comm (ex x₁ x₂ σ) = ex x₂ x₁ (∙-comm σ)
 
-  instance exchange-isSemigroup : IsPartialSemigroup _≈_ exchange-raw
+  instance exchange-isSemigroup : IsPartialSemigroup _≈_ exchange-rel
 
   Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ exchange-isSemigroup) (eq₁ , eq₂) (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) σ)
     = ex (coe eq₁ x₁₁ , x₁₂) (x₂₁ , coe eq₂ x₂₂) σ 
@@ -115,23 +115,23 @@ module _
   IsPartialSemigroup.∙-assocₗ exchange-isSemigroup σ₁ σ₂ =
     let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁) in -, ∙-comm σ₄ , ∙-comm σ₃
 
--- module _
---   {{ sep : Rel₃ A }} {eps}
---   {{ cs⁻ : HasCrossSplit⁻ _≈ₐ_ sep }}
---   {{ cs⁺ : HasCrossSplit⁺ _≈ₐ_ sep }}
---   {{ _  : IsPositive _≈ₐ_ sep eps }}
---   {{ un  : IsPartialMonoid _≈ₐ_ sep eps }}
---   where
+module _
+  {{ sep : Rel₃ A }} {eps}
+  {{ cs⁻ : IsCrosssplittable _≈ₐ_ sep }}
+  {{ _   : IsPositive _≈ₐ_ sep eps }}
+  {{ un  : IsPartialMonoid _≈ₐ_ sep eps }}
+  {{ _   : IsCommutative sep }}
+  where
 
---   open import Relation.Ternary.Separation.Construct.Product
+  open import Relation.Ternary.Construct.Product
 
---   instance exchange-has-unit : IsPartialMonoid _≈_ exchange-raw (eps ↕ eps)
---   IsPartialMonoid.ε-unique exchange-has-unit ρ with ε-unique (proj₁ ρ) | ε-unique (proj₂ ρ)
---   ... | PEq.refl | PEq.refl = PEq.refl
+  exchange-isMonoidˡ : IsPartialMonoidˡ _≈_ exchange-rel (eps ↕ eps)
+  IsPartialMonoidˡ.ε-uniq exchange-isMonoidˡ (eq₁ , eq₂) with ε-unique eq₁ | ε-unique eq₂
+  ... | PEq.refl | PEq.refl = PEq.refl
+  IsPartialMonoidˡ.identityˡ exchange-isMonoidˡ = ex (∙-idˡ , ∙-idʳ) (∙-idʳ , ∙-idˡ) (∙-idˡ )
+  IsPartialMonoidˡ.identity⁻ˡ exchange-isMonoidˡ (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with positive x₁₁ | positive x₂₂
+  ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl =
+    trans (sym (∙-id⁻ʳ x₂₁)) (∙-id⁻ˡ σ₁) , trans (sym (∙-id⁻ʳ x₁₂)) (∙-id⁻ˡ σ₂)
 
---   IsPartialMonoid.∙-idˡ exchange-has-unit =
---     ex (∙-idˡ , ∙-idʳ) (∙-idʳ , ∙-idˡ) (∙-idˡ {{×-hasUnit}})
-
---   IsPartialMonoid.∙-id⁻ˡ exchange-has-unit (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ∙-ε x₁₁ | ∙-ε x₂₂
---   ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl =
---     trans (sym (∙-id⁻ʳ x₂₁)) (∙-id⁻ˡ σ₁) , trans (sym (∙-id⁻ʳ x₁₂)) (∙-id⁻ˡ σ₂)
+  instance exchange-isMonoid : IsPartialMonoid _≈_ exchange-rel (eps ↕ eps)
+  exchange-isMonoid = IsPartialMonoidˡ.partialMonoidˡ exchange-isMonoidˡ

@@ -94,9 +94,8 @@ module _ where
 --     HasConcat.∙-∙ₗ split-has-concat {Φₑ = []} σ = σ
 --     HasConcat.∙-∙ₗ split-has-concat {Φₑ = x ∷ Φₑ} σ = consˡ (∙-∙ₗ σ) 
 
---     list-positive : IsPositive _≡_ splits []
---     list-positive = record
---       { ∙-εˡ = λ where [] → refl }
+  instance split-positive : IsPositive _≡_ splits []
+  IsPositive.positive′ split-positive [] = refl , refl
 
---     list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
---     list-monoid = ++-isMonoid
+  instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
+  list-monoid = ++-isMonoid
