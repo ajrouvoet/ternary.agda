@@ -19,11 +19,11 @@ record IsJoinoid {e} (_≈_ : A → A → Set e)
   : Set (a ⊔ e) where
 
   open Rel₃ ▹-rel using ()
-    renaming (_∙_≣_ to _▹_≣_; _⊙_ to _▹_)
+    renaming (_∙_≣_ to _▹_≣_; _⊙_ to _▹_) public
   open Rel₃ ∥-rel  using ()
-    renaming (_∙_≣_ to _∥_≣_; _⊙_ to _∥_)
+    renaming (_∙_≣_ to _∥_≣_; _⊙_ to _∥_) public
   open Rel₃ ∣-rel  using ()
-    renaming (_∙_≣_ to _∣_≣_; _⊙_ to _∣_)
+    renaming (_∙_≣_ to _∣_≣_; _⊙_ to _∣_) public
 
   field
     overlap {{▹-isMonoid}} : IsPartialMonoid _≈_ ▹-rel u

@@ -4,6 +4,7 @@ open import Relation.Ternary.Structures
 
 module Relation.Ternary.Data.ReflexiveTransitive
   {c} {C : Set c} {{rc : Rel₃ C}}
+  {_≈_ : C → C → Set c} {u} (_ : IsCommutativeMonoid _≈_ rc u)
   where
 
 open import Level
@@ -12,7 +13,6 @@ open import Relation.Unary
 open import Relation.Binary.PropositionalEquality
 
 module _
-  {_≈_ : C → C → Set c} {u} {{_ : IsCommutativeMonoid _≈_ rc u}}
   {A : Set c} (R : A → A → Pred C c) where
 
   data Star : (a₁ a₂ : A) → Pred C c where
