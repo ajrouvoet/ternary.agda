@@ -1,13 +1,8 @@
-{-# OPTIONS --safe --overlapping-instances #-}
+{-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Construct.List.Interdivide
-  {a e} (A : Set a) 
-  {division : Rel₃ A}
-  {_≈_ : A → A → Set e}
-  (_ : IsCommutativeSemigroup _≈_ division)
-  where
+module Relation.Ternary.Construct.List.Interdivide {a} (A : Set a) (division : Rel₃ A) where
 
 open import Level
 open import Algebra.Structures using (IsMonoid)
@@ -36,10 +31,62 @@ module _ where
     consʳ    : Split xs ys zs → Split xs (z ∷ ys) (z ∷ zs)
     []       : Split [] [] []
 
-
   -- Split yields a separation algebra
   instance splits : Rel₃ Carrier
   Rel₃._∙_≣_ splits = Split
+
+  instance split-positive : IsPositive _≡_ splits []
+  IsPositive.positive′ split-positive [] = refl , refl
+
+module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division}} where
+
+  private
+    assocᵣ : RightAssoc splits
+    assocᵣ σ₁ (consʳ σ₂) with assocᵣ σ₁ σ₂
+    ... | _ , σ₄ , σ₅ = -, consʳ σ₄ , consʳ σ₅
+    assocᵣ (consˡ σ₁) (divide τ σ₂) with assocᵣ σ₁ σ₂
+    ... | _ , σ₄ , σ₅ = -, divide τ σ₄ , consʳ σ₅
+    assocᵣ (consʳ σ₁) (divide τ σ₂)  with assocᵣ σ₁ σ₂
+    ... | _ , σ₄ , σ₅ = -, consʳ σ₄ , divide τ σ₅
+    assocᵣ (divide τ σ₁) (consˡ σ) with assocᵣ σ₁ σ
+    ... | _ , σ₄ , σ₅ = -, divide τ σ₄ , consˡ σ₅
+    assocᵣ (consˡ σ₁) (consˡ σ)  with assocᵣ σ₁ σ
+    ... | _ , σ₄ , σ₅ = -, consˡ σ₄ , σ₅
+    assocᵣ (consʳ σ₁) (consˡ σ) with assocᵣ σ₁ σ
+    ... | _ , σ₄ , σ₅ = -, consʳ σ₄ , consˡ σ₅
+    assocᵣ [] [] = -, [] , []
+    assocᵣ (divide lr σ₁) (divide rl σ₂) with assocᵣ σ₁ σ₂ | ∙-assocᵣ lr rl
+    ... | _ , σ₃ , σ₄ | _ , τ₃ , τ₄ = -, divide τ₃ σ₃ , divide τ₄ σ₄
+
+    assocₗ : LeftAssoc splits
+    assocₗ (divide x σ₁) (divide y σ₂) with assocₗ σ₁ σ₂ | ∙-assocₗ x y
+    ... | _ , σ₃ , σ₄ | _ , x' , y' = -, divide x' σ₃ , divide y' σ₄
+    assocₗ (divide x σ₁) (consˡ σ₂) with assocₗ σ₁ σ₂
+    ... | _ , σ₃ , σ₄ = -, divide x σ₃ , consˡ σ₄
+    assocₗ (divide x σ₁) (consʳ σ₂) with assocₗ σ₁ σ₂
+    ... | _ , σ₃ , σ₄ = -, consˡ σ₃ , divide x σ₄
+    assocₗ (consˡ σ₁) σ₂ with assocₗ σ₁ σ₂
+    ... | _ , σ₃ , σ₄ = -, consˡ σ₃ , consˡ σ₄
+    assocₗ (consʳ σ₁) (divide x σ₂) with assocₗ σ₁ σ₂
+    ... | _ , σ₃ , σ₄ = -, consʳ σ₃ , divide x σ₄
+    assocₗ (consʳ σ₁) (consˡ σ₂) with assocₗ σ₁ σ₂
+    ... | _ , σ₃ , σ₄ = -, consʳ σ₃ , consˡ σ₄
+    assocₗ (consʳ σ₁) (consʳ σ₂) with assocₗ σ₁ σ₂
+    ... | _ , σ₃ , σ₄ = -, σ₃ , consʳ σ₄
+    assocₗ [] [] = -, [] , []
+
+  instance split-is-semigroup : IsPartialSemigroup _≡_ splits
+
+  IsPartialSemigroup.≈-equivalence split-is-semigroup = isEquivalence
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ split-is-semigroup) refl σ = σ
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ split-is-semigroup) refl σ = σ
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ split-is-semigroup) refl σ = σ
+
+  -- reassociates
+  IsPartialSemigroup.∙-assocᵣ split-is-semigroup = assocᵣ
+  IsPartialSemigroup.∙-assocₗ split-is-semigroup = assocₗ
+
+module _ {{_ : IsCommutative division}} where
 
   instance split-comm : IsCommutative splits
   IsCommutative.∙-comm split-comm (divide τ σ) = divide (∙-comm τ) (∙-comm σ)
@@ -47,55 +94,29 @@ module _ where
   IsCommutative.∙-comm split-comm (consʳ σ) = consˡ (∙-comm σ)
   IsCommutative.∙-comm split-comm [] = []
 
-  assocᵣ : RightAssoc splits
-  assocᵣ σ₁ (consʳ σ₂) with assocᵣ σ₁ σ₂
-  ... | _ , σ₄ , σ₅ = -, consʳ σ₄ , consʳ σ₅
-  assocᵣ (consˡ σ₁) (divide τ σ₂) with assocᵣ σ₁ σ₂
-  ... | _ , σ₄ , σ₅ = -, divide τ σ₄ , consʳ σ₅
-  assocᵣ (consʳ σ₁) (divide τ σ₂)  with assocᵣ σ₁ σ₂
-  ... | _ , σ₄ , σ₅ = -, consʳ σ₄ , divide τ σ₅
-  assocᵣ (divide τ σ₁) (consˡ σ) with assocᵣ σ₁ σ
-  ... | _ , σ₄ , σ₅ = -, divide τ σ₄ , consˡ σ₅
-  assocᵣ (consˡ σ₁) (consˡ σ)  with assocᵣ σ₁ σ
-  ... | _ , σ₄ , σ₅ = -, consˡ σ₄ , σ₅
-  assocᵣ (consʳ σ₁) (consˡ σ) with assocᵣ σ₁ σ
-  ... | _ , σ₄ , σ₅ = -, consʳ σ₄ , consˡ σ₅
-  assocᵣ [] [] = -, [] , []
-  assocᵣ (divide lr σ₁) (divide rl σ₂) with assocᵣ σ₁ σ₂ | ∙-assocᵣ lr rl
-  ... | _ , σ₃ , σ₄ | _ , τ₃ , τ₄ = -, divide τ₃ σ₃ , divide τ₄ σ₄
 
-  instance split-is-semigroupˡ : IsPartialSemigroupˡ _≡_ splits
-
-  IsPartialSemigroupˡ.≈-equivalence split-is-semigroupˡ = isEquivalence
-  Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ split-is-semigroupˡ) refl σ = σ
-  Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ split-is-semigroupˡ) refl σ = σ
-
-  -- reassociates
-  IsPartialSemigroupˡ.assocᵣ split-is-semigroupˡ = assocᵣ
-
-  instance split-is-semigroup : IsPartialSemigroup _≡_ splits
-  split-is-semigroup = IsPartialSemigroupˡ.semigroupˡ split-is-semigroupˡ
-
-  split-is-monoidˡ : IsPartialMonoidˡ _≡_ splits []
-
-  IsPartialMonoidˡ.identityˡ split-is-monoidˡ {[]} = []
-  IsPartialMonoidˡ.identityˡ split-is-monoidˡ {x ∷ Φ} = consʳ (IsPartialMonoidˡ.identityˡ split-is-monoidˡ)
-
-  IsPartialMonoidˡ.ε-uniq split-is-monoidˡ refl = refl
-
-  IsPartialMonoidˡ.identity⁻ˡ split-is-monoidˡ (consʳ σ) = cong (_ ∷_) (IsPartialMonoidˡ.identity⁻ˡ split-is-monoidˡ σ)
-  IsPartialMonoidˡ.identity⁻ˡ split-is-monoidˡ []        = refl
+module _ {e} {_≈_ : A → A → Set e} {unit} {{_ : IsPartialMonoid _≈_ division unit}} where
 
   instance split-is-monoid : IsPartialMonoid _≡_ splits []
-  split-is-monoid = IsPartialMonoidˡ.partialMonoidˡ split-is-monoidˡ
 
---     split-has-concat : HasConcat _≡_ splits
---     HasConcat._∙_ split-has-concat = _++_
---     HasConcat.∙-∙ₗ split-has-concat {Φₑ = []} σ = σ
---     HasConcat.∙-∙ₗ split-has-concat {Φₑ = x ∷ Φₑ} σ = consˡ (∙-∙ₗ σ) 
+  IsPartialMonoid.∙-idˡ split-is-monoid {[]} = []
+  IsPartialMonoid.∙-idˡ split-is-monoid {x ∷ Φ} = consʳ ∙-idˡ 
 
-  instance split-positive : IsPositive _≡_ splits []
-  IsPositive.positive′ split-positive [] = refl , refl
+  IsPartialMonoid.∙-idʳ split-is-monoid {[]} = []
+  IsPartialMonoid.∙-idʳ split-is-monoid {x ∷ Φ} = consˡ ∙-idʳ
+
+  IsPartialMonoid.ε-unique split-is-monoid refl = refl
+
+  IsPartialMonoid.∙-id⁻ˡ split-is-monoid (consʳ σ) = cong (_ ∷_) (∙-id⁻ˡ σ)
+  IsPartialMonoid.∙-id⁻ˡ split-is-monoid []        = refl
+
+  IsPartialMonoid.∙-id⁻ʳ split-is-monoid (consˡ σ) = cong (_ ∷_) (∙-id⁻ʳ σ)
+  IsPartialMonoid.∙-id⁻ʳ split-is-monoid []        = refl
+
+-- --     split-has-concat : HasConcat _≡_ splits
+-- --     HasConcat._∙_ split-has-concat = _++_
+-- --     HasConcat.∙-∙ₗ split-has-concat {Φₑ = []} σ = σ
+-- --     HasConcat.∙-∙ₗ split-has-concat {Φₑ = x ∷ Φₑ} σ = consˡ (∙-∙ₗ σ) 
 
   instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
   list-monoid = ++-isMonoid
