@@ -12,8 +12,6 @@ record Joinoid a e : Set (suc (a ⊔ e)) where
   open Setoid setoid public using (_≈_; Carrier)
 
   field
-    {▹-rel ∥-rel ∣-rel} : Rel₃ Carrier
-    {unit}             : Carrier
-    isJoinoid          : IsJoinoid _≈_ ▹-rel ∥-rel ∣-rel unit
-
-  open IsJoinoid isJoinoid public
+    overlap {{▹-rel ∥-rel ∣-rel}} : Rel₃ Carrier
+    {unit}                       : Carrier
+    {{isJoinoid}}                : IsJoinoid _≈_ ▹-rel ∥-rel ∣-rel unit

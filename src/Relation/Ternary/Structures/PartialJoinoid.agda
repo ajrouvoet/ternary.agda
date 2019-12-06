@@ -1,22 +1,28 @@
 {-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
 
-module Relation.Ternary.Structures.PartialJoinoid
-  {a} {A : Set a}
-  where
+module Relation.Ternary.Structures.PartialJoinoid {a} {A : Set a} where
 
 open import Level
 
+open import Data.Product
+open import Relation.Binary.Structures
 open import Relation.Ternary.Structures.PartialSemigroup
-open import Relation.Ternary.Structures.PartialMonoid
+open import Relation.Ternary.Structures.PartialMonoid hiding (≤-isPreorder)
 open import Relation.Ternary.Structures.Commutative
+open import Relation.Ternary.Structures.Functional
+open IsEquivalence {{...}}
+  using ()
+  renaming (refl to ≈-refl; sym to ≈-sym; trans to ≈-trans) public
 
-record IsJoinoid {e} (_≈_ : A → A → Set e)
+record IsJoinoid {e₂}
+  -- (_≤_ : A → A → Set e₁)
+  (_≈_ : A → A → Set e₂)
   (▹-rel : Rel₃ A)
   (∥-rel  : Rel₃ A)
   (∣-rel  : Rel₃ A)
   (u : A)
-  : Set (a ⊔ e) where
+  : Set (a ⊔ e₂) where
 
   open Rel₃ ▹-rel using ()
     renaming (_∙_≣_ to _▹_≣_; _⊙_ to _▹_) public
@@ -26,12 +32,49 @@ record IsJoinoid {e} (_≈_ : A → A → Set e)
     renaming (_∙_≣_ to _∣_≣_; _⊙_ to _∣_) public
 
   field
-    overlap {{▹-isMonoid}} : IsPartialMonoid _≈_ ▹-rel u
+    -- overlap {{≤-isPreorder}}          : IsPreorder _≈_ _≤_
+    overlap {{▹-isMonoid}}            : IsPartialMonoid _≈_ ▹-rel u
     overlap {{∥-isCommutativeMonoid}} : IsCommutativeMonoid _≈_ ∥-rel u
-    overlap {{∣-isSemigroup}} : IsPartialSemigroup _≈_ ∣-rel
+    overlap {{∣-isSemigroup}}         : IsPartialSemigroup _≈_ ∣-rel
 
-    -- sequential composition distributes over choice
-    ▹-distrib-∣ : Distribᵣ ∣-rel ▹-rel
+    -- Sequential composition distributes over choice.
+    -- The distributivity laws make formal that choice is different than both sequential and parallel composition,
+    -- in the sense that an execution of the former only sees /either/ effect, and an execution of the latter sees /both/ the LHS and RHS effects.
+    ▹-distrib-∣ʳ : ▹-rel DistribOverᵣ ∣-rel
+    ▹-distrib-∣ˡ : ▹-rel DistribOverₗ ∣-rel
 
     -- parallel composition distributes over choice
-    ∥-distrib-∣ : Distribᵣ ∣-rel ∥-rel
+    ∥-distrib-∣ʳ : ∥-rel DistribOverᵣ ∣-rel
+    ∥-distrib-∣ˡ : ∥-rel DistribOverₗ ∣-rel
+
+  module _ {{∣-monoid : IsPartialMonoid _≈_ ∣-rel u}} where
+
+    -- The distributivity laws imply idempotence of choice, iff choice also has a unit.
+    ∙-idem : Φ ∣ Φ ≣ Φ
+    ∙-idem {Φ} with ▹-distrib-∣ʳ (∙-idˡ {Φ = ε {{∣-monoid}}}) (∙-idˡ {Φ = Φ})
+    ... | _ , _ , τ₁ , τ₂ , τ₃ =
+      coe (≈-sym (∙-id⁻ˡ τ₂)) (
+      coe {{ ∙-respects-≈ˡ }} (≈-sym (∙-id⁻ˡ τ₁)) τ₃)
+
+  module _
+    {{∣-monoid : IsPartialMonoid _≈_ ∣-rel u}}
+    {{▹-funct : IsFunctional _≈_ ▹-rel}}
+    where
+
+    ▹-absorps-∣ʳ : ∀ {a b c} → a ▹ b ≣ c → c ∣ b ≣ c
+    ▹-absorps-∣ʳ {a} {b} {c} σ with ▹-distrib-∣ʳ (∙-idʳ {{∣-monoid}} {a}) σ
+    ... | _ , _ , τ₁ , τ₂ , τ₃ =
+      coe {{∙-respects-≈ˡ}} (functional τ₁ σ) (
+      coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ˡ τ₂)) τ₃)
+
+  module _
+    {{∣-monoid : IsPartialMonoid _≈_ ∣-rel u}}
+    {{∥-funct : IsFunctional _≈_ ∥-rel}}
+    where
+    ∥-absorps-∣ʳ : ∀ {a b c} → a ∥ b ≣ c → c ∣ b ≣ c
+    ∥-absorps-∣ʳ {a} {b} {c} σ with ∥-distrib-∣ʳ (∙-idʳ {{∣-monoid}} {a}) σ
+    ... | _ , _ , τ₁ , τ₂ , τ₃ =
+      coe {{∙-respects-≈ˡ}} (functional τ₁ σ) (
+      coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ˡ τ₂)) τ₃)
+
+open IsJoinoid {{...}} public

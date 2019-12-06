@@ -78,6 +78,12 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
     _─⊙_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
     _─⊙_ = _─⊙[ id ]_
 
+{- Rel morphisms -}
+module _ {a} {A : Set a} where
+
+  _flipped : Rel₃ A → Rel₃ A
+  Rel₃._∙_≣_ (rel flipped) = let open Rel₃ rel in λ Φ₁ Φ₂ Φ → Φ₂ ∙ Φ₁ ≣ Φ
+
 {- Properties of ternary relations -}
 module _ {a} {A : Set a} where
 
@@ -118,8 +124,8 @@ module _ {a} {A : Set a} where
 
   -- (a ∪ b) - c => (a - c) ∪ (b - c)
   -- sub distributes over cup
-  Distribᵣ : (cup : Rel₃ A) → (sub : Rel₃ A) → Set a
-  Distribᵣ cup sub =
+  _DistribOverᵣ_ : (sub : Rel₃ A) (cup : Rel₃ A) → Set a
+  _DistribOverᵣ_ sub cup =
     let open Rel₃ cup renaming (_∙_≣_ to _⊎_≣_)
         open Rel₃ sub renaming (_∙_≣_ to _∸_≣_)
     in ∀ {a b c a∪b d}
@@ -127,8 +133,8 @@ module _ {a} {A : Set a} where
       → ∃₂ λ a-c b-c → a ∸ c ≣ a-c × b ∸ c ≣ b-c × a-c ⊎ b-c ≣ d
 
   -- (a ∪ b) - c <= (a - c) ∪ (b - c)
-  Distribₗ : (cup : Rel₃ A) → (sub : Rel₃ A) → Set a
-  Distribₗ cup sub =
+  _DistribOverₗ_ : (sub : Rel₃ A) → (cup : Rel₃ A) → Set a
+  _DistribOverₗ_ sub cup =
     let open Rel₃ cup renaming (_∙_≣_ to _⊎_≣_)
         open Rel₃ sub renaming (_∙_≣_ to _∸_≣_)
     in ∀ {a b c d a-c b-c}
@@ -164,6 +170,17 @@ module _ {a} {A : Set a} where
 
   Idempotent⁻ : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e)
   Idempotent⁻ _≈_ rel = let open Rel₃ rel in ∀ {Φ Φ′} → Φ ∙ Φ ≣ Φ′ → Φ ≈ Φ′
+
+  LeftMonotone : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e)
+  LeftMonotone _∼_ rel = let open Rel₃ rel in 
+    ∀ {Φ₁ Φ₂ Φ Φ₃ Φ′} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∼ Φ₃ → Φ₃ ∙ Φ₂ ≣ Φ′ → Φ ∼ Φ′
+
+  RightMonotone : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e)
+  RightMonotone _∼_ rel = LeftMonotone _∼_ (rel flipped)
+
+  Functional : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e) 
+  Functional _≈_ rel = let open Rel₃ rel in
+    ∀ {a b c c'} → a ∙ b ≣ c → a ∙ b ≣ c' → c ≈ c'
 
   -- a ∸ (b ∩ c) ≈ (a ∸ b) ∪ (a ∸ c)
   DeMorganʳ : (sub cap cup : Rel₃ A) → Set a

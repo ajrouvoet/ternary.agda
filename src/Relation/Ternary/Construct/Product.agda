@@ -86,6 +86,32 @@ module _
   instance ×-isCommutative : IsCommutative ×-rel
   IsCommutative.∙-comm ×-isCommutative (fst , snd) = ∙-comm fst , ∙-comm snd
 
+module _
+  {{∥₁ ∣₁ ▹₁ : Rel₃ C₁}} {{∥₂ ∣₂ ▹₂ : Rel₃ C₂}}
+  {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
+  {u₁ u₂}
+  {{j₁ : IsJoinoid _≈₁_ ▹₁ ∥₁ ∣₁ u₁}} {{j₂ : IsJoinoid _≈₂_ ▹₂ ∥₂ ∣₂ u₂}} where
+
+  ×-joinoid : IsJoinoid (Pointwise _≈₁_ _≈₂_) (×-rel {{▹₁}} {{▹₂}}) (×-rel {{∥₁}} {{∥₂}}) (×-rel {{∣₁}} {{∣₂}}) (u₁ , u₂)
+
+  IsJoinoid.▹-distrib-∣ʳ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) =
+    let _ , _ , τ₁ , τ₂ , τ₃ = ▹-distrib-∣ʳ σ₁₁ σ₂₁ in
+    let _ , _ , χ₁ , χ₂ , χ₃ = ▹-distrib-∣ʳ σ₁₂ σ₂₂ in
+    -, -, (τ₁ , χ₁) , (τ₂ , χ₂) , τ₃ , χ₃
+  IsJoinoid.▹-distrib-∣ˡ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) (σ₃₁ , σ₃₂) =
+    let _ , τ₁ , τ₂ = ▹-distrib-∣ˡ σ₁₁ σ₂₁ σ₃₁ in
+    let _ , χ₁ , χ₂ = ▹-distrib-∣ˡ σ₁₂ σ₂₂ σ₃₂ in
+    -, (τ₁ , χ₁) , (τ₂ , χ₂)
+
+  IsJoinoid.∥-distrib-∣ʳ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) =
+    let _ , _ , τ₁ , τ₂ , τ₃ = ∥-distrib-∣ʳ σ₁₁ σ₂₁ in
+    let _ , _ , χ₁ , χ₂ , χ₃ = ∥-distrib-∣ʳ σ₁₂ σ₂₂ in
+    -, -, (τ₁ , χ₁) , (τ₂ , χ₂) , τ₃ , χ₃
+  IsJoinoid.∥-distrib-∣ˡ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) (σ₃₁ , σ₃₂) =
+    let _ , τ₁ , τ₂ = ∥-distrib-∣ˡ σ₁₁ σ₂₁ σ₃₁ in
+    let _ , χ₁ , χ₂ = ∥-distrib-∣ˡ σ₁₂ σ₂₂ σ₃₂ in
+    -, (τ₁ , χ₁) , (τ₂ , χ₂)
+
 --   module _
 --     {{sep₁ : Rel₃ C₁}} {{sep₂ : Rel₃ C₂}}
 --     {{s₁ : HasConcat _≈₁_ sep₁}} {{s₂ : HasConcat _≈₂_ sep₂}}

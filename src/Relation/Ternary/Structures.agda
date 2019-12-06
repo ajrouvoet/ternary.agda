@@ -12,4 +12,5 @@ open import Relation.Ternary.Structures.PartialJoinoid public
 open import Relation.Ternary.Structures.Commutative public
 open import Relation.Ternary.Structures.Total public
 open import Relation.Ternary.Structures.Positive public
+open import Relation.Ternary.Structures.Functional public
 open import Relation.Ternary.Structures.Crosssplit public

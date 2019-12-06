@@ -2,7 +2,7 @@
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Construct.List.Interdivide {a} (A : Set a) (division : Rel₃ A) where
+module Relation.Ternary.Construct.List.Interdivide {a} {A : Set a} (division : Rel₃ A) where
 
 open import Level
 open import Algebra.Structures using (IsMonoid)
@@ -75,43 +75,43 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
     ... | _ , σ₃ , σ₄ = -, σ₃ , consʳ σ₄
     assocₗ [] [] = -, [] , []
 
-  instance split-is-semigroup : IsPartialSemigroup _≡_ splits
+  instance split-isSemigroup : IsPartialSemigroup _≡_ splits
 
-  IsPartialSemigroup.≈-equivalence split-is-semigroup = isEquivalence
-  Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ split-is-semigroup) refl σ = σ
-  Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ split-is-semigroup) refl σ = σ
-  Respect.coe (IsPartialSemigroup.∙-respects-≈ split-is-semigroup) refl σ = σ
+  IsPartialSemigroup.≈-equivalence split-isSemigroup = isEquivalence
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ split-isSemigroup) refl σ = σ
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ split-isSemigroup) refl σ = σ
+  Respect.coe (IsPartialSemigroup.∙-respects-≈ split-isSemigroup) refl σ = σ
 
   -- reassociates
-  IsPartialSemigroup.∙-assocᵣ split-is-semigroup = assocᵣ
-  IsPartialSemigroup.∙-assocₗ split-is-semigroup = assocₗ
+  IsPartialSemigroup.∙-assocᵣ split-isSemigroup = assocᵣ
+  IsPartialSemigroup.∙-assocₗ split-isSemigroup = assocₗ
 
 module _ {{_ : IsCommutative division}} where
 
-  instance split-comm : IsCommutative splits
-  IsCommutative.∙-comm split-comm (divide τ σ) = divide (∙-comm τ) (∙-comm σ)
-  IsCommutative.∙-comm split-comm (consˡ σ)  = consʳ (∙-comm σ)
-  IsCommutative.∙-comm split-comm (consʳ σ) = consˡ (∙-comm σ)
-  IsCommutative.∙-comm split-comm [] = []
+  instance split-isComm : IsCommutative splits
+  IsCommutative.∙-comm split-isComm (divide τ σ) = divide (∙-comm τ) (∙-comm σ)
+  IsCommutative.∙-comm split-isComm (consˡ σ)  = consʳ (∙-comm σ)
+  IsCommutative.∙-comm split-isComm (consʳ σ) = consˡ (∙-comm σ)
+  IsCommutative.∙-comm split-isComm [] = []
 
 
 module _ {e} {_≈_ : A → A → Set e} {unit} {{_ : IsPartialMonoid _≈_ division unit}} where
 
-  instance split-is-monoid : IsPartialMonoid _≡_ splits []
+  instance split-isMonoid : IsPartialMonoid _≡_ splits []
 
-  IsPartialMonoid.∙-idˡ split-is-monoid {[]} = []
-  IsPartialMonoid.∙-idˡ split-is-monoid {x ∷ Φ} = consʳ ∙-idˡ 
+  IsPartialMonoid.∙-idˡ split-isMonoid {[]} = []
+  IsPartialMonoid.∙-idˡ split-isMonoid {x ∷ Φ} = consʳ ∙-idˡ 
 
-  IsPartialMonoid.∙-idʳ split-is-monoid {[]} = []
-  IsPartialMonoid.∙-idʳ split-is-monoid {x ∷ Φ} = consˡ ∙-idʳ
+  IsPartialMonoid.∙-idʳ split-isMonoid {[]} = []
+  IsPartialMonoid.∙-idʳ split-isMonoid {x ∷ Φ} = consˡ ∙-idʳ
 
-  IsPartialMonoid.ε-unique split-is-monoid refl = refl
+  IsPartialMonoid.ε-unique split-isMonoid refl = refl
 
-  IsPartialMonoid.∙-id⁻ˡ split-is-monoid (consʳ σ) = cong (_ ∷_) (∙-id⁻ˡ σ)
-  IsPartialMonoid.∙-id⁻ˡ split-is-monoid []        = refl
+  IsPartialMonoid.∙-id⁻ˡ split-isMonoid (consʳ σ) = cong (_ ∷_) (∙-id⁻ˡ σ)
+  IsPartialMonoid.∙-id⁻ˡ split-isMonoid []        = refl
 
-  IsPartialMonoid.∙-id⁻ʳ split-is-monoid (consˡ σ) = cong (_ ∷_) (∙-id⁻ʳ σ)
-  IsPartialMonoid.∙-id⁻ʳ split-is-monoid []        = refl
+  IsPartialMonoid.∙-id⁻ʳ split-isMonoid (consˡ σ) = cong (_ ∷_) (∙-id⁻ʳ σ)
+  IsPartialMonoid.∙-id⁻ʳ split-isMonoid []        = refl
 
 -- --     split-has-concat : HasConcat _≡_ splits
 -- --     HasConcat._∙_ split-has-concat = _++_
