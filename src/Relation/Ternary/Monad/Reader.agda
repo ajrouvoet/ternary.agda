@@ -70,7 +70,7 @@ module ReaderTransformer
       let E₁ ∙⟨ σ₁ ⟩ E₂ = repartition sep env
       let _ , σ₂ , σ₃   = ∙-assocᵣ (∙-comm σ₁) σ 
       (nil ∙⟨ σ₆ ⟩ px) ∙⟨ σ₅ ⟩ E₂ ← (c ⟨ σ₃ ⟩ E₁) &⟨ Allstar _ _ ∥ ∙-comm σ₂ ⟩ E₂
-      return (E₂ ∙⟨ coe {{ ∙-respects-≈ʳ }} (≈-sym (∙-id⁻ˡ σ₆)) (∙-comm σ₅) ⟩ px)
+      return (E₂ ∙⟨ coe (≈-sym (∙-id⁻ˡ σ₆)) (∙-comm σ₅) ⟩ px)
 
     liftM : ∀[ M P ⇒ Reader Γ Γ P ]
     liftM mp ⟨ σ ⟩ env =

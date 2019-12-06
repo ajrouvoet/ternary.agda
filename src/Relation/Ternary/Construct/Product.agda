@@ -92,7 +92,7 @@ module _
   {u₁ u₂}
   {{j₁ : IsJoinoid _≈₁_ ▹₁ ∥₁ ∣₁ u₁}} {{j₂ : IsJoinoid _≈₂_ ▹₂ ∥₂ ∣₂ u₂}} where
 
-  ×-joinoid : IsJoinoid (Pointwise _≈₁_ _≈₂_) (×-rel {{▹₁}} {{▹₂}}) (×-rel {{∥₁}} {{∥₂}}) (×-rel {{∣₁}} {{∣₂}}) (u₁ , u₂)
+  instance ×-joinoid : IsJoinoid (Pointwise _≈₁_ _≈₂_) (×-rel {{▹₁}} {{▹₂}}) (×-rel {{∥₁}} {{∥₂}}) (×-rel {{∣₁}} {{∣₂}}) (u₁ , u₂)
 
   IsJoinoid.▹-distrib-∣ʳ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) =
     let _ , _ , τ₁ , τ₂ , τ₃ = ▹-distrib-∣ʳ σ₁₁ σ₂₁ in

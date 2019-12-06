@@ -95,7 +95,7 @@ module _ {{_ : IsCommutative division}} where
   IsCommutative.∙-comm split-isComm [] = []
 
 
-module _ {e} {_≈_ : A → A → Set e} {unit} {{_ : IsPartialMonoid _≈_ division unit}} where
+module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division}} where
 
   instance split-isMonoid : IsPartialMonoid _≡_ splits []
 

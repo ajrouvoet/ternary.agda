@@ -78,10 +78,10 @@ record IsJoinoid {e₂}
       coe {{∙-respects-≈ˡ}} (functional τ₁ σ) (
       coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ˡ τ₂)) τ₃)
 
-open IsJoinoid {{...}} public
+open IsJoinoid {{...}} public hiding (_▹_≣_; _∥_≣_; _∣_≣_)
 
 -- every functional, idempotent, commutative monoid yields a joinoid.
-module _ {{rel : Rel₃ A}}
+module FromMonoid (rel : Rel₃ A)
   {e} {_≈_ : A → A → Set e} 
   {u : A} {{ m : IsCommutativeMonoid _≈_ rel u }}
   {{ f : IsFunctional _≈_ rel }}
