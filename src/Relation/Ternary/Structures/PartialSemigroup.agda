@@ -61,9 +61,8 @@ record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set
     com : ∀[ (Q ─⊙ R) ⇒ (P ─⊙ Q) ─⊙ (P ─⊙ R) ]
     com g ⟨ σ₁ ⟩ f ⟨ σ₂ ⟩ px = let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in g ⟨ σ₃ ⟩ (f ⟨ σ₄ ⟩ px)
 
-    private
-      com-syntax : (Q ─⊙ R) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → (P ─⊙ Q) Φ₂ → (P ─⊙ R) Φ
-      com-syntax g σ f = com g ⟨ σ ⟩ f
+    com-syntax : (Q ─⊙ R) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → (P ─⊙ Q) Φ₂ → (P ─⊙ R) Φ
+    com-syntax g σ f = com g ⟨ σ ⟩ f
 
     syntax com-syntax f σ g = f ∘⟨ σ ⟩ g
 
