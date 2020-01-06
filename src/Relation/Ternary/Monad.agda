@@ -48,7 +48,7 @@ module _ where
     typed-str Q mp σ qx = str {Q = Q} mp σ qx
 
     syntax str mp σ qx = mp &⟨ σ ⟩ qx
-    syntax typed-str Q mp σ qx = mp &⟨ Q ∥ σ ⟩ qx
+    syntax typed-str Q mp σ qx = mp &⟨ Q # σ ⟩ qx
 
 {- Having identities begets you external operations -}
 module _

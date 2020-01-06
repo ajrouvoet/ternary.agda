@@ -56,35 +56,38 @@ instance
 ∙-cross (consʳ σ₁) (consʳ σ₂) with ∙-cross σ₁ σ₂
 ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consʳ τ₂ , τ₃ , consʳ τ₄
 
-instance
-  comm : IsCommutative interleave
-  IsCommutative.∙-comm comm = I.swap
+instance comm : IsCommutative interleave
+IsCommutative.∙-comm comm = I.swap
   
-  comm-semigroup : IsPartialSemigroup _≡_ interleave
-  comm-semigroup = partialSemigroupˡ {{isEquivalence}} respect-≡ respect-≡ interleaving-assoc
+instance comm-semigroup : IsPartialSemigroup _≡_ interleave
+IsPartialSemigroup.≈-equivalence comm-semigroup = isEquivalence
+IsPartialSemigroup.∙-assocᵣ comm-semigroup = interleaving-assoc
+IsPartialSemigroup.∙-assocₗ comm-semigroup σ₁ σ₂ =
+  let _ , σ₃ , σ₄ = interleaving-assoc (I.swap σ₂) (I.swap σ₁)
+  in -, (I.swap σ₄) , (I.swap σ₃)
 
-  comm-monoid : IsPartialMonoid _≡_ interleave []
-  comm-monoid = partialMonoidˡ id (right (≡⇒≋ P.refl)) id⁻
-    where
-      id⁻ : ∀ {Φ} → ∀[ [] ∙ Φ ⇒ _≡_ Φ ]
-      id⁻ = λ where
-        [] → refl
-        (consʳ σ) → cong (_ ∷_) (id⁻ σ)
+comm-monoidˡ : IsPartialMonoidˡ _≡_ interleave []
+IsPartialMonoidˡ.ε-uniq comm-monoidˡ refl = refl
+IsPartialMonoidˡ.identity⁻ˡ comm-monoidˡ [] = refl
+IsPartialMonoidˡ.identity⁻ˡ comm-monoidˡ (consʳ σ) = cong (_ ∷_) (IsPartialMonoidˡ.identity⁻ˡ comm-monoidˡ σ)
+IsPartialMonoidˡ.identityˡ comm-monoidˡ = right (≡⇒≋ P.refl)
 
-  monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
-  monoid = ++-isMonoid
+instance comm-monoid : IsPartialMonoid _≡_ interleave []
+comm-monoid = IsPartialMonoidˡ.partialMonoidˡ comm-monoidˡ
 
-  total : IsTotal interleave _++_
+instance monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
+monoid = ++-isMonoid
 
-  IsTotal.∙-∙ₗ total {Φₑ = []} σ = σ
-  IsTotal.∙-∙ₗ total {Φₑ = x ∷ _} σ = consˡ (∙-∙ₗ σ)
+instance total : IsTotal interleave _++_
 
-  IsTotal.∙-∙ᵣ total {Φₑ = []} σ = σ
-  IsTotal.∙-∙ᵣ total {Φₑ = x ∷ _} σ = consʳ (∙-∙ᵣ σ)
+IsTotal.∙-∙ₗ total {Φₑ = []} σ = σ
+IsTotal.∙-∙ₗ total {Φₑ = x ∷ _} σ = consˡ (∙-∙ₗ σ)
 
-  -- list-positive : IsPositive interleave ε
-  -- list-positive = record
-  --   { ∙-εˡ = λ where [] → refl }
+IsTotal.∙-∙ᵣ total {Φₑ = []} σ = σ
+IsTotal.∙-∙ᵣ total {Φₑ = x ∷ _} σ = consʳ (∙-∙ᵣ σ)
 
-  -- list-has-cross⁺ : HasCrossSplit⁺ interleave
-  -- list-has-cross⁺ = record { cross = ∙-cross }
+list-positive : IsPositive _≡_ interleave ε
+IsPositive.positive′ list-positive [] = refl , refl
+
+  -- -- list-has-cross⁺ : HasCrossSplit⁺ interleave
+  -- -- list-has-cross⁺ = record { cross = ∙-cross }

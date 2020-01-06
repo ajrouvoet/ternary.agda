@@ -12,8 +12,8 @@ module Relation.Ternary.Construct.RequiresEnsures
   {{or  : Rel₃ A}} {{sub : Rel₃ A}}
   (or-sub-assocₗ  : LeftAssoc′ or sub)
   (or-sub-assocᵣ  : RightAssoc′ or sub)
-  (or-sub-distribₗ : Distribₗ or sub)
-  (or-sub-distribᵣ : Distribᵣ or sub)
+  (or-sub-distribₗ : sub DistribOverₗ or)
+  (or-sub-distribᵣ : sub DistribOverᵣ or)
 
   where
 
@@ -129,7 +129,7 @@ module ReqEnsJoinoid
   (∸-zeroˡ         : LeftZero sub ⊥) 
   (∸-zero⁻ˡ        : LeftZero⁻ _≈_ sub ⊥) 
   (deMorganʳ       : DeMorganʳ sub and or)
-  (or-and-distribᵣ : Distribᵣ and or)
+  (or-and-distribᵣ : and DistribOverᵣ or)
   (∪-idem          : Idempotent or)
   where
 
@@ -146,7 +146,7 @@ module ReqEnsJoinoid
 
   instance joinoid : IsJoinoid (Pointwise _≈_ _≈_) ▹-rel ∥-rel ∣-rel (⊥ , ⊥)
 
-  IsJoinoid.▹-distrib-∣ joinoid {a} {b} {c} {a∣b} {d} (pre , post) (seq s req ens) with deMorganʳ post s
+  IsJoinoid.▹-distrib-∣ʳ joinoid {a} {b} {c} {a∣b} {d} (pre , post) (seq s req ens) with deMorganʳ post s
   ... | cᵣ-aₑ , cᵣ-bₑ , τ₁ , τ₂ , τ₃ with resplit pre τ₃ req
   ... | _ , _ , τ₄ , τ₅ , τ₆ with or-and-distribᵣ post ens
   ... | _ , _ , τ₇ , τ₈ , τ₉ =
@@ -155,7 +155,7 @@ module ReqEnsJoinoid
      , seq τ₂ τ₅ τ₈
      , (τ₆ , τ₉)
 
-  IsJoinoid.∥-distrib-∣ joinoid {a} {b} {c} {a∥b} {d} (pre₁ , post₁) (pre₂ , post₂) 
+  IsJoinoid.∥-distrib-∣ʳ joinoid {a} {b} {c} {a∥b} {d} (pre₁ , post₁) (pre₂ , post₂) 
     with resplit pre₁ ∪-idem pre₂ | or-and-distribᵣ post₁ post₂
   ... | _ , _ , τ₁ , τ₂ , τ₃ | _ , _ , τ₄ , τ₅ , τ₆
     = -,

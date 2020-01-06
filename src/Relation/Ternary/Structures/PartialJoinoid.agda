@@ -12,9 +12,7 @@ open import Relation.Ternary.Structures.PartialMonoid
 open import Relation.Ternary.Structures.PartialBand
 open import Relation.Ternary.Structures.Commutative
 open import Relation.Ternary.Structures.Functional
-open IsEquivalence {{...}}
-  using ()
-  renaming (refl to ≈-refl; sym to ≈-sym; trans to ≈-trans) public
+open IsEquivalence {{...}} using () renaming (sym to ≈-sym)
 
 record IsJoinoid {e₂}
   -- (_≤_ : A → A → Set e₁)
