@@ -70,7 +70,7 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
 
       infixl 10 _⟨_⟩_
       field
-        _⟨_⟩_ : ∀ {Φₚ Φ} → j Φₚ ∙ Φᵢ ≣ Φ → P Φₚ → Q Φ
+        _⟨_⟩_ : ∀ {Φₚ Φ} → Φᵢ ∙ j Φₚ ≣ Φ → P Φₚ → Q Φ
 
     open _─⊙[_]_ public
 

@@ -45,20 +45,41 @@ record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set
       p ∙⟨ σ₃ ⟩ q ∙⟨ σ₄ ⟩ r
 
   module _ {p q} {P : Pred A p} {Q : Pred A q} where
-    apply : ∀[ P ⊙ (P ─⊙ Q) ⇒ Q ]
-    apply (px ∙⟨ sep ⟩ qx) = qx ⟨ sep ⟩ px
+    apply : ∀[ (P ─⊙ Q) ⊙ P ⇒ Q ]
+    apply (f ∙⟨ σ ⟩ px) = f ⟨ σ ⟩ px
 
-  -- mapping
+  {- Weak mapping _⊙_ -}
   module _ {p q p' q'}
     {P : Pred A p} {Q : Pred A q} {P' : Pred A p'} {Q' : Pred A q'} where
 
     ⟨_⟨⊙⟩_⟩ : ∀[ P ⇒ P' ] → ∀[ Q ⇒ Q' ] → ∀[ P ⊙ Q ⇒ P' ⊙ Q' ]
     ⟨_⟨⊙⟩_⟩ f g (px ∙⟨ sep ⟩ qx) = f px ∙⟨ sep ⟩ g qx
 
+  {- Magic composition -}
   module _ {p q r} {P : Pred A p} {Q : Pred A q} {R : Pred A r} where
 
-    com : ∀[ (P ─⊙ Q) ⊙ (Q ─⊙ R) ⇒ (P ─⊙ R) ]
-    com (f ∙⟨ σ₁ ⟩ g) ⟨ σ₂ ⟩ px = let _ , σ₃ , σ₄ = ∙-assocₗ σ₂ σ₁ in g ⟨ σ₄ ⟩ (f ⟨ σ₃ ⟩ px)
+    com : ∀[ (Q ─⊙ R) ⇒ (P ─⊙ Q) ─⊙ (P ─⊙ R) ]
+    com g ⟨ σ₁ ⟩ f ⟨ σ₂ ⟩ px = let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in g ⟨ σ₃ ⟩ (f ⟨ σ₄ ⟩ px)
+
+    private
+      com-syntax : (Q ─⊙ R) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → (P ─⊙ Q) Φ₂ → (P ─⊙ R) Φ
+      com-syntax g σ f = com g ⟨ σ ⟩ f
+
+    syntax com-syntax f σ g = f ∘⟨ σ ⟩ g
+
+  {- Magic curry -}
+  module _ {p q r} {P : Pred A p} {Q : Pred A q} {R : Pred A r} where
+
+    ⊙-curry : ∀[ (P ─⊙ (Q ─⊙ R)) ⇒ (P ⊙ Q) ─⊙ R ]
+    ⊙-curry f ⟨ σ₂ ⟩ (p ∙⟨ σ₁ ⟩ q) =
+      let _ , σ₃ , σ₄ = ∙-assocₗ σ₂ σ₁ in f ⟨ σ₃ ⟩ p ⟨ σ₄ ⟩ q
+
+    intro : ∀[ (P ⊙ Q) ⇒ R ] → ∀[ P ⇒ (Q ─⊙ R) ]
+    intro f px ⟨ s ⟩ qx = f (px ∙⟨ s ⟩ qx)
+
+    ⊙-uncurry : ∀[ (P ⊙ Q ─⊙ R) ⇒ P ─⊙ (Q ─⊙ R) ]
+    ⊙-uncurry f ⟨ σ₁ ⟩ p ⟨ σ₂ ⟩ q =
+      let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in f ⟨ σ₃ ⟩ (p ∙⟨ σ₄ ⟩ q)
 
   module _ where
 

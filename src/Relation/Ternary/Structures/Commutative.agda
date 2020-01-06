@@ -56,8 +56,8 @@ module _
     {P : Pred A p} {Q : Pred A q} {P' : Pred A p'} {Q' : Pred A q'} where
 
     both : ∀[ (P ─⊙ P') ⊙ (Q ─⊙ Q') ⇒ P ⊙ Q ─⊙ P' ⊙ Q' ]
-    both (f ∙⟨ σ₁ ⟩ g) ⟨ σ₃ ⟩ (px ∙⟨ σ₂ ⟩ qx) with resplit σ₁ σ₂ (∙-comm σ₃)
-    ... | _ , _ , σ₄ , σ₅ , σ₆ = (f ⟨ ∙-comm σ₄ ⟩ px) ∙⟨ σ₆ ⟩ (g ⟨ ∙-comm σ₅ ⟩ qx)
+    both (f ∙⟨ σ₁ ⟩ g) ⟨ σ₃ ⟩ (px ∙⟨ σ₂ ⟩ qx) with resplit σ₁ σ₂ σ₃
+    ... | _ , _ , σ₄ , σ₅ , σ₆ = (f ⟨ σ₄ ⟩ px) ∙⟨ σ₆ ⟩ (g ⟨ σ₅ ⟩ qx)
 
   module _ {a b c bc abc} where
     ∙-rotateₗ : a ∙ bc ≣ abc → b ∙ c ≣ bc → ∃ λ ca → b ∙ ca ≣ abc × c ∙ a ≣ ca
@@ -79,19 +79,6 @@ module _
     ⊙-rotateₗ (p ∙⟨ σ₁ ⟩ (q ∙⟨ σ₂ ⟩ r)) =
       let _ , σ₃ , σ₄ = ∙-rotateₗ σ₁ σ₂ in
       q ∙⟨ σ₃ ⟩ r ∙⟨ σ₄ ⟩ p
-
-  module _ {p q r} {P : Pred A p} {Q : Pred A q} {R : Pred A r} where
-
-    ⊙-curry : ∀[ (P ─⊙ (Q ─⊙ R)) ⇒ (P ⊙ Q) ─⊙ R ]
-    ⊙-curry f ⟨ σ₂ ⟩ (p ∙⟨ σ₁ ⟩ q) =
-      let _ , σ₃ , σ₄ = ∙-rotateₗ (∙-comm σ₂) (∙-comm σ₁) in (f ⟨ σ₄ ⟩ p) ⟨ σ₃ ⟩ q
-
-    intro : ∀[ (P ⊙ Q) ⇒ R ] → ∀[ P ⇒ (Q ─⊙ R) ]
-    intro f px ⟨ s ⟩ qx = f (px ∙⟨ ∙-comm s ⟩ qx)
-
-    ⊙-uncurry : ∀[ (P ⊙ Q ─⊙ R) ⇒ P ─⊙ (Q ─⊙ R) ]
-    ⊙-uncurry f ⟨ σ₁ ⟩ p ⟨ σ₂ ⟩ q =
-      let _ , σ₃ , σ₄ = ∙-rotateₗ σ₂ (∙-comm σ₁) in f ⟨ ∙-comm σ₃ ⟩ (p ∙⟨ σ₄ ⟩ q)
 
 {- Combined structures for abstract usage -}
 module _ where
