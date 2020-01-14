@@ -32,7 +32,9 @@ module _
   {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
   {{ eq₁ : IsEquivalence _≈₁_ }} {{ eq₂ : IsEquivalence _≈₂_ }} where
 
-  instance ×-equiv : IsEquivalence (Pointwise _≈₁_ _≈₂_)
+  _≈_ = Pointwise _≈₁_ _≈₂_
+
+  instance ×-equiv : IsEquivalence _≈_
   ×-equiv = ×-isEquivalence eq₁ eq₂
 
 module _
@@ -41,7 +43,7 @@ module _
   {{s₁ : IsPartialSemigroup _≈₁_ R₁}} {{s₂ : IsPartialSemigroup _≈₂_ R₂}}
   where
 
-  instance ×-isSemigroup : IsPartialSemigroup (Pointwise _≈₁_ _≈₂_) (R₁ ×-∙ R₂)
+  instance ×-isSemigroup : IsPartialSemigroup _≈_ (R₁ ×-∙ R₂)
 
   Respect.coe (IsPartialSemigroup.∙-respects-≈ ×-isSemigroup) (eq₁ , eq₂) (σ₁ , σ₂) =
     coe eq₁ σ₁ , coe eq₂ σ₂
@@ -130,14 +132,24 @@ module _
 module _
   {e}
   {{r : Rel₃ C₁}}
-  {_≈ₐ_ : C₁ → C₁ → Set e}
-  {u} {{s : IsPartialMonoid _≈ₐ_ r u}} where
+  {_≈₁_ : C₁ → C₁ → Set e}
+  {u} {{s : IsPartialMonoid _≈₁_ r u}} where
 
   data Π₁ {p} (P : Pred C₂ p) : Pred (C₂ × C₁) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
     fst : ∀ {b : C₂} → P b → Π₁ P (b , ε)
 
+  module _ {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} {P : Pred C₂ p} where
+    instance Π₁-respect-≈ : ∀ {{_ : Respect _≈₂_ P }} → Respect (Pointwise _≈₂_ _≈₁_) (Π₁ P)
+    Respect.coe Π₁-respect-≈ (eq₁ , eq₂) (fst px) with ε-unique eq₂
+    ... | refl = fst (coe eq₁ px)
+
   data Π₂ {p} (P : Pred C₂ p) : Pred (C₁ × C₂) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
     snd : ∀ {b : C₂} → P b → Π₂ P (ε , b)
+
+  module _ {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} {P : Pred C₂ p} where
+    instance Π₂-respect-≈ : ∀ {{_ : Respect _≈₂_ P }} → Respect (Pointwise _≈₁_ _≈₂_) (Π₂ P)
+    Respect.coe Π₂-respect-≈ (eq₁ , eq₂) (snd px) with ε-unique eq₁
+    ... | refl = snd (coe eq₂ px)
 
 -- module Propositional
 --   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}} {u₁ u₂}
