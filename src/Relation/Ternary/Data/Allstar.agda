@@ -5,8 +5,8 @@ open import Relation.Ternary.Structures
 module Relation.Ternary.Data.Allstar
   -- level restrictions due to use of monadic interface
   {i} (I : Set i)
-  {C : Set i} (_≈_ : C → C → Set i) {{rel : Rel₃ C}}
-  {u} {{m : IsPartialMonoid _≈_ rel u}} 
+  {C : Set i} {{rel : Rel₃ C}}
+  {u} {_≈_ : C → C → Set i} {{m : IsPartialMonoid _≈_ rel u}} 
   where
 
 open import Level

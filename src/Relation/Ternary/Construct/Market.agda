@@ -42,13 +42,13 @@ module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
     assoc (demand σ₁) (demand σ₂) =
       let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in -, demand σ₃ , demand σ₄
 
-  instance ≈-equiv : IsEquivalence _≈_ 
-  IsEquivalence.refl ≈-equiv {offer l}                = offers ≈-refl
-  IsEquivalence.refl ≈-equiv {demand r}               = demands ≈-refl
-  IsEquivalence.sym ≈-equiv (offers x)                = offers (≈-sym x)
-  IsEquivalence.sym ≈-equiv (demands x)               = demands (≈-sym x)
-  IsEquivalence.trans ≈-equiv (offers x) (offers y)   = offers (≈-trans x y)
-  IsEquivalence.trans ≈-equiv (demands x) (demands y) = demands (≈-trans x y)
+  postulate instance ≈-equiv : IsEquivalence _≈_ 
+  -- IsEquivalence.refl ≈-equiv {offer l}                = offers ≈-refl
+  -- IsEquivalence.refl ≈-equiv {demand r}               = demands ≈-refl
+  -- IsEquivalence.sym ≈-equiv (offers x)                = offers (≈-sym x)
+  -- IsEquivalence.sym ≈-equiv (demands x)               = demands (≈-sym x)
+  -- IsEquivalence.trans ≈-equiv (offers x) (offers y)   = offers (≈-trans x y)
+  -- IsEquivalence.trans ≈-equiv (demands x) (demands y) = demands (≈-trans x y)
 
   instance market-rel : Rel₃ (Market A)
   Rel₃._∙_≣_ market-rel = Split
@@ -58,20 +58,20 @@ module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
   IsCommutative.∙-comm market-isCommutative (offerₗ σ) = offerᵣ (∙-comm σ)
   IsCommutative.∙-comm market-isCommutative (offerᵣ σ) = offerₗ (∙-comm σ)
 
-  instance market-isSemigroup : IsPartialSemigroup _≈_ market-rel
-  market-isSemigroup = partialSemigroupˡ
+  postulate instance market-isSemigroup : IsPartialSemigroup _≈_ market-rel
+  -- market-isSemigroup = partialSemigroupˡ
 
-    (record { coe = λ where
-      (offers eq) (offerₗ σ) → offerₗ (coe eq σ)
-      (offers eq) (offerᵣ σ) → offerᵣ (coe eq σ)
-      (demands eq) (demand σ) → demand (coe eq σ) })
+  --   (record { coe = λ where
+  --     (offers eq) (offerₗ σ) → offerₗ (coe eq σ)
+  --     (offers eq) (offerᵣ σ) → offerᵣ (coe eq σ)
+  --     (demands eq) (demand σ) → demand (coe eq σ) })
 
-    (record { coe = λ where
-      (offers eq) (offerₗ σ) → offerₗ (coe eq σ)
-      (demands eq) (offerᵣ σ) → offerᵣ (coe eq σ)
-      (demands eq) (demand σ) → demand (coe eq σ) })
+  --   (record { coe = λ where
+  --     (offers eq) (offerₗ σ) → offerₗ (coe eq σ)
+  --     (demands eq) (offerᵣ σ) → offerᵣ (coe eq σ)
+  --     (demands eq) (demand σ) → demand (coe eq σ) })
 
-    assoc
+  --   assoc
 
 module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
  {{rel : Rel₃ A}} {u}
@@ -79,15 +79,15 @@ module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
  {{ _ : IsCommutative rel }}
  where
 
-  instance market-has-unit : IsPartialMonoid _≈_ market-rel (demand ε)
-  market-has-unit = partialMonoidˡ
-    (λ where (demands x) → cong demand (ε-unique x))
-    (λ where
-      {offer l}  → offerᵣ ∙-idˡ
-      {demand r} → demand ∙-idˡ)
-    λ where
-      (offerᵣ σ) → offers  (≈-sym (∙-id⁻ˡ σ))
-      (demand σ) → demands (∙-id⁻ˡ σ)
+  postulate instance market-has-unit : IsPartialMonoid _≈_ market-rel (demand ε)
+  -- market-has-unit = partialMonoidˡ
+  --   (λ where (demands x) → cong demand (ε-unique x))
+  --   (λ where
+  --     {offer l}  → offerᵣ ∙-idˡ
+  --     {demand r} → demand ∙-idˡ)
+  --   λ where
+  --     (offerᵣ σ) → offers  (≈-sym (∙-id⁻ˡ σ))
+  --     (demand σ) → demands (∙-id⁻ˡ σ)
 
   -- matching : ∀ {a b : A} {c d} → (demand a) ∙ (offer b) ≣ c → (demand (d ∙ a)) ∙ (offer (d ∙ b)) ≣ c
   -- matching (offerᵣ σ) = offerᵣ (∙-∙ₗ σ)
@@ -118,14 +118,14 @@ module _ {a e} {A : Set a} {{r : Rel₃ A}}
   data ○ {p} (P : Pred A p) : Pred (Market A) (p) where
     lift : ∀ {xs} → P xs → ○ P (demand xs)
 
-  module _ {p q} {P : Pred A p} {Q : Pred (A × A) q} where
-    ○≺●ₗ : ∀[ P ⇒ (● Q ─⊙ ● (Π₂ P ⊙ Q)) ∘ demand ]
-    ○≺●ₗ px ⟨ offerₗ σ₁ ⟩ lift qx σ₂ with ∙-assocᵣ σ₁ σ₂
-    ... | _ , σ₃ , σ₄ = lift (snd px ∙⟨ ∙-idˡ , σ₄ ⟩ qx ) σ₃
+  -- module _ {p q} {P : Pred A p} {Q : Pred (A × A) q} where
+    -- ○≺●ₗ : ∀[ P ⇒ (● Q ─⊙ ● (Π₂ P ⊙ Q)) ∘ demand ]
+    -- ○≺●ₗ px ⟨ offerₗ σ₁ ⟩ lift qx σ₂ with ∙-assocᵣ σ₁ σ₂
+    -- ... | _ , σ₃ , σ₄ = lift (snd px ∙⟨ ∙-idˡ , σ₄ ⟩ qx ) σ₃
 
-    ○≺●ᵣ : ∀[ ● (Π₂ P ⊙ Q) ⇒ (○ P) ⊙ ● Q ]
-    ○≺●ᵣ (lift (snd px ∙⟨ σₗ , σᵣ ⟩ qx) σ₂) with ∙-assocₗ σ₂ σᵣ
-    ... | _ , σ₃ , σ₄ = lift px ∙⟨ offerᵣ (∙-comm σ₃) ⟩ lift qx (coe (≈-sym (∙-id⁻ˡ σₗ)) σ₄)
+    -- ○≺●ᵣ : ∀[ ● (Π₂ P ⊙ Q) ⇒ (○ P) ⊙ ● Q ]
+    -- ○≺●ᵣ (lift (snd px ∙⟨ σₗ , σᵣ ⟩ qx) σ₂) with ∙-assocₗ σ₂ σᵣ
+    -- ... | _ , σ₃ , σ₄ = lift px ∙⟨ offerᵣ (∙-comm σ₃) ⟩ lift qx (coe (≈-sym (∙-id⁻ˡ σₗ)) σ₄)
 
 -- {- Complete with respect to a certain element -}
 -- module _ {a} {A : Set a} {{r : Rel₃ A}} {u} {{ s : IsPartialMonoid r u }} where

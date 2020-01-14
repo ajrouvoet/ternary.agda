@@ -39,11 +39,11 @@ module _ where
 
 module _ {uₐ} {{sep : Rel₃ A }} {{_ : IsPartialMonoid _≈ₐ_ sep uₐ}} where
 
-  data ○ (P : Pred A ℓ) : Pred Account ℓ where
-    ↓ : ∀ {x} → P x → ○ P (uₐ ↕ x)
+  data Down (P : Pred A ℓ) : Pred Account ℓ where
+    ↓ : ∀ {x} → P x → Down P (uₐ ↕ x)
 
-  data ● (P : Pred A ℓ) : Pred Account ℓ where
-    ↑ : ∀ {x} → P x → ● P (x ↕ uₐ)
+  data Up (P : Pred A ℓ) : Pred Account ℓ where
+    ↑ : ∀ {x} → P x → Up P (x ↕ uₐ)
 
 module _
   {{ sep : Rel₃ A }}
