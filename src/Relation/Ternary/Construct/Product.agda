@@ -151,24 +151,35 @@ module _
     Respect.coe Π₂-respect-≈ (eq₁ , eq₂) (snd px) with ε-unique eq₁
     ... | refl = snd (coe eq₂ px)
 
--- module Propositional
---   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}} {u₁ u₂}
---   {{s₁ : HasUnit _≡_ R₁ u₁}} {{s₂ : HasUnit _≡_ R₂ u₂}}
---   where
+module Propositional
+  {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
+  where
 
---   ×-isSep-≡ : IsPartialSemigroup _≡_ (R₁ ×-∙ R₂)
---   IsPartialSemigroup.≈-equivalence ×-isSep-≡ = isEquivalence
---   IsPartialSemigroup.∙-respects-≈ ×-isSep-≡  refl σ = σ
---   IsPartialSemigroup.∙-respects-≈ˡ ×-isSep-≡ refl σ = σ
---   IsPartialSemigroup.∙-comm ×-isSep-≡ (l , r) = ∙-comm l , ∙-comm r
---   IsPartialSemigroup.∙-assoc ×-isSep-≡ (l₁  , r₁) (l₂ , r₂) =
---     let
---       _ , l₃ , l₄ = ∙-assoc l₁ l₂
---       _ , r₃ , r₄ = ∙-assoc r₁ r₂
---     in -, (l₃ , r₃) , l₄ , r₄
+  open import Relation.Ternary.Respect.Propositional
 
---   ×-hasUnit-≡ : HasUnit _≡_ ×-rel (u₁ , u₂) 
---   HasUnit.isSep ×-hasUnit-≡         = ×-isSep-≡
---   HasUnit.∙-idˡ ×-hasUnit-≡         = ∙-idˡ {{×-hasUnit}}
---   HasUnit.ε-unique ×-hasUnit-≡ refl = refl
---   HasUnit.∙-id⁻ˡ ×-hasUnit-≡ σ      = ≡×≡⇒≡ (∙-id⁻ˡ σ)
+  module _ {{_ : IsPartialSemigroup _≡_ R₁}} {{_ : IsPartialSemigroup _≡_ R₂}} where
+
+    ×-isPartialSemigroup : IsPartialSemigroup _≡_ (R₁ ×-∙ R₂)
+    IsPartialSemigroup.≈-equivalence ×-isPartialSemigroup = isEquivalence
+    IsPartialSemigroup.∙-assocₗ ×-isPartialSemigroup (l₁  , r₁) (l₂ , r₂) =
+      let
+        _ , l₃ , l₄ = ∙-assocₗ l₁ l₂
+        _ , r₃ , r₄ = ∙-assocₗ r₁ r₂
+      in -, (l₃ , r₃) , l₄ , r₄
+    IsPartialSemigroup.∙-assocᵣ ×-isPartialSemigroup (l₁  , r₁) (l₂ , r₂) =
+      let
+        _ , l₃ , l₄ = ∙-assocᵣ l₁ l₂
+        _ , r₃ , r₄ = ∙-assocᵣ r₁ r₂
+      in -, (l₃ , r₃) , l₄ , r₄
+
+  module _ {ε₁ ε₂} {{_ : IsPartialMonoid _≡_ R₁ ε₁}} {{_ : IsPartialMonoid _≡_ R₂ ε₂}} where
+
+    ×-isPartialMonoid-≡ : IsPartialMonoid _≡_ (R₁ ×-∙ R₂) (ε₁ , ε₂)
+    IsPartialMonoid.isPartialSemigroup ×-isPartialMonoid-≡ = ×-isPartialSemigroup
+    IsPartialMonoid.ε-unique ×-isPartialMonoid-≡ refl = refl
+    IsPartialMonoid.∙-idˡ ×-isPartialMonoid-≡ = ∙-idˡ , ∙-idˡ
+    IsPartialMonoid.∙-idʳ ×-isPartialMonoid-≡ = ∙-idʳ , ∙-idʳ
+    IsPartialMonoid.∙-id⁻ˡ ×-isPartialMonoid-≡ (σ₁ , σ₂) with ∙-id⁻ˡ σ₁ | ∙-id⁻ˡ σ₂
+    ... | refl | refl = refl
+    IsPartialMonoid.∙-id⁻ʳ ×-isPartialMonoid-≡ (σ₁ , σ₂) with ∙-id⁻ʳ σ₁ | ∙-id⁻ʳ σ₂
+    ... | refl | refl = refl

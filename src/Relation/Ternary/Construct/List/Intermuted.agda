@@ -39,7 +39,7 @@ private
   variable
     xsˡ xsʳ xs ys ysˡ ysʳ zs xxs yys : Carrier
 
-open import Relation.Ternary.Construct.List.Interdivide A csg
+open import Relation.Ternary.Construct.List.Interdivide division
 
 module _ where
   {- An inductive definition of xs ++ ys ↭ zs -}

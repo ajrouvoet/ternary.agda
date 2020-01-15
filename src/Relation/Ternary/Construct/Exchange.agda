@@ -52,7 +52,7 @@ module _
   {{ _ : IsCommutative sep }}
   where
 
-  open import Relation.Ternary.Construct.Product
+  open import Relation.Ternary.Construct.Product hiding (_≈_)
 
   instance account-equiv : IsEquivalence _≈_
   IsEquivalence.refl account-equiv  = refl , refl
@@ -123,7 +123,7 @@ module _
   {{ _   : IsCommutative sep }}
   where
 
-  open import Relation.Ternary.Construct.Product
+  open import Relation.Ternary.Construct.Product hiding (_≈_)
 
   exchange-isMonoidˡ : IsPartialMonoidˡ _≈_ exchange-rel (eps ↕ eps)
   IsPartialMonoidˡ.ε-uniq exchange-isMonoidˡ (eq₁ , eq₂) with ε-unique eq₁ | ε-unique eq₂

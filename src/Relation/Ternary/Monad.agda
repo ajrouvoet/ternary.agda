@@ -27,6 +27,12 @@ module _ {{_ : IsPartialSemigroup _≈_ ra}} where
     field
       return : ∀ {P i₁}         → ∀[ P ⇒ M i₁ i₁ P ]
       bind   : ∀ {P i₁ i₂ i₃ Q} → ∀[ (P ─⊙ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─⊙ M i₁ i₃ Q) ]
+
+    module _ {i₁ i₂ i₃} {P Q : Pred A ℓ₁} where
+      bind-syntax : (P ─⊙ M i₂ i₃ Q) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₃ Q Φ 
+      bind-syntax f σ m = bind f ⟨ σ ⟩ m
+
+      syntax bind-syntax f σ m = m ⟨ σ ⟩= f
         
     {- `fmap` from monadic interface -}
     module _ where
@@ -39,9 +45,6 @@ module _ {{_ : IsPartialSemigroup _≈_ ra}} where
 
       kleisli : ∀[ (Q ─⊙ M i₂ i₃ R) ⇒ (P ─⊙ M i₁ i₂ Q) ─⊙ (P ─⊙ M i₁ i₃ R) ]
       kleisli g ⟨ σ ⟩ f = bind g ∘⟨ σ ⟩ f
-
-      -- kleisli-syntax : (Q ─⊙ M i₂ i₃ R) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → (P ─⊙ M i₁ i₂ Q) Φ₂ → (P ─⊙ M i₁ i₃ R) Φ 
-      -- kleisli-syntax g σ f = kleisli g ⟨ σ ⟩ f
 
       kleisli-syntax : (P ─⊙ M i₁ i₂ Q) Φ₁ → Φ₂ ∙ Φ₁ ≣ Φ → (Q ─⊙ M i₂ i₃ R) Φ₂ → (P ─⊙ M i₁ i₃ R) Φ 
       kleisli-syntax g σ f = kleisli f ⟨ σ ⟩ g
