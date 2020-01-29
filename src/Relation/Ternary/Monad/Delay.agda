@@ -15,7 +15,7 @@ open import Data.Unit
 
 module _
   {{rel : Rel₃ A}}
-  {u} {{us : IsPartialMonoid {_≈_ = _≈_} rel u}}
+  {u} {{us : IsPartialMonoid _≈_ rel u}}
  where
 
   Delay : ∀ {ℓ} i → Pt A ℓ
