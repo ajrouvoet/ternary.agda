@@ -6,7 +6,7 @@ module Relation.Ternary.Monad.Reader
   {a} {A : Set a}
   {C : Set a} {{rel : Rel₃ C}}
   {_≈_ : C → C → Set a}
-  {u} {{_ : IsPartialMonoid _≈_ rel u}} 
+  {u} {{csg : IsPartialMonoid _≈_ rel u}} 
   where
 
 open import Level
@@ -20,9 +20,9 @@ open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
-open import Relation.Ternary.Monad {_≈_ = _≈_}
-open import Relation.Ternary.Data.Allstar A _≈_
+open import Relation.Ternary.Data.Allstar A
 open import Relation.Ternary.Upto.Quotient
+open import Relation.Ternary.Monad {_≈_ = _≈_} {{ rel }}
 
 private
   variable
@@ -42,24 +42,24 @@ module ReaderTransformer
   module _ where
 
     Reader : ∀ (Γ₁ Γ₂ : List A) → Pt C a
-    Reader Γ₁ Γ₂ P = (Allstar V Γ₁) ─⊙ M (Allstar V Γ₂ ⊙ P)
+    Reader Γ₁ Γ₂ P = (Allstar V Γ₁) ─⊙ M (P ⊙ Allstar V Γ₂)
 
     instance
       reader-monad : Monad (List A) Reader
-      Monad.return reader-monad px ⟨ σ ⟩ env =
-        Monad.return monad env &⟨ σ ⟩ px
+      Monad.return reader-monad px ⟨ σ ⟩ env = do
+        Monad.return monad (px ∙⟨ σ ⟩ env)
       Monad.bind reader-monad f ⟨ σ₁ ⟩ mp ⟨ σ₂ ⟩ env =
-        let _ , σ₃ , σ₄ = ∙-assocₗ σ₂ σ₁ in
+        let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in
         bind
           (arr λ where
-            σ₅ (env' ∙⟨ σ₆ ⟩ px) → let _ , σ₇ , σ₈ = ∙-assocᵣ σ₆ σ₅ in f ⟨ σ₈ ⟩ px ⟨ σ₇ ⟩ env')
-          ⟨ σ₄ ⟩
-          (mp ⟨ σ₃ ⟩ env)
+            σ₅ (env' ∙⟨ σ₆ ⟩ px) → let _ , σ₇ , σ₈ = ∙-assocₗ σ₅ σ₆ in f ⟨ σ₇ ⟩ env' ⟨ σ₈ ⟩ px)
+          ⟨ σ₃ ⟩
+          (mp ⟨ σ₄ ⟩ env)
 
   module _ where
 
     ask : ε[ Reader Γ [] (Allstar V Γ) ]
-    ask ⟨ σ ⟩ env = return (nil ∙⟨ ∙-id⁺ˡ (∙-id⁻ʳ σ) ⟩ env)
+    ask ⟨ σ ⟩ env = return (env ∙⟨ ∙-id⁺ʳ (∙-id⁻ˡ σ) ⟩ nil)
 
   module _
     {{_ : ∀ {P} → Respect _≈_ (M P) }}
@@ -68,9 +68,9 @@ module ReaderTransformer
     frame : Γ₁ ∙ Γ₃ ≣ Γ₂ → ∀[ Reader Γ₁ [] P ⇒ Reader Γ₂ Γ₃ P ]
     frame sep c ⟨ σ ⟩ env = do
       let E₁ ∙⟨ σ₁ ⟩ E₂ = repartition sep env
-      let _ , σ₂ , σ₃   = ∙-assocᵣ (∙-comm σ₁) σ 
-      (nil ∙⟨ σ₆ ⟩ px) ∙⟨ σ₅ ⟩ E₂ ← (c ⟨ σ₃ ⟩ E₁) &⟨ Allstar _ _ # ∙-comm σ₂ ⟩ E₂
-      return (E₂ ∙⟨ coe {{ ∙-respects-≈ʳ }} (≈-sym (∙-id⁻ˡ σ₆)) (∙-comm σ₅) ⟩ px)
+      let _ , σ₂ , σ₃   = ∙-assocₗ σ σ₁  
+      E₂ ∙⟨ σ₅ ⟩ (px ∙⟨ σ₆ ⟩ nil) ← (c ⟨ σ₂ ⟩ E₁) &⟨ Allstar _ _ # ∙-comm σ₃ ⟩ E₂
+      return (px ∙⟨ ∙-comm (coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ʳ σ₆)) σ₅) ⟩ E₂ )
 
     liftM : ∀[ M P ⇒ Reader Γ Γ P ]
     liftM mp ⟨ σ ⟩ env =
@@ -84,11 +84,11 @@ module ReaderTransformer
 
     prepend : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₁ ++ Γ₂) Emp ]
     prepend env₁ ⟨ σ ⟩ env₂ =
-      return (concat (env₁ ∙⟨ ∙-comm σ ⟩ env₂) ∙⟨ ∙-idʳ ⟩ refl)
+      return (refl ∙⟨ ∙-idˡ ⟩ concat (env₁ ∙⟨ σ ⟩ env₂))
 
     append : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₂ ++ Γ₁) Emp ]
     append env₁ ⟨ σ ⟩ env₂ =
-      return (concat (env₂ ∙⟨ σ ⟩ env₁) ∙⟨ ∙-idʳ ⟩ refl)
+      return (refl ∙⟨ ∙-idˡ ⟩ concat (env₂ ∙⟨ ∙-comm σ ⟩ env₁))
 
 --     runReader : ∀[ Allstar V Γ ⇒ⱼ Reader Γ ε P ─✴ M P ]
 --     app (runReader env) mp σ = do

@@ -10,7 +10,6 @@ open import Data.List.Properties using (++-isMonoid)
 open import Data.List.Relation.Ternary.Interleaving.Propositional as I public
 open import Data.List.Relation.Ternary.Interleaving.Properties
 open import Data.List.Relation.Binary.Equality.Propositional
-open import Data.List.Relation.Binary.Permutation.Inductive
 
 open import Algebra.Structures using (IsMonoid)
 open import Relation.Binary.PropositionalEquality as P hiding ([_])
