@@ -125,6 +125,9 @@ module _
 
   open import Relation.Ternary.Construct.Product hiding (_≈_)
 
+  instance exchange-emptiness : Emptiness (eps ↕ eps)
+  exchange-emptiness = record {}
+
   exchange-isMonoidˡ : IsPartialMonoidˡ _≈_ exchange-rel (eps ↕ eps)
   IsPartialMonoidˡ.ε-uniq exchange-isMonoidˡ (eq₁ , eq₂) with ε-unique eq₁ | ε-unique eq₂
   ... | PEq.refl | PEq.refl = PEq.refl
