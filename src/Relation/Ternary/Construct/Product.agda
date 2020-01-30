@@ -70,6 +70,9 @@ module _
   {{s₁ : IsPartialMonoid _≈₁_ R₁ u₁}} {{s₂ : IsPartialMonoid _≈₂_ R₂ u₂}}
   where
 
+  instance ×-emptiness : Emptiness (u₁ , u₂)
+  ×-emptiness = record {}
+
   instance ×-isPartialMonoid : IsPartialMonoid (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂) 
   IsPartialMonoid.ε-unique ×-isPartialMonoid (fst , snd) with ε-unique fst | ε-unique snd
   ... | refl | refl = refl

@@ -4,15 +4,14 @@ open import Relation.Ternary.Structures
 module Relation.Ternary.Monad.Identity
   {a e} {A : Set a} {_≈_ : A → A → Set e}
   {{rel : Rel₃ A}}
-  {unit} {{_ : IsPartialMonoid {_≈_ = _≈_} rel unit}} where
+  {unit} {{_ : IsPartialMonoid _≈_ rel unit}} where
 
 open import Level
 open import Function using (_∘_; case_of_; id)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
-
-open import Relation.Ternary.Monad {_≈_ = _≈_}
+open import Relation.Ternary.Monad
 
 open import Data.Unit
 

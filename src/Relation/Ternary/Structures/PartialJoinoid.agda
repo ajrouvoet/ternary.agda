@@ -50,7 +50,7 @@ record IsJoinoid {e₂}
 
     -- The distributivity laws imply idempotence of choice, iff choice also has a unit.
     ∣-idem : Φ ∣ Φ ≣ Φ
-    ∣-idem {Φ} with ▹-distrib-∣ʳ (∙-idˡ {Φ = ε {{∣-monoid}}}) (∙-idˡ {Φ = Φ})
+    ∣-idem {Φ} with ▹-distrib-∣ʳ ∙-idˡ ∙-idˡ
     ... | _ , _ , τ₁ , τ₂ , τ₃ =
       coe (≈-sym (∙-id⁻ˡ τ₂)) (
       coe {{ ∙-respects-≈ˡ }} (≈-sym (∙-id⁻ˡ τ₁)) τ₃)
@@ -61,7 +61,7 @@ record IsJoinoid {e₂}
     where
 
     ▹-absorps-∣ʳ : ∀ {a b c} → a ▹ b ≣ c → c ∣ b ≣ c
-    ▹-absorps-∣ʳ {a} {b} {c} σ with ▹-distrib-∣ʳ (∙-idʳ {{∣-monoid}} {a}) σ
+    ▹-absorps-∣ʳ {a} {b} {c} σ with ▹-distrib-∣ʳ ∙-idʳ σ
     ... | _ , _ , τ₁ , τ₂ , τ₃ =
       coe {{∙-respects-≈ˡ}} (functional τ₁ σ) (
       coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ˡ τ₂)) τ₃)
@@ -71,7 +71,7 @@ record IsJoinoid {e₂}
     {{∥-funct : IsFunctional _≈_ ∥-rel}}
     where
     ∥-absorps-∣ʳ : ∀ {a b c} → a ∥ b ≣ c → c ∣ b ≣ c
-    ∥-absorps-∣ʳ {a} {b} {c} σ with ∥-distrib-∣ʳ (∙-idʳ {{∣-monoid}} {a}) σ
+    ∥-absorps-∣ʳ {a} {b} {c} σ with ∥-distrib-∣ʳ ∙-idʳ σ
     ... | _ , _ , τ₁ , τ₂ , τ₃ =
       coe {{∙-respects-≈ˡ}} (functional τ₁ σ) (
       coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ˡ τ₂)) τ₃)

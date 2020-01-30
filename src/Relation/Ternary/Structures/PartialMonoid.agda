@@ -14,17 +14,27 @@ open import Relation.Ternary.Structures.PartialSemigroup
 
 open import Data.Product
 
-record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
-  field
-    overlap {{ isPartialSemigroup }} : IsPartialSemigroup _≈_ rel
-
-  open Rel₃ rel
-
-  -- because we want to export this name from the record
+-- This is abstracted from the monoid instance to accomodate unambiguous
+-- use of ε/Emp in contexts with multiple monoidal relations on a single carrier
+record Emptiness (unit : A) : Set where
+  ε : A
   ε = unit
 
   Emp : Pred A a
   Emp = Exactly ε
+
+  infix 10 ε[_]
+  ε[_] : ∀ {ℓ} → Pred A ℓ → Set ℓ
+  ε[ P ] = P ε
+
+open Emptiness {{...}} public
+
+record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
+  field
+    overlap {{ emptiness }}          : Emptiness unit
+    overlap {{ isPartialSemigroup }} : IsPartialSemigroup _≈_ rel
+
+  open Rel₃ rel
 
   field
     ε-unique : ∀[ _≈_ ε ⇒ Emp ]
@@ -37,10 +47,6 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
 
   ε∙ε : ∀[ ε ∙ ε ⇒ Emp ]
   ε∙ε p = ε-unique (∙-id⁻ˡ p)
-
-  infix 10 ε[_]
-  ε[_] : ∀ {ℓ} → Pred A ℓ → Set ℓ
-  ε[ P ] = P ε
 
   ∙-id⁺ˡ : ∀ {Φ} → ∀[ _≈_ Φ ⇒ ε ∙ Φ ]
   ∙-id⁺ˡ eq = coe eq ∙-idˡ

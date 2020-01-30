@@ -11,7 +11,7 @@ open import Data.Unit
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
-open import Relation.Ternary.Monad {_≈_ = _≈_}
+open import Relation.Ternary.Monad
 
 {- Quotients over a given equivalence relation -}
 record 𝑸 {p} (P : Pred A p)  (aₒ : A) : Set (e ⊔ p ⊔ a) where

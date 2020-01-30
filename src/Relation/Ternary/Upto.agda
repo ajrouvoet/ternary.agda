@@ -11,7 +11,7 @@ open import Data.Unit
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
-open import Relation.Ternary.Monad {_≈_ = _≈_}
+open import Relation.Ternary.Monad
 
 module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid _≈_ r u }} where
   open import Data.Unit

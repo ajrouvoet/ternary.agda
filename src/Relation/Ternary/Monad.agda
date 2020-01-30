@@ -1,9 +1,8 @@
 {-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
 
-module Relation.Ternary.Monad {a e}
+module Relation.Ternary.Monad {a}
   {A : Set a}
-  {_≈_ : A → A → Set e}
   {{ra : Rel₃ A}}
   where
 
@@ -18,7 +17,7 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
 {- strong indexed monads on predicates over PRSAs -}
-module _ {{_ : IsPartialSemigroup _≈_ ra}} where
+module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ ra}} where
 
   RawMonad : ∀ {i} (I : Set i) → (ℓ₁ ℓ₂ : Level) → Set _
   RawMonad I ℓ₁ ℓ₂ = (i j : I) → PT A A ℓ₁ ℓ₂
@@ -72,6 +71,7 @@ module _ {{_ : IsPartialSemigroup _≈_ ra}} where
 
 {- Having identities begets you external operations -}
 module _
+  {e} {_≈_ : A → A → Set e}
   {u} {{pm : IsPartialMonoid _≈_ ra u}}
   {i ℓ₁ ℓ₂} {I : Set i} {M : RawMonad I ℓ₁ ℓ₂} {{ monad : Monad I M }}
   where
@@ -91,6 +91,7 @@ module _
 
 {- Additional level restrictions give you a nice strength shorthand -}
 module _
+  {e} {_≈_ : A → A → Set e}
   {u} {{pm : IsPartialMonoid _≈_ ra u}}
   {i ℓ₂} {I : Set i} {M : RawMonad I a ℓ₂} {{ monad : Monad I M }}
   where
@@ -100,6 +101,7 @@ module _
 
 {- Monad laws -}
 module Laws
+  {e} {_≈_ : A → A → Set e}
   {u} {{pm : IsPartialMonoid _≈_ ra u}}
   {i ℓ₁ ℓ₂} {I : Set i} {M : RawMonad I ℓ₁ ℓ₂} {{ monad : Monad I M }}
   {ℓ₃} (_≈ₘ_ : ∀ {i₁ i₂ P x} (l r : M i₁ i₂ P x) → Set ℓ₃)

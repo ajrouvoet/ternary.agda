@@ -15,6 +15,7 @@ open import Function using (_∘_; case_of_)
 open import Data.Product
 open import Data.List hiding (concat; lookup)
 open import Data.Unit
+open import Algebra.Structures using (IsMonoid)
 
 open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)

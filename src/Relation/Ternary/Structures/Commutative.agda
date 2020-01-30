@@ -123,6 +123,7 @@ module _  where
     field
       {{isSemigroup}}   : IsPartialSemigroup _≈_ rel
       {{isCommutative}} : IsCommutative rel
+      {{emptiness}}     : Emptiness unit
       ε-uniq     : ∀[ _≈_ unit ⇒ Exactly unit ]
       identityˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ
       identity⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ]

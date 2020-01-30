@@ -10,7 +10,7 @@ open import Data.Product
 open import Data.List
 open import Data.List.Properties using (++-isMonoid)
 open import Data.List.Relation.Binary.Equality.Propositional
-open import Data.List.Relation.Binary.Permutation.Inductive
+open import Data.List.Relation.Binary.Permutation.Propositional
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Ternary.Structures
 
@@ -34,6 +34,9 @@ module _ where
   -- Split yields a separation algebra
   instance splits : Rel₃ Carrier
   Rel₃._∙_≣_ splits = Split
+
+  instance list-emptiness : Emptiness {A = List A} []
+  list-emptiness = record {}
 
   instance split-positive : IsPositive _≡_ splits []
   IsPositive.positive′ split-positive [] = refl , refl

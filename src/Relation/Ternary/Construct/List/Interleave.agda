@@ -55,6 +55,9 @@ instance
 ∙-cross (consʳ σ₁) (consʳ σ₂) with ∙-cross σ₁ σ₂
 ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₁ , consʳ τ₂ , τ₃ , consʳ τ₄
 
+instance list-emptiness : Emptiness {A = C} []
+list-emptiness = record {}
+
 instance comm : IsCommutative interleave
 IsCommutative.∙-comm comm = I.swap
   

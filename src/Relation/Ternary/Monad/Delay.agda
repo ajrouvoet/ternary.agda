@@ -8,7 +8,7 @@ open import Relation.Unary.PredicateTransformer using (Pt)
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
-open import Relation.Ternary.Monad {_≈_ = _≈_}
+open import Relation.Ternary.Monad
 
 open import Codata.Delay as D using (now; later) public
 open import Data.Unit
