@@ -116,10 +116,13 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
   IsPartialMonoid.∙-id⁻ʳ split-isMonoid (consˡ σ) = cong (_ ∷_) (∙-id⁻ʳ σ)
   IsPartialMonoid.∙-id⁻ʳ split-isMonoid []        = refl
 
--- --     split-has-concat : HasConcat _≡_ splits
--- --     HasConcat._∙_ split-has-concat = _++_
--- --     HasConcat.∙-∙ₗ split-has-concat {Φₑ = []} σ = σ
--- --     HasConcat.∙-∙ₗ split-has-concat {Φₑ = x ∷ Φₑ} σ = consˡ (∙-∙ₗ σ) 
-
   instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
   list-monoid = ++-isMonoid
+
+  instance split-is-total : IsTotal splits _++_
+
+  IsTotal.∙-∙ₗ split-is-total {Φₑ = []} σ = σ
+  IsTotal.∙-∙ₗ split-is-total {Φₑ = x ∷ Φₑ} σ = consˡ (∙-∙ₗ σ) 
+
+  IsTotal.∙-∙ᵣ split-is-total {Φₑ = []} σ = σ
+  IsTotal.∙-∙ᵣ split-is-total {Φₑ = x ∷ Φₑ} σ = consʳ (∙-∙ᵣ σ)
