@@ -3,8 +3,10 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
 module Relation.Ternary.Data.ReflexiveTransitive
-  {c} {C : Set c} {{rc : Rel₃ C}}
-  {_≈_ : C → C → Set c} {u} {{_ : IsCommutativeMonoid _≈_ rc u}}
+  {c e} {C : Set c} {{rc : Rel₃ C}}
+  {_≈_ : C → C → Set e} {u}
+  {{monoid : IsPartialMonoid _≈_ rc u}}
+  {{comm   : IsCommutative rc}}
   where
 
 open import Level
