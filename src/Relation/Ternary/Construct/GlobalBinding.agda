@@ -13,6 +13,7 @@ open IsEquivalence {{...}}
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Respect.Propositional
 
 private
   Labels = List T
@@ -27,6 +28,12 @@ open Overlapping public renaming
   ;split-isMonoid to overlap-monoid)
 
 _∪_≣_ = Rel₃._∙_≣_ Overlapping.splits
+
+open import Data.Unit
+instance splits-intuitive : Intuitionistic {A = Labels} Overlapping.splits
+Intuitionistic.Condition splits-intuitive _ = ⊤
+Intuitionistic.∙-copy splits-intuitive {[]} = ∙-idˡ
+Intuitionistic.∙-copy splits-intuitive {x ∷ xs} = Overlapping.divide dup ∙-copy
 
 open import Relation.Ternary.Construct.Empty T public
 open import Relation.Ternary.Construct.List.Interdivide empty-rel as Disjoint
@@ -119,10 +126,25 @@ module _ where
   instance binding-rel : Rel₃ Binding
   binding-rel = record { _∙_≣_ = Binds }
 
+  instance intuitive : Intuitionistic {A = Binding} binding-rel
+  Intuitionistic.Condition intuitive (u ↕ d) = u ≡ [] 
+  Intuitionistic.∙-copy intuitive {.[] ↕ xs} ⦃ PEq.refl ⦄ = ex sub-[] sub-[] ∙-idˡ ∙-copy
+
   instance binding-comm : IsCommutative binding-rel
   IsCommutative.∙-comm binding-comm (ex x₁ x₂ x₃ x₄) = ex x₂ x₁ (∙-comm x₃) (∙-comm x₄)
 
-  postulate instance binding-semigroup : IsPartialSemigroup _≡_ binding-rel
+  postulate binding-semigroupˡ : IsPartialSemigroupˡ _≡_ binding-rel
+  -- IsPartialSemigroupˡ.≈-equivalence binding-semigroupˡ = PEq.isEquivalence
+  -- IsPartialSemigroupˡ.assocᵣ binding-semigroupˡ σ₁ (ex x x₁ (consˡ x₂) x₃) = {!!}
+  -- IsPartialSemigroupˡ.assocᵣ binding-semigroupˡ σ₁ (ex x x₁ (consʳ x₂) x₃) = {!!}
+
+  -- IsPartialSemigroupˡ.assocᵣ binding-semigroupˡ σ₁ (ex x x₁ [] (divide x₂ x₃)) = {!!}
+  -- IsPartialSemigroupˡ.assocᵣ binding-semigroupˡ σ₁ (ex x x₁ [] (consˡ x₃)) = {!!}
+  -- IsPartialSemigroupˡ.assocᵣ binding-semigroupˡ σ₁ (ex x x₁ [] (consʳ x₃)) = {!!}
+  -- IsPartialSemigroupˡ.assocᵣ binding-semigroupˡ σ₁ (ex x x₁ [] []) = -, {!!} , {!!}
+
+  instance binding-semigroup : IsPartialSemigroup _≡_ binding-rel
+  binding-semigroup = IsPartialSemigroupˡ.semigroupˡ binding-semigroupˡ
 
   instance binding-emptiness : Emptiness ([] ↕ [])
   binding-emptiness = record {}
@@ -136,10 +158,3 @@ module _ where
 
   instance binding-isMonoid : IsPartialMonoid _≡_ binding-rel ([] ↕ [])
   binding-isMonoid = IsPartialMonoidˡ.partialMonoidˡ binding-isMonoidˡ
-
---   -- IsPartialSemigroup.∙-respects-≈ binding-semigroup = {!!}
---   -- IsPartialSemigroup.∙-respects-≈ˡ binding-semigroup = {!!}
---   -- IsPartialSemigroup.∙-respects-≈ʳ binding-semigroup = {!!}
-
---   -- IsPartialSemigroup.∙-assocᵣ binding-semigroup = {!!}
---   -- IsPartialSemigroup.∙-assocₗ binding-semigroup = {!!}
