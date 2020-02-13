@@ -14,13 +14,15 @@ open import Data.Product
 open import Relation.Unary
 open import Relation.Binary.PropositionalEquality
 
-module _
-  {A : Set c} (R : A → A → Pred C c) where
+module _ {A : Set c} (R : A → A → Pred C c) where
 
   data Star : (a₁ a₂ : A) → Pred C c where
     nil   : ∀ {a}        → ε[ Star a a ]
     cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ⊙ Star a₂ a₃ ⇒ Star a₁ a₃ ]
 
+  data Plus : (a₁ a₂ : A) → Pred C c where
+    cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ⊙ Star a₂ a₃ ⇒ Plus a₁ a₃ ]
+  
 module _ {A : Set c} {R : A → A → Pred C c} where
 
   instance star-respects : ∀ {a₁ a₂ : A} → Respect _≈_ (Star R a₁ a₂)

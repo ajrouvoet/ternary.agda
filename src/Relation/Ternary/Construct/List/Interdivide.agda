@@ -13,6 +13,7 @@ open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Ternary.Structures
+import Data.Nat as Nat
 
 open import Relation.Unary hiding (_∈_; _⊢_)
 
@@ -37,9 +38,6 @@ module _ where
 
   instance list-emptiness : Emptiness {A = List A} []
   list-emptiness = record {}
-
-  instance split-positive : IsPositive _≡_ splits []
-  IsPositive.positive′ split-positive [] = refl , refl
 
 module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division}} where
 
@@ -97,6 +95,31 @@ module _ {{_ : IsCommutative division}} where
   IsCommutative.∙-comm split-isComm (consʳ σ) = consˡ (∙-comm σ)
   IsCommutative.∙-comm split-isComm [] = []
 
+module _ where
+  open import Data.Nat.SizeOf {A = List A} length isEquivalence (λ where refl → refl) as SizeOf
+  open import Data.Nat.Properties
+  open import Data.List.Relation.Binary.Equality.DecPropositional
+  open import Relation.Nullary
+
+  instance split-positive : IsPositive _ _≡_ splits []
+  IsPositive._≤ₐ_ split-positive = SizeOf._≤ₐ_
+
+  IsPositive.is-empty split-positive []       = yes refl
+  IsPositive.is-empty split-positive (x ∷ xs) = no (λ ())
+
+  IsPositive.orderₐ split-positive = size-pre
+
+  IsPositive.positiveˡ split-positive (divide x σ) = Nat.s≤s (positiveˡ σ)
+  IsPositive.positiveˡ split-positive (consˡ σ)    = Nat.s≤s (positiveˡ σ)
+  IsPositive.positiveˡ split-positive (consʳ σ)    = ≤-step (positiveˡ σ)
+  IsPositive.positiveˡ split-positive []           = ≤-refl
+
+  IsPositive.positiveʳ split-positive (divide x σ) = Nat.s≤s (positiveʳ σ)
+  IsPositive.positiveʳ split-positive (consˡ σ)    = ≤-step (positiveʳ σ)
+  IsPositive.positiveʳ split-positive (consʳ σ)    = Nat.s≤s (positiveʳ σ)
+  IsPositive.positiveʳ split-positive []           = ≤-refl
+
+  IsPositive.ε-least split-positive {[]} Nat.z≤n = refl
 
 module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division}} where
 

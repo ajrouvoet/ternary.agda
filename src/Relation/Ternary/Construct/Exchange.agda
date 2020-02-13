@@ -118,7 +118,7 @@ module _
 module _
   {{ sep : Rel₃ A }} {eps}
   {{ cs⁻ : IsCrosssplittable _≈ₐ_ sep }}
-  {{ _   : IsPositive _≈ₐ_ sep eps }}
+  {s} {{ _   : IsPositive s _≈ₐ_ sep eps }}
   {{ un  : IsPartialMonoid _≈ₐ_ sep eps }}
   {{ _   : IsCommutative sep }}
   where
@@ -132,9 +132,17 @@ module _
   IsPartialMonoidˡ.ε-uniq exchange-isMonoidˡ (eq₁ , eq₂) with ε-unique eq₁ | ε-unique eq₂
   ... | PEq.refl | PEq.refl = PEq.refl
   IsPartialMonoidˡ.identityˡ exchange-isMonoidˡ = ex (∙-idˡ , ∙-idʳ) (∙-idʳ , ∙-idˡ) (∙-idˡ )
-  IsPartialMonoidˡ.identity⁻ˡ exchange-isMonoidˡ (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with positive x₁₁ | positive x₂₂
+  IsPartialMonoidˡ.identity⁻ˡ exchange-isMonoidˡ (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ε-split x₁₁ | ε-split x₂₂
   ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl =
     trans (sym (∙-id⁻ʳ x₂₁)) (∙-id⁻ˡ σ₁) , trans (sym (∙-id⁻ʳ x₁₂)) (∙-id⁻ˡ σ₂)
 
   instance exchange-isMonoid : IsPartialMonoid _≈_ exchange-rel (eps ↕ eps)
   exchange-isMonoid = IsPartialMonoidˡ.partialMonoidˡ exchange-isMonoidˡ
+
+  -- One can only subtract 'smaller' things
+  module _ where
+    subtract-↓-smaller : ∀ {xs zs : Account} {ys} → xs / ys ≣ zs → ys ≤ₐ down xs
+    subtract-↓-smaller (_ , d) = positiveʳ d
+
+    subtract-↑-smaller : ∀ {xs zs : Account} {ys} → xs / ys ≣ zs → ys ≤ₐ up xs
+    subtract-↑-smaller (u , _) = positiveʳ u
