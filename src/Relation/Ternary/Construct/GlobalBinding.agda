@@ -87,6 +87,22 @@ module _ where
           e ↭ e' →
           d - u ≣ (u' ↕ d')
 
+  []-sub : ∀ {xs} → [] - xs ≣ (xs ↕ [])
+  []-sub = sub ∙-idˡ ∙-idʳ ↭-refl
+
+  sub-[] : ∀ {xs} → xs - [] ≣ ([] ↕ xs)
+  sub-[] = sub ∙-idʳ ∙-idˡ ↭-refl
+
+  []-sub⁻ : ∀ {xs ys zs} → [] - xs ≣ (ys ↕ zs) → ys ≡ xs × zs ≡ []
+  []-sub⁻ (sub x x₁ x₂) with ε-split x
+  ... | PEq.refl , PEq.refl with ↭-[] (↭-sym x₂)
+  ... | PEq.refl = ∙-id⁻ʳ x₁ , PEq.refl
+
+  sub-[]⁻ : ∀ {xs ys zs} → xs - [] ≣ (ys ↕ zs) → zs ≡ xs × ys ≡ []
+  sub-[]⁻ (sub x x₁ x₂) with ε-split x₁
+  ... | PEq.refl , PEq.refl with ↭-[] x₂
+  ... | PEq.refl = ∙-id⁻ʳ x , PEq.refl
+
   data Binds : Binding → Binding → Binding → Set ℓ where
     -- exchange the rings and bind 'm
     ex : ∀ {u₁' d₁' u₂' d₂'} →
@@ -106,19 +122,19 @@ module _ where
   instance binding-comm : IsCommutative binding-rel
   IsCommutative.∙-comm binding-comm (ex x₁ x₂ x₃ x₄) = ex x₂ x₁ (∙-comm x₃) (∙-comm x₄)
 
-  postulate instance binding-semigroup : IsPartialSemigroup _≈_ binding-rel
+  postulate instance binding-semigroup : IsPartialSemigroup _≡_ binding-rel
 
   instance binding-emptiness : Emptiness ([] ↕ [])
   binding-emptiness = record {}
 
-  postulate binding-isMonoidˡ : IsPartialMonoidˡ _≈_ binding-rel ([] ↕ [])
---   -- IsPartialMonoidˡ.ε-uniq binding-isMonoidˡ (y , z) = PEq.cong₂ _↕_ (PEq.sym (↭-[] (↭-sym y) )) (PEq.sym (↭-[] (↭-sym z)))
---   -- IsPartialMonoidˡ.identityˡ binding-isMonoidˡ = exchange ∙-idʳ ∙-idʳ ∙-idʳ ∙-idʳ ∙-idˡ ∙-idˡ
---   -- IsPartialMonoidˡ.identity⁻ˡ binding-isMonoidˡ (exchange x₁ x₂ x₃ x₄ x₅ x₆) with ε-split x₁ | ε-split x₄
---   -- ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl =
---   --   ↭-trans (↭-sym (∙-id⁻ʳ x₂)) (∙-id⁻ˡ x₅) , ↭-trans (↭-sym (∙-id⁻ʳ x₃)) (∙-id⁻ˡ x₆) 
+  binding-isMonoidˡ : IsPartialMonoidˡ _≡_ binding-rel ([] ↕ [])
+  IsPartialMonoidˡ.ε-uniq binding-isMonoidˡ PEq.refl = PEq.refl
+  IsPartialMonoidˡ.identityˡ binding-isMonoidˡ = ex []-sub sub-[] ∙-idˡ ∙-idʳ
+  IsPartialMonoidˡ.identity⁻ˡ binding-isMonoidˡ (ex x₁ x₂ x₃ x₄) with sub-[]⁻ x₂ | []-sub⁻ x₁
+  ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl with ∙-id⁻ˡ x₃ | ∙-id⁻ʳ x₄
+  ... | PEq.refl | PEq.refl = PEq.refl
 
-  instance binding-isMonoid : IsPartialMonoid _≈_ binding-rel ([] ↕ [])
+  instance binding-isMonoid : IsPartialMonoid _≡_ binding-rel ([] ↕ [])
   binding-isMonoid = IsPartialMonoidˡ.partialMonoidˡ binding-isMonoidˡ
 
 --   -- IsPartialSemigroup.∙-respects-≈ binding-semigroup = {!!}
