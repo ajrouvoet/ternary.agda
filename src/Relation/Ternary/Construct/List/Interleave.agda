@@ -88,8 +88,19 @@ IsTotal.∙-∙ₗ total {Φₑ = x ∷ _} σ = consˡ (∙-∙ₗ σ)
 IsTotal.∙-∙ᵣ total {Φₑ = []} σ = σ
 IsTotal.∙-∙ᵣ total {Φₑ = x ∷ _} σ = consʳ (∙-∙ᵣ σ)
 
-list-positive : IsPositive _≡_ interleave ε
-IsPositive.positive′ list-positive [] = refl , refl
+open import Data.Nat.SizeOf {A = C} length isEquivalence (cong length) as SizeOf
+open import Relation.Nullary
+open import Data.Nat
+open import Data.Nat.Properties
 
-  -- -- list-has-cross⁺ : HasCrossSplit⁺ interleave
-  -- -- list-has-cross⁺ = record { cross = ∙-cross }
+instance list-positive : IsPositive _ _≡_ interleave ε
+IsPositive._≤ₐ_      list-positive           = SizeOf._≤ₐ_
+IsPositive.is-empty  list-positive []        = yes refl
+IsPositive.is-empty  list-positive (x ∷ xs)  = no λ ()
+IsPositive.orderₐ    list-positive           = size-pre
+IsPositive.positiveˡ list-positive []        = ≤-refl
+IsPositive.positiveˡ list-positive (consˡ σ) = s≤s (positiveˡ σ)
+IsPositive.positiveˡ list-positive (consʳ σ) = ≤-step (positiveˡ σ)
+IsPositive.positiveʳ list-positive σ         = positiveˡ (∙-comm σ)
+IsPositive.ε-least   list-positive {[]} z≤n  = refl
+IsPositive.ε-least   list-positive {x ∷ Φ} ()

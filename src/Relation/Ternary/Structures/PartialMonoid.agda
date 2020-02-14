@@ -27,6 +27,9 @@ record Emptiness (unit : A) : Set where
   ε[_] : ∀ {ℓ} → Pred A ℓ → Set ℓ
   ε[ P ] = P ε
 
+  data Empty {p} (P : Set p) : Pred A p where
+    emp : P → Empty P ε
+
 open Emptiness {{...}} public
 
 record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
@@ -53,12 +56,6 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
 
   ∙-id⁺ʳ : ∀ {Φ} → ∀[ _≈_ Φ ⇒ Φ ∙ ε ]
   ∙-id⁺ʳ eq = coe eq ∙-idʳ
-
-  {- Emptyness -}
-  module _ where
-
-    data Empty {p} (P : Set p) : Pred A (a ⊔ p) where
-      emp : P → Empty P ε
 
   module _ {p} {P : Pred A p} {{_ : Respect _≈_ P}} where
     ⊙-id⁻ʳ : ∀[ P ⊙ Emp ⇒ P ]
