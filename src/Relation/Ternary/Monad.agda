@@ -77,17 +77,19 @@ module _
   where
 
   module _ {P Q} {{ _ : ∀ {i₁ i₂} → Respect _≈_ (M i₁ i₂ Q) }} where
+    infixl 1 _=<<_
     _=<<_ : ∀ {i₁ i₂ i₃} → ∀[ P ⇒ M i₂ i₃ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₃ Q ]
     f =<< mp =
       bind
         (arr λ where
           σ px → coe (∙-id⁻ˡ σ) (f px)) ⟨ ∙-idˡ ⟩ mp
 
+    infixl 1 _>>=_
     _>>=_ : ∀ {Φ} {i₁ i₂ i₃} → M i₁ i₂ P Φ → ∀[ P ⇒ M i₂ i₃ Q ] → M i₁ i₃ Q Φ
     mp >>= f = f =<< mp
 
-    mapM : ∀ {Φ} {i₁ i₂} → M i₁ i₂ P Φ → ∀[ P ⇒ Q ] → M i₁ i₂ Q Φ
-    mapM mp f = mp >>= (return ∘ f)
+    mapM : ∀ {i₁ i₂} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
+    mapM f mp = mp >>= (return ∘ f)
 
 {- Additional level restrictions give you a nice strength shorthand -}
 module _

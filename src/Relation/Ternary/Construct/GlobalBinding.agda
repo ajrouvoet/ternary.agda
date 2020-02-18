@@ -37,10 +37,10 @@ Intuitionistic.∙-copy splits-intuitive {x ∷ xs} = Overlapping.divide dup ∙
 
 open import Relation.Ternary.Construct.Empty T
 open import Relation.Ternary.Construct.List.Interdivide empty-rel as Disjoint
-open Disjoint public using
-  (split-positive
-  ;split-isSemigroup
-  ;split-isMonoid)
+open Disjoint public using () renaming
+  (split-positive to disjoint-positive
+  ;split-isSemigroup to disjoint-semigroup
+  ;split-isMonoid to disjoint-monoid)
 
 _⊎_≣_ = Rel₃._∙_≣_ Disjoint.splits
 
@@ -63,6 +63,9 @@ module _ where
 
   open Binding public
 
+  instance binding-emptiness : Emptiness ([] ↕ [])
+  binding-emptiness = record {}
+
   data Down (P : Pred Labels ℓ) : Pred Binding ℓ where
     ↓ : ∀ {x} → P x → Down P ([] ↕ x)
 
@@ -76,15 +79,6 @@ private
 module _ where
 
   open import Data.List.Relation.Binary.Permutation.Propositional
-
-  open import Data.Product.Relation.Binary.Pointwise.NonDependent
-  _≈_ : Binding → Binding → Set _
-  a ≈ b = Pointwise _↭_ _↭_ (pair a) (pair b)
-
-  instance binding-≈-equivalence : IsEquivalence _≈_
-  IsEquivalence.refl binding-≈-equivalence  = ↭-refl , ↭-refl
-  IsEquivalence.sym binding-≈-equivalence   (e₁ , e₂) = ↭-sym e₁ , ↭-sym e₂
-  IsEquivalence.trans binding-≈-equivalence (e₁ , e₂) (f₁ , f₂) = ↭-trans e₁ f₁ , ↭-trans e₂ f₂
 
   {- Subtraction with duplication -}
   data _-_≣_ : Labels → Labels → Binding → Set ℓ where
@@ -109,6 +103,9 @@ module _ where
   sub-[]⁻ (sub x x₁ x₂) with ε-split x₁
   ... | PEq.refl , PEq.refl with ↭-[] x₂
   ... | PEq.refl = ∙-id⁻ʳ x , PEq.refl
+
+  xs-xs≡ε : ∀ {xs} → xs - xs ≣ ε
+  xs-xs≡ε = sub ∙-idˡ ∙-idˡ ↭-refl
 
   data Binds : Binding → Binding → Binding → Set ℓ where
     -- exchange the rings and bind 'm
@@ -146,9 +143,6 @@ module _ where
   instance binding-semigroup : IsPartialSemigroup _≡_ binding-rel
   binding-semigroup = IsPartialSemigroupˡ.semigroupˡ binding-semigroupˡ
 
-  instance binding-emptiness : Emptiness ([] ↕ [])
-  binding-emptiness = record {}
-
   binding-isMonoidˡ : IsPartialMonoidˡ _≡_ binding-rel ([] ↕ [])
   IsPartialMonoidˡ.ε-uniq binding-isMonoidˡ PEq.refl = PEq.refl
   IsPartialMonoidˡ.identityˡ binding-isMonoidˡ = ex []-sub sub-[] ∙-idˡ ∙-idʳ
@@ -158,3 +152,8 @@ module _ where
 
   instance binding-isMonoid : IsPartialMonoid _≡_ binding-rel ([] ↕ [])
   binding-isMonoid = IsPartialMonoidˡ.partialMonoidˡ binding-isMonoidˡ
+
+module _ where
+
+  binder : ∀ τ → ε[ Up (Just τ) ⊙ Down (Just τ) ]
+  binder τ = (↑ PEq.refl ∙⟨ ex []-sub xs-xs≡ε ∙-idˡ ∙-idˡ ⟩ ↓ PEq.refl)

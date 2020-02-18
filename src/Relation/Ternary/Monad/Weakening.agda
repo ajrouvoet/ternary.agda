@@ -1,6 +1,6 @@
 open import Relation.Ternary.Core
 
-module Relation.Ternary.Monad.Weakening {a} {A : Set a} where
+module Relation.Ternary.Monad.Weakening {a} {A : Set a} {{rel : Rel₃ A}} where
 
 open import Level
 open import Data.Unit
@@ -11,7 +11,7 @@ open import Relation.Unary.PredicateTransformer using (PT)
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Monad
 
-module _ {{rel : Rel₃ A}} where
+module _ where
   infixr 10 _⇑
   _⇑ : ∀ {ℓ} → PT A A ℓ (a ⊔ ℓ)
   P ⇑ = P ⊙ U
@@ -25,7 +25,6 @@ module _ {{rel : Rel₃ A}} where
   π₂ (px ∙⟨ σ ⟩ qx) = qx ⇈ (∙-comm σ)
 
 module _ 
-  {{rel : Rel₃ A}}
   {e} {_≈_ : A → A → Set e}
   {{_ : IsPartialSemigroup _≈_ rel}} where
 
@@ -34,11 +33,10 @@ module _
   ... | _ , σ₃ , σ₄ = px ⇈ σ₃
 
 module _
-  {{rel : Rel₃ A}}
   {e} {_≈_ : A → A → Set e} {u}
   {{_ : IsPartialMonoid _≈_ rel u}} where
 
-  ⇑-monad : ∀ {ℓ} → Monad ⊤ (λ _ _ → _⇑ {ℓ})
+  instance ⇑-monad : ∀ {ℓ} → Monad ⊤ (λ _ _ → _⇑ {ℓ})
   Monad.return ⇑-monad px = px ⇈ ∙-idʳ
   Monad.bind ⇑-monad f ⟨ σ₁ ⟩ (px ⇈ σ₂) with ∙-assocₗ σ₁ σ₂
   ... | _ , σ₃ , σ₄ with f ⟨ σ₃ ⟩ px
