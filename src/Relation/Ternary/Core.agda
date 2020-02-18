@@ -35,7 +35,7 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
   _≤_ : Rel A _
   Φ₁ ≤ Φ = ∃ λ Φ₂ → Φ₁ ∙ Φ₂ ≣ Φ
 
-  {- Partial products over the relatiion -}
+ {- Partial products over the relation -}
   module _ where
 
     infixr 10 _∙⟨_⟩_
