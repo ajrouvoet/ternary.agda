@@ -20,7 +20,7 @@ private
   variable
     u₁ u₂ u₃ d₁ d₂ d₃ u d : Labels
 
-open import Relation.Ternary.Construct.Duplicate T as Dup public
+open import Relation.Ternary.Construct.Duplicate T as Dup
 open import Relation.Ternary.Construct.List.Interdivide duplicate as Overlapping
 open Overlapping public renaming
   (split-positive to overlap-positive
@@ -35,7 +35,7 @@ Intuitionistic.Condition splits-intuitive _ = ⊤
 Intuitionistic.∙-copy splits-intuitive {[]} = ∙-idˡ
 Intuitionistic.∙-copy splits-intuitive {x ∷ xs} = Overlapping.divide dup ∙-copy
 
-open import Relation.Ternary.Construct.Empty T public
+open import Relation.Ternary.Construct.Empty T
 open import Relation.Ternary.Construct.List.Interdivide empty-rel as Disjoint
 open Disjoint public using
   (split-positive
