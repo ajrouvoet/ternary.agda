@@ -32,7 +32,6 @@ record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set
     instance ─⊙-respect-≈ : ∀ {p q} {P : Pred A p} {Q : Pred A q} → Respect _≈_ (P ─⊙ Q)
     Respect.coe ─⊙-respect-≈ eq f ⟨ σ ⟩ px = f ⟨ coe (IsEquivalence.sym ≈-equivalence eq) σ ⟩ px
 
-  -- pairs rotate and reassociate
   module _ {p q r} {P : Pred A p} {Q : Pred A q} {R : Pred A r} where
     ⊙-assocₗ : ∀[ P ⊙ (Q ⊙ R) ⇒ (P ⊙ Q) ⊙ R ]
     ⊙-assocₗ (p ∙⟨ σ₁ ⟩ (q ∙⟨ σ₂ ⟩ r)) =
