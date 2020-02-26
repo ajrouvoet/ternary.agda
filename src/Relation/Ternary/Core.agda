@@ -28,8 +28,16 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
   variable
     Φ₁ Φ₂ Φ₃ Φ : A
 
-  -- we can see the three point relation as a predicate on the carrier
-  _∙_ = _∙_≣_
+  module _ where
+    -- we can see the three point relation as a predicate on the carrier
+    _∙_ = _∙_≣_
+
+  module _ where
+    -- concise notation for "being separated"
+    _◆_ = λ Φ₁ Φ₂ → ∃ λ Φ → Φ₁ ∙ Φ₂ ≣ Φ
+
+    whole : Φ₁ ◆ Φ₂ → A
+    whole = proj₁
 
   -- buy one, get a preorder for free
   _≤_ : Rel A _
@@ -56,7 +64,7 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
     _⊙_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a)
     P ⊙ Q = ∃[ P ]⊙ const Q
 
-  {- Partial exponents over the relatiion -}
+  {- Partial exponents over the relation -}
   module _ where
 
     infixr 8 _─⊙[_]_

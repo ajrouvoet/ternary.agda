@@ -1,8 +1,10 @@
-module Relation.Ternary.Monad.Possibly {a} {A : Set a} where
+{- A graded possibility modality -}
+module Relation.Ternary.Monad.Possibly {ℓa} {A : Set ℓa} where
 
 open import Level
 open import Relation.Unary
-open import Relation.Binary
+open import Relation.Unary.PredicateTransformer using (PT)
+open import Relation.Binary using (Rel)
 open import Relation.Binary.Structures
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
@@ -11,25 +13,75 @@ open import Relation.Ternary.Monad
 open import Data.Unit
 open import Data.Product
 
-module Possibly {r ℓ} (_∼_ : Rel A r) where
+private
+  variable
+    p   : Level
+    P Q : Pred A p
 
-  record ◇ (P : Pred A ℓ) (Φ : A) : Set (r ⊔ a ⊔ ℓ) where
+GradedRel : ∀ {a g} → Set a → Set g → ∀ ℓ → Set (a ⊔ g ⊔ suc ℓ)
+GradedRel A G ℓ = A → G → A → Set ℓ
+
+module Possibly {r g} {G : Set g}
+  (_∼[_]_  : GradedRel A G r)
+  where
+
+  private
+    variable
+      Δ₁ Δ₂ Δ : G
+
+  record ◇[_] {ℓ} (gr : G) (P : Pred A ℓ) (Φ : A) : Set (r ⊔ ℓa ⊔ ℓ) where
     constructor possibly
     field
       {Φ′} : A
-      rel  : Φ ∼ Φ′
+      rel  : Φ ∼[ gr ] Φ′
       px   : P Φ′
 
-  module ◇-Monad 
-    {{r  : Rel₃ A}}
-    {e} {_≈_ : A → A → Set e}
-    {u} {{us : IsPartialMonoid _≈_ r u}}
-    (pre : IsPreorder _≈_ _∼_)
-    (fp : ∀ {Φ Φ′ Δ Ψ : A} → Φ ∼ Φ′ → Δ ∙ Φ ≣ Ψ → ∃ λ (Ψ′ : A) → Δ ∙ Φ′ ≣ Ψ′ × Ψ ∼ Ψ′)
+  ◇ : ∀ {ℓ} → PT A A ℓ _
+  ◇ P = ⋃[ Δ ∶ _ ] ◇[ Δ ] P
+
+  module _
+    {e} {_≈ᵣ_ : A → A → Set e} {Δ}
+    {{∼-respects-≈ˡ : ∀ {Φ} → Respect _≈ᵣ_ (_∼[ Δ ] Φ) }} where
+
+    postulate instance ◇-respects-≈ : Respect _≈ᵣ_ (◇[ Δ ] P)
+
+  module ◇-Monad
+    {{r  : Rel₃ A}} {{g : Rel₃ G}}
+    {e}  {_≈_ : G → G → Set e} {ug} {{gm : IsPartialMonoid _≈_ g ug}}
+
+    -- graded preorder
+    (∼-refl  : ∀ {a} → a ∼[ ε ] a)
+    (∼-trans : ∀ {Δ₁ Δ₂ Δ : G} {a b c} → (σ : Δ₁ ∙ Δ₂ ≣ Δ) → a ∼[ Δ₁ ] b → b ∼[ Δ₂ ] c → a ∼[ Δ ] c)
+
+    -- frame preserving
+    (∼-fp : ∀ {Δ fr Φ₁ Φ₂} → Φ₁ ∼[ Δ ] Φ₂ → (di₁ : fr ◆ Φ₁) → ∃ λ (di₂ : fr ◆ Φ₂) → whole di₁ ∼[ Δ ] whole di₂)
     where
 
-    instance ◇-monad : Monad ⊤ (λ _ _ → ◇)
-    Monad.return ◇-monad px = possibly (IsPreorder.refl pre) px
-    Monad.bind ◇-monad f ⟨ σ ⟩ (possibly r px) with fp r σ
-    ... | Φ′ , σ′ , r′′ with f ⟨ σ′ ⟩ px
-    ... | possibly r′ qx = possibly (IsPreorder.trans pre r′′ r′) qx
+    greturn : ∀[ P ⇒ ◇[ ε ] P ]
+    greturn px = possibly ∼-refl px
+
+    goin : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] (◇[ Δ₂ ] P) ⇒ ◇[ Δ ] P ]
+    goin σ (possibly x∼y (possibly y∼z px)) = possibly (∼-trans σ x∼y y∼z) px
+
+    gstr : ∀ {Δ} → ∀[ P ⊙ (◇[ Δ ] Q) ⇒ ◇[ Δ ] (P ⊙ Q) ]
+    gstr (px ∙⟨ σ ⟩ possibly rel qx) with ∼-fp rel (-, σ)
+    ... | di , rel' = possibly rel' (px ∙⟨ proj₂ di ⟩ qx)
+
+    module _ {_++_} {{_ : IsTotal _≈_ g ug _++_ }} where
+
+      ◇-monad : ∀  {ℓ} → Monad ⊤ (λ _ _ → ◇ {ℓ = ℓ})
+      Monad.return ◇-monad px = -, greturn px
+      Monad.bind ◇-monad f ⟨ σ ⟩ (_ , possibly rel px) with ∼-fp rel (-, σ)
+      ... | (_ , σ′) , rel' with f ⟨ σ′ ⟩ px
+      ... | _ , (possibly rel'' qx) = -, (possibly (∼-trans ∙-∙ rel' rel'') qx)
+
+  module ◇-Zip
+    {{r  : Rel₃ A}} {{g : Rel₃ G}}
+    (∼-pull : ∀ {a b c a' b'} →
+      Δ₁ ∙ Δ₂ ≣ Δ  → a ∙ b ≣ c    →
+      a ∼[ Δ₁ ] a' → b ∼[ Δ₂ ] b' →
+      ∃ λ c' → a' ∙ b' ≣ c' × c ∼[ Δ ] c') where
+
+      ◇-zip : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] P ⊙ ◇[ Δ₂ ] Q ⇒ ◇[ Δ ] (P ⊙ Q) ]
+      ◇-zip δ (possibly r₁ px ∙⟨ σ ⟩ possibly r₂ qx) with ∼-pull δ σ r₁ r₂ 
+      ... | _ , σ′ , r′ = possibly r′ (px ∙⟨ σ′ ⟩ qx)

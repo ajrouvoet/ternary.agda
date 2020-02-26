@@ -17,7 +17,7 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
 {- strong indexed monads on predicates over PRSAs -}
-module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ ra}} where
+module _ where
 
   RawMonad : ∀ {i} (I : Set i) → (ℓ₁ ℓ₂ : Level) → Set _
   RawMonad I ℓ₁ ℓ₂ = (i j : I) → PT A A ℓ₁ ℓ₂
@@ -40,7 +40,7 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ ra}} whe
         σ px → return (f ⟨ σ ⟩ px))
 
     {- kleisli composition -}
-    module _ {i₁ i₂ i₃} {P Q R : Pred A ℓ₁} where
+    module _ {i₁ i₂ i₃} {P Q R : Pred A ℓ₁} {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ ra}} where
 
       kleisli : ∀[ (Q ─⊙ M i₂ i₃ R) ⇒ (P ─⊙ M i₁ i₂ Q) ─⊙ (P ─⊙ M i₁ i₃ R) ]
       kleisli g ⟨ σ ⟩ f = bind g ∘⟨ σ ⟩ f
@@ -90,6 +90,9 @@ module _
 
     mapM : ∀ {i₁ i₂} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
     mapM f mp = mp >>= (return ∘ f)
+
+    _⟨$⟩_ : ∀ {i₁ i₂} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
+    f ⟨$⟩ mp = mapM f mp
 
 {- Additional level restrictions give you a nice strength shorthand -}
 module _

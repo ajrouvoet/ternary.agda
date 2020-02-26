@@ -70,7 +70,6 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
 
     ⊙-idˡ : ∀[ P ⇒ Emp ⊙ P ]
     ⊙-idˡ px = refl ∙⟨ ∙-idˡ ⟩ px
-
   module _ {p q} {P : Pred A p} {Q : Pred A q} {{_ : Respect _≈_ Q}} where
 
     arrow : ∀[ P ⇒ Q ] → ε[ P ─⊙ Q ]
