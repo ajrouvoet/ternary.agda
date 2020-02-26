@@ -39,11 +39,8 @@ module Possibly {r g} {G : Set g}
   ◇ : ∀ {ℓ} → PT A A ℓ _
   ◇ P = ⋃[ Δ ∶ _ ] ◇[ Δ ] P
 
-  module _
-    {e} {_≈ᵣ_ : A → A → Set e} {Δ}
-    {{∼-respects-≈ˡ : ∀ {Φ} → Respect _≈ᵣ_ (_∼[ Δ ] Φ) }} where
-
-    postulate instance ◇-respects-≈ : Respect _≈ᵣ_ (◇[ Δ ] P)
+  pack : ∀[ ◇[ Δ ] P ⇒ ◇ P ]
+  pack px = -, px
 
   module ◇-Monad
     {{r  : Rel₃ A}} {{g : Rel₃ G}}

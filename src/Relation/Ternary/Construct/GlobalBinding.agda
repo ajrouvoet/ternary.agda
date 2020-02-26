@@ -155,5 +155,16 @@ module _ where
 
 module _ where
 
+  open import Data.Unit
+
+  ups : ∀ {xs ys zs} → Binds (xs ↕ []) (ys ↕ []) zs → ∃ λ xys → zs ≡ (xys ↕ []) × xs ⊎ ys ≣ xys
+  ups (ex x x₁ x₂ x₃) with []-sub⁻ x | []-sub⁻ x₁
+  ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl with ε∙ε x₃
+  ... | PEq.refl = -, PEq.refl , x₂
+
+  zipUp : ∀ {P Q : Pred (List T) ℓ} → ∀[ (Up P) ⊙ (Up Q) ⇒ Up (_⊙_ {{Disjoint.splits}} P Q) ]
+  zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) with ups σ
+  ... | _ , PEq.refl , σ↑ = ↑ (px ∙⟨ σ↑ ⟩ qx) 
+
   binder : ∀ τ → ε[ Up (Just τ) ⊙ Down (Just τ) ]
   binder τ = (↑ PEq.refl ∙⟨ ex []-sub xs-xs≡ε ∙-idˡ ∙-idˡ ⟩ ↓ PEq.refl)

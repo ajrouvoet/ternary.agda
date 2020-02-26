@@ -142,7 +142,7 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
   instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
   list-monoid = ++-isMonoid
 
-  instance split-is-total : IsTotal splits _++_
+  instance split-is-total : IsTotal _≡_ splits [] _++_
 
   IsTotal.∙-∙ₗ split-is-total {Φₑ = []} σ = σ
   IsTotal.∙-∙ₗ split-is-total {Φₑ = x ∷ Φₑ} σ = consˡ (∙-∙ₗ σ) 
