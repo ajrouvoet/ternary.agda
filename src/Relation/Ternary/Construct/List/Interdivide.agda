@@ -1,6 +1,5 @@
 {-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
-open import Relation.Ternary.Structures
 
 module Relation.Ternary.Construct.List.Interdivide {a} {A : Set a} (division : Rel₃ A) where
 
@@ -8,11 +7,12 @@ open import Level
 open import Algebra.Structures using (IsMonoid)
 open import Data.Product
 open import Data.List
-open import Data.List.Properties using (++-isMonoid)
+open import Data.List.Properties using (++-isMonoid; ++-identityʳ)
 open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional
 open import Relation.Binary.PropositionalEquality hiding ([_])
-open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures hiding (≤-refl)
+open import Relation.Ternary.Respect.Propositional
 import Data.Nat as Nat
 
 open import Relation.Unary hiding (_∈_; _⊢_)
@@ -142,10 +142,8 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
   instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
   list-monoid = ++-isMonoid
 
-  instance split-is-total : IsTotal _≡_ splits [] _++_
-
-  IsTotal.∙-∙ₗ split-is-total {Φₑ = []} σ = σ
-  IsTotal.∙-∙ₗ split-is-total {Φₑ = x ∷ Φₑ} σ = consˡ (∙-∙ₗ σ) 
-
-  IsTotal.∙-∙ᵣ split-is-total {Φₑ = []} σ = σ
-  IsTotal.∙-∙ᵣ split-is-total {Φₑ = x ∷ Φₑ} σ = consʳ (∙-∙ᵣ σ)
+  instance split-isTotal : IsTotal _≡_ splits _++_
+  IsTotal.∙-parallel split-isTotal [] σ₂ = σ₂
+  IsTotal.∙-parallel split-isTotal (divide x σ₁) σ₂ = divide x (∙-parallel σ₁ σ₂)
+  IsTotal.∙-parallel split-isTotal (consˡ σ₁) σ₂ = consˡ (∙-parallel σ₁ σ₂)
+  IsTotal.∙-parallel split-isTotal (consʳ σ₁) σ₂ = consʳ (∙-parallel σ₁ σ₂)

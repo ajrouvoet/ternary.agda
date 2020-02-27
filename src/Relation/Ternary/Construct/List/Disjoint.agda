@@ -19,11 +19,13 @@ private
 open import Relation.Ternary.Construct.Empty T public
 open import Relation.Ternary.Construct.List.Interdivide empty-rel as Disjoint
 open Disjoint public using () renaming
-  (list-emptiness to disjoint-empty
+  (splits to disjoint-split
+  ;list-emptiness to disjoint-empty
   ;split-positive to disjoint-positive
   ;split-isComm to disjoint-commutative
   ;split-isSemigroup to disjoint-semigroup
-  ;split-isMonoid to disjoint-monoid)
+  ;split-isMonoid to disjoint-monoid
+  ;split-isTotal to disjoint-total)
 
 open Rel₃ Disjoint.splits using ()
   renaming (_∙_≣_ to _⊕_≣_; _⊙_ to _⊕_) public
@@ -47,6 +49,18 @@ toPermutation (consʳ {xs = xs} {ys} {zs} {z} σ) = begin
 
 ⊕-functional : ∀ {xs ys zs zs'}  → xs ⊕ ys ≣ zs → xs ⊕ ys ≣ zs' → zs ↭ zs'
 ⊕-functional σ₁ σ₂ = ↭-trans (toPermutation σ₁) (↭-sym (toPermutation σ₂))
+
+{- We can pull a permutation through separation -}
+postulate ↭-∙ˡ : xsˡ ⊕ xsʳ ≣ xs → xsˡ ↭ ysˡ → Σ[ ys ∈ Ctx ] ys ↭ xs × ysˡ ⊕ xsʳ ≣ ys
+
+↭-∙ʳ : xsˡ ⊕ xsʳ ≣ xs → xsʳ ↭ ysʳ → Σ[ ys ∈ Ctx ] ys ↭ xs × xsˡ ⊕ ysʳ ≣ ys
+↭-∙ʳ σ ρ with ↭-∙ˡ (∙-comm σ) ρ
+... | _ , ρ′ , σ′ = -, ρ′ , ∙-comm σ′
+
+↭-∙ : xsˡ ⊕ xsʳ ≣ xs → xsˡ ↭ ysˡ → xsʳ ↭ ysʳ → Σ[ ys ∈ Ctx ] ys ↭ xs × ysˡ ⊕ ysʳ ≣ ys
+↭-∙ σ ρ₁ ρ₂ with ↭-∙ˡ σ ρ₁
+... | _ , ρ₃ , σ₂ with ↭-∙ʳ σ₂ ρ₂
+... | _ , ρ₄ , σ₃ = -, ↭-trans ρ₄ ρ₃ , σ₃
 
 {- We can push permutation through separation. -}
 ∙-↭ : xsˡ ⊕ xsʳ ≣ xs → xs ↭ ys →
@@ -89,3 +103,12 @@ toPermutation (consʳ {xs = xs} {ys} {zs} {z} σ) = begin
 ∙-↭ σ (trans ρ₁ ρ₂) with ∙-↭ σ ρ₁
 ... | _ , h₁ , h₂ , σ₂ with ∙-↭ σ₂ ρ₂
 ... | _ , h₃ , h₄ , σ₃ = _ , trans h₃ h₁ , trans h₄ h₂ , σ₃
+
+threeway : ∀ {a b c ab bc : List T} → a ∙ b ≣ ab → b ∙ c ≣ bc → ∃ λ abc → ab ∙ bc ≣ abc
+threeway Split.[] σ₂ = -, ∙-idˡ
+threeway (consˡ σ₁) σ₂ with threeway σ₁ σ₂
+... | _ , σ₃ = -, consˡ σ₃
+threeway σ₁@(consʳ _) (consʳ σ₂) with threeway σ₁ σ₂
+... | _ , σ₃ = -, consʳ σ₃
+threeway (consʳ σ₁) (consˡ σ₂) with threeway σ₁ σ₂
+... | _ , σ₃ = -, consˡ (consʳ σ₃)

@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+
 {- A graded possibility modality -}
 module Relation.Ternary.Monad.Possibly {ℓa} {A : Set ℓa} where
 
@@ -6,9 +8,12 @@ open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (PT)
 open import Relation.Binary using (Rel)
 open import Relation.Binary.Structures
+open import Relation.Binary.PropositionalEquality using (_≡_)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Monad
+open import Relation.Ternary.Monad.Update
+open import Algebra.Structures
 
 open import Data.Unit
 open import Data.Product
@@ -39,10 +44,13 @@ module Possibly {r g} {G : Set g}
   ◇ : ∀ {ℓ} → PT A A ℓ _
   ◇ P = ⋃[ Δ ∶ _ ] ◇[ Δ ] P
 
+  _∼_ : A → A → Set _
+  a ∼ b = ∃ λ Δ → a ∼[ Δ ] b
+
   pack : ∀[ ◇[ Δ ] P ⇒ ◇ P ]
   pack px = -, px
 
-  module ◇-Monad
+  module ◇-GradedMonad
     {{r  : Rel₃ A}} {{g : Rel₃ G}}
     {e}  {_≈_ : G → G → Set e} {ug} {{gm : IsPartialMonoid _≈_ g ug}}
 
@@ -64,17 +72,26 @@ module Possibly {r g} {G : Set g}
     gstr (px ∙⟨ σ ⟩ possibly rel qx) with ∼-fp rel (-, σ)
     ... | di , rel' = possibly rel' (px ∙⟨ proj₂ di ⟩ qx)
 
-    module _ {_++_} {{_ : IsTotal _≈_ g ug _++_ }} where
+  module ◇-Monad
+    {{r  : Rel₃ A}} {{g  : Rel₃ G}}
+    (∼-isPreorder : IsPreorder _≡_ _∼_)
+    (∼-fp : ∀ {fr Φ₁ Φ₂} → Φ₁ ∼ Φ₂ → (di₁ : fr ◆ Φ₁) → ∃ λ (di₂ : fr ◆ Φ₂) → whole di₁ ∼ whole di₂)
+    where
+    open IsPreorder ∼-isPreorder
 
-      ◇-monad : ∀  {ℓ} → Monad ⊤ (λ _ _ → ◇ {ℓ = ℓ})
-      Monad.return ◇-monad px = -, greturn px
-      Monad.bind ◇-monad f ⟨ σ ⟩ (_ , possibly rel px) with ∼-fp rel (-, σ)
-      ... | (_ , σ′) , rel' with f ⟨ σ′ ⟩ px
-      ... | _ , (possibly rel'' qx) = -, (possibly (∼-trans ∙-∙ rel' rel'') qx)
+    ◇-monad : ∀  {ℓ} → Monad ⊤ (λ _ _ → ◇ {ℓ = ℓ})
+    Monad.return ◇-monad px =
+      -, possibly (proj₂ refl) px
+    Monad.bind ◇-monad f ⟨ σ ⟩ (_ , possibly rel px) with ∼-fp (-, rel) (-, σ)
+    ... | (_ , σ′) , rel' with f ⟨ σ′ ⟩ px
+    ... | _ , (possibly rel'' qx) = -, (possibly (proj₂ (trans rel' (-, rel''))) qx)
+
+    ◇-⤇ : ∀[ ◇ P ⇒ ⤇ P ]
+    ◇-⤇ (_ , possibly r px) = local (λ fr → _ , proj₁ (∼-fp (-, r) fr) , px)
 
   module ◇-Zip
     {{r  : Rel₃ A}} {{g : Rel₃ G}}
-    (∼-pull : ∀ {a b c a' b'} →
+    (∼-pull : ∀ {a b c a' b' Δ₁ Δ₂ Δ} →
       Δ₁ ∙ Δ₂ ≣ Δ  → a ∙ b ≣ c    →
       a ∼[ Δ₁ ] a' → b ∼[ Δ₂ ] b' →
       ∃ λ c' → a' ∙ b' ≣ c' × c ∼[ Δ ] c') where

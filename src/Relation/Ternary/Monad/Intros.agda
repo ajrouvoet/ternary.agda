@@ -5,7 +5,7 @@ open import Data.Product as P
 open import Data.List
 open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties
-open import Data.List.Properties
+open import Data.List.Properties as LP
 
 open import Relation.Unary hiding (_⊢_; _⊆_; _∈_)
 open import Relation.Unary.PredicateTransformer using (Pt)
@@ -14,50 +14,43 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Monad.Possibly
 
-open import Relation.Ternary.Construct.List.Disjoint T hiding (_∈_)
+open import Relation.Ternary.Construct.List.Disjoint T  as D hiding (_∈_)
+open import Relation.Ternary.Construct.List.Overlapping T --using (_⊗_≣_; ⊆-⊗)
 
 private
   Ctx = List T
 
-module _ {{r : Rel₃ Ctx}} where
+module _ where
 
   _∼[_]_ : Ctx → Ctx → Ctx → Set t
-  Γₙ ∼[ Δ ] Γₙ₊₁ = Σ[ ctxs ∈ (Ctx × Ctx) ]
-    let (Δ′ , Δ′′ ) = ctxs in (Δ′ ⊆ Δ) × (Δ′ ↭ Δ′′) × Γₙ ⊕ Δ′′ ≣ Γₙ₊₁
+  Γₙ ∼[ Δ ] Γₙ₊₁ = ∃ λ Δ′ → -- Σ[ ctxs ∈ (Ctx × Ctx) ]
+    (Δ′ ⊆ Δ) × Γₙ ++ Δ′ ≡ Γₙ₊₁
 
   -- McBride's introduction turnstile
-  open Possibly _∼[_]_ renaming (◇[_] to _⊢_)
+  open Possibly _∼[_]_ renaming (◇[_] to _⊢_) public
 
   ∼-refl  : ∀ {a : Ctx} → a ∼[ ε ] a
-  ∼-refl = -, (-, ∙-idˡ) , ↭-refl , ∙-idʳ
+  ∼-refl = -, (-, ∙-idˡ) , LP.++-identityʳ _
 
-  ∼-trans : ∀ {Δ₁ Δ₂ Δ : Ctx} {a b c} → (σ : Δ₁ ⊕ Δ₂ ≣ Δ) → a ∼[ Δ₁ ] b → b ∼[ Δ₂ ] c → a ∼[ Δ ] c
-  ∼-trans σ (Δ₁′ , (_ , Δ₁′⊆Δ₁) , p₁ , z) (Δ₂′ , (_ , Δ₂′⊆Δ₂) , p₂ , z') with resplit Δ₁′⊆Δ₁ Δ₂′⊆Δ₂ σ
-  ... | _ , _ , σ₂ , σ₃ , σ₄ with ∙-assocᵣ z z'
-  ... | _ , σ₅ , σ₆ =
-    let
-      prf₁ = toPermutation σ₂
-      prf₂ = toPermutation σ₆
-      prf₃  = ++⁺ p₁ p₂
-    in -, (-, σ₄) , ↭-trans (↭-trans prf₁ prf₃) (↭-sym prf₂) , σ₅
+  -- ∼-trans : ∀ {Δ₁ Δ₂ Δ : Ctx} {a b c} → a ∼[ Δ₁ ] b → b ∼[ Δ₂ ] c → ∃ λ Δ → a ∼[ Δ ] c
+  -- ∼-trans (Δ₁′ , Δ₁′⊆Δ₁ , τ₂) (Δ₂′ , Δ₂′⊆Δ₂ , τ₃) with ∙-assocᵣ τ₂ τ₃
+  -- ... | _ , τ₄ , τ₅ = -, (-, (-, ∙-idʳ) , τ₄)
 
-  -- frame preserving
-  ∼-fp : ∀ {Δ fr Φ₁ Φ₂} → Φ₁ ∼[ Δ ] Φ₂ → (di₁ : fr ◆ Φ₁) → ∃ λ (di₂ : fr ◆ Φ₂) → whole di₁ ∼[ Δ ] whole di₂
-  ∼-fp = {!!}
-  
+  -- -- frame preserving
+  -- ∼-fp : ∀ {Δ fr Φ₁ Φ₂} → Φ₁ ∼[ Δ ] Φ₂ → (di₁ : fr ◆ₓ Φ₁) → ∃ λ (di₂ : fr ◆ₓ Φ₂) → whole di₁ ∼[ Δ ] whole di₂
+  -- ∼-fp (Δ′ , i , τ) (fst , σ₁) = ({!!} , {!!}) , _ , (i , {!!})
 
--- module _ {{r : Rel₃ Ctx}} {P : Pred Ctx t}
---   {e} {_≈_ : Ctx → Ctx → Set e}
---   {{_ : IsPartialMonoid _≈_ r []}} where
+  -- open ◇-Monad {{r = overlap-rel}} ∼-refl ∼-trans ∼-fp public
 
---   pure : ∀[ P ⇒ ε ⊢ P ]
---   pure px = intros ⊆-refl ↭-refl px
+  ∼-pull : ∀ {Δ₁ Δ₂ Δ a b c a' b'} →
+      Δ₁ ⊗ Δ₂ ≣ Δ  → a ⊗ b ≣ c    →
+      a ∼[ Δ₁ ] a' → b ∼[ Δ₂ ] b' →
+      ∃ λ c' → a' ⊗ b' ≣ c' × c ∼[ Δ ] c'
+  ∼-pull δ σ (_ , i₁ , refl) (_ , i₂ , refl) with ⊆-⊗ i₁ i₂ δ
+  ... | Δ′ , δ′ , i₃ = -, ∙-parallel σ δ′ , -, i₃ , refl
 
---   graded-zip : ∀ {Δ₁ Δ₂ Δ} {Q} → Δ₁ ∙ Δ₂ ≣ Δ → ∀[ (Δ₁ ⊢ P) ⊙ (Δ₂ ⊢ Q) ⇒ Δ ⊢ (P ⊙ Q) ]
---   graded-zip {Δ₁} {Δ₂} {Δ} σ₁ {Γ} (intros {Δₗ} {Γₗ} th mk px ∙⟨ σ₂ ⟩ intros {Δᵣ} {Γᵣ} th₁ mk₁ qx) = intros  {!!} {!!} (px Rel₃.∙⟨ {!!} ⟩ qx)
+  open ◇-Zip ∼-pull public renaming
+    (◇-zip to ⊢-zip)
 
---   -- There is *NO* graded join:
---   -- goin : ∀ {Δ₁ Δ₂ Δ} → Δ₂ ∙ Δ₁ ≣ Δ → ∀[ Δ₁ ⊢ (Δ₂ ⊢ P) ⇒ Δ ⊢ P ]
---   --
---   -- Because you aren't allowed to identify consecutive introductions,
---   -- whereas you are (potentially) allowed to do that in (Δ₂ ∙ Δ₁ ≣ Δ)
+  binders : ∀ {Γ} → ε[ Γ ⊢ Exactly Γ ]
+  binders = Possibly.possibly (_ , ≤-refl , refl) refl

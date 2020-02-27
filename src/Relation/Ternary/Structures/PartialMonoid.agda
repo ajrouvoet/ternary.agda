@@ -87,6 +87,8 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
       ; reflexive = ≤-reflexive
       ; trans = ≤-trans }
 
+    open IsPreorder ≤-isPreorder using () renaming (refl to ≤-refl) public
+
     ≤-preorder : Preorder _ _ _
     ≤-preorder = record { isPreorder = ≤-isPreorder }
 

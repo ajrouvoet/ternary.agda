@@ -40,14 +40,9 @@ record IsPositive {e} s (_≈_ : A → A → Set e) (rel : Rel₃ A) ε : Set (a
   ... | yes _ | no z   = ⊥-elim (z (ε-least (positiveʳ σ)))
 
   module _ {{ _ : IsPartialMonoid _≈_ rel ε }} where 
-    ε-split : ∀ {Φ₁ Φ₂} → Φ₁ ∙ Φ₂ ≣ ε → Φ₁ ≡ ε × Φ₂ ≡ ε
+    ε-split : ∀ {Φ₁ Φ₂} → Φ₁ ∙ Φ₂ ≣ ε → (Φ₁ , Φ₂) ≡ (ε , ε)
     ε-split σ with ε-split′ σ
-    ... | eq₁ , eq₂ = P.sym (ε-unique (sym eq₁)) , P.sym (ε-unique (sym eq₂))
-
-    ε-split-ˡ : ∀ {Φ₁ Φ₂} → Φ₁ ∙ Φ₂ ≣ ε → Φ₁ ≡ ε
-    ε-split-ˡ = proj₁ ∘ ε-split
-
-    ε-split-ʳ : ∀ {Φ₁ Φ₂} → Φ₁ ∙ Φ₂ ≣ ε → Φ₂ ≡ ε
-    ε-split-ʳ = proj₂ ∘ ε-split
+    ... | eq₁ , eq₂ with ε-unique (sym eq₁) | ε-unique (sym eq₂)
+    ... | P.refl | P.refl = P.refl
 
 open IsPositive {{...}} public

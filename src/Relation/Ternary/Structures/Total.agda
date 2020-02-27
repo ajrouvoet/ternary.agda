@@ -14,19 +14,35 @@ open import Relation.Ternary.Core using (Rel₃; coe)
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
 
-open IsMonoid {{...}}
-
-record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) unit (_∙_ : A → A → A) : Set (suc a ⊔ e) where
-  open Rel₃ rel hiding (_∙_)
+record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A → A) : Set (suc a ⊔ e) where
+  open Rel₃ rel
 
   field
-    ∙-∙ₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → (Φₑ ∙ Φ₁) ∙ Φ₂ ≣ (Φₑ ∙ Φ)
-    ∙-∙ᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ (Φₑ ∙ Φ₂) ≣ (Φₑ ∙ Φ)
-    overlap {{op-monoid}} : IsMonoid _≈_ _∙_ unit
+    ∙-parallel : ∀ {a b c d ab cd} → a ∙ b ≣ ab → c ∙ d ≣ cd → (a ++ c) ∙ (b ++ d) ≣ (ab ++ cd)
 
-  ∙-∙ : ∀ {Φₗ Φᵣ : A}
-      → {{_ : IsPartialMonoid _≈_ rel unit}} 
-      → Φₗ ∙ Φᵣ ≣ (Φₗ ∙ Φᵣ)
-  ∙-∙ {Φₗ} {Φᵣ} = coe (identityʳ Φₗ) (∙-∙ₗ ∙-idˡ)
+  module _ {unit} {{_ : IsMonoid _≈_ _++_ unit}} {{_ : IsPartialMonoid _≈_ rel unit}} where
+
+    open IsMonoid {{...}}
+    ∙-∙ₗₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → (Φₑ ++ Φ₁) ∙ Φ₂ ≣ (Φₑ ++ Φ)
+    ∙-∙ₗₗ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {a = Φₑ} {b = unit} {c = Φ₁} ∙-idʳ σ
+    ... | z = coe (identityˡ _) z
+
+    ∙-∙ₗᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → (Φ₁ ++ Φₑ) ∙ Φ₂ ≣ (Φ ++ Φₑ)
+    ∙-∙ₗᵣ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {a = Φ₁} {b = Φ₂} {c = Φₑ} σ ∙-idʳ
+    ... | z = coe (identityʳ _) z 
+
+    ∙-∙ᵣₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ (Φₑ ++ Φ₂) ≣ (Φₑ ++ Φ)
+    ∙-∙ᵣₗ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {a = unit} {b = Φₑ} ∙-idˡ σ
+    ... | z = coe (identityˡ _) z
+
+    ∙-∙ᵣᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ (Φ₂ ++ Φₑ) ≣ (Φ ++ Φₑ)
+    ∙-∙ᵣᵣ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {d = Φₑ} σ ∙-idˡ
+    ... | z = coe (identityʳ _) z
+
+    ∙-∙ : ∀ {Φₗ Φᵣ : A} → Φₗ ∙ Φᵣ ≣ (Φₗ ++ Φᵣ)
+    ∙-∙ {Φₗ} {Φᵣ} with ∙-parallel {a = Φₗ} {b = ε} {c = ε} {d = Φᵣ} ∙-idʳ ∙-idˡ
+    ... | z =
+      coe {{∙-respects-≈ˡ}} (identityʳ _)
+        (coe {{∙-respects-≈ʳ}} (identityˡ _) z)
 
 open IsTotal {{...}} public
