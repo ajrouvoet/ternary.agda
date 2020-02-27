@@ -9,7 +9,7 @@ record Intuitionistic {c} (rel : Rel₃ A) : Set (a ⊔ suc c) where
   instance _ = rel
   field
     Condition : A → Set c 
-    ∙-copy    : ∀ {xs : A} {{_ : Condition xs}} → xs ∙ xs ≣ xs
+    ∙-copy    : ∀ {xs : A} {{c : Condition xs}} → xs ∙ xs ≣ xs
 
   copy : ∀ {p} {P : Pred A p} {xs} → {{_ : Condition xs}} → P xs → (P ⊙ P) xs
   copy px = px ∙⟨ ∙-copy ⟩ px

@@ -28,8 +28,10 @@ module _ where
 
   -- McBride's introduction turnstile
   open Possibly _∼[_]_
-    using (◇; module ◇-Zip; module ◇-Monad; _∼_)
-    renaming (◇[_] to _⊢_) public
+    public
+    using (◇; module ◇-Zip; module ◇-Monad; _∼_; pack)
+    renaming
+      ( ◇[_] to _⊢_)
 
   ∼-refl  : ∀ {a : Ctx} → a ∼[ ε ] a
   ∼-refl = -, (-, ∙-idˡ) , LP.++-identityʳ _

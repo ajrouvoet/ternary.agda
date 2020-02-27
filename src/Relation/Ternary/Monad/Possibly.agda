@@ -79,7 +79,7 @@ module Possibly {r g} {G : Set g}
     where
     open IsPreorder ∼-isPreorder
 
-    ◇-monad : ∀  {ℓ} → Monad ⊤ (λ _ _ → ◇ {ℓ = ℓ})
+    instance ◇-monad : ∀  {ℓ} → Monad ⊤ (λ _ _ → ◇ {ℓ = ℓ})
     Monad.return ◇-monad px =
       -, possibly (proj₂ refl) px
     Monad.bind ◇-monad f ⟨ σ ⟩ (_ , possibly rel px) with ∼-fp (-, rel) (-, σ)
