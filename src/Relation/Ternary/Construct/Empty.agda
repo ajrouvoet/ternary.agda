@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+
 {- The trivially empty resource -}
 module Relation.Ternary.Construct.Empty {a} (A : Set a )where
 

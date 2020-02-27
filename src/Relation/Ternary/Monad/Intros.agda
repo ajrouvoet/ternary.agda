@@ -9,12 +9,13 @@ open import Data.List.Properties as LP
 
 open import Relation.Unary hiding (_⊢_; _⊆_; _∈_)
 open import Relation.Unary.PredicateTransformer using (Pt)
+open import Relation.Binary
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Monad.Possibly
 
-open import Relation.Ternary.Construct.List.Disjoint T  as D hiding (_∈_)
+open import Relation.Ternary.Construct.List.Disjoint T as D hiding (_∈_)
 open import Relation.Ternary.Construct.List.Overlapping T --using (_⊗_≣_; ⊆-⊗)
 
 private
@@ -23,24 +24,31 @@ private
 module _ where
 
   _∼[_]_ : Ctx → Ctx → Ctx → Set t
-  Γₙ ∼[ Δ ] Γₙ₊₁ = ∃ λ Δ′ → -- Σ[ ctxs ∈ (Ctx × Ctx) ]
-    (Δ′ ⊆ Δ) × Γₙ ++ Δ′ ≡ Γₙ₊₁
+  Γₙ ∼[ Δ ] Γₙ₊₁ = ∃ λ Δ′ → (Δ′ ⊆ Δ) × Γₙ ++ Δ′ ≡ Γₙ₊₁
 
   -- McBride's introduction turnstile
-  open Possibly _∼[_]_ renaming (◇[_] to _⊢_) public
+  open Possibly _∼[_]_
+    using (◇; module ◇-Zip; module ◇-Monad; _∼_)
+    renaming (◇[_] to _⊢_) public
 
   ∼-refl  : ∀ {a : Ctx} → a ∼[ ε ] a
   ∼-refl = -, (-, ∙-idˡ) , LP.++-identityʳ _
 
-  -- ∼-trans : ∀ {Δ₁ Δ₂ Δ : Ctx} {a b c} → a ∼[ Δ₁ ] b → b ∼[ Δ₂ ] c → ∃ λ Δ → a ∼[ Δ ] c
-  -- ∼-trans (Δ₁′ , Δ₁′⊆Δ₁ , τ₂) (Δ₂′ , Δ₂′⊆Δ₂ , τ₃) with ∙-assocᵣ τ₂ τ₃
-  -- ... | _ , τ₄ , τ₅ = -, (-, (-, ∙-idʳ) , τ₄)
+  ∼-trans : ∀ {a b c} → a ∼ b → b ∼ c → a ∼ c
+  ∼-trans (_ , Δ₁′ , Δ₁′⊆Δ₁ , refl) (_ , Δ₂′ , Δ₂′⊆Δ₂ , refl) =
+    -, (-, (-, ∙-idʳ) , sym (LP.++-assoc _ Δ₁′ Δ₂′))
 
-  -- -- frame preserving
-  -- ∼-fp : ∀ {Δ fr Φ₁ Φ₂} → Φ₁ ∼[ Δ ] Φ₂ → (di₁ : fr ◆ₓ Φ₁) → ∃ λ (di₂ : fr ◆ₓ Φ₂) → whole di₁ ∼[ Δ ] whole di₂
-  -- ∼-fp (Δ′ , i , τ) (fst , σ₁) = ({!!} , {!!}) , _ , (i , {!!})
+  ∼-isPreorder : IsPreorder _≡_ _∼_
+  IsPreorder.isEquivalence ∼-isPreorder = isEquivalence
+  IsPreorder.reflexive ∼-isPreorder refl = -, ∼-refl
+  IsPreorder.trans ∼-isPreorder = ∼-trans
+  
+  -- frame preserving
+  ∼-fp : ∀ {fr Φ₁ Φ₂} → Φ₁ ∼ Φ₂ → (di₁ : fr ◆ₓ Φ₁) → ∃ λ (di₂ : fr ◆ₓ Φ₂) → whole di₁ ∼ whole di₂
+  ∼-fp (Δ′ , i , τ , refl) (fst , σ₁) = (-, ∙-∙ᵣᵣ σ₁) , _ , (i , τ , refl)
 
-  -- open ◇-Monad {{r = overlap-rel}} ∼-refl ∼-trans ∼-fp public
+  open ◇-Monad ∼-isPreorder ∼-fp public
+    renaming (◇-⤇ to ⊢-⤇)
 
   ∼-pull : ∀ {Δ₁ Δ₂ Δ a b c a' b'} →
       Δ₁ ⊗ Δ₂ ≣ Δ  → a ⊗ b ≣ c    →

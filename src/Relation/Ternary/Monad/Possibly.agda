@@ -73,7 +73,7 @@ module Possibly {r g} {G : Set g}
     ... | di , rel' = possibly rel' (px ∙⟨ proj₂ di ⟩ qx)
 
   module ◇-Monad
-    {{r  : Rel₃ A}} {{g  : Rel₃ G}}
+    {{r  : Rel₃ A}}
     (∼-isPreorder : IsPreorder _≡_ _∼_)
     (∼-fp : ∀ {fr Φ₁ Φ₂} → Φ₁ ∼ Φ₂ → (di₁ : fr ◆ Φ₁) → ∃ λ (di₂ : fr ◆ Φ₂) → whole di₁ ∼ whole di₂)
     where

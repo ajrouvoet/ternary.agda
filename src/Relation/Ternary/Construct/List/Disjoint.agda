@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Construct.List.Disjoint {t} (T : Set t) where
 
 open import Level
@@ -18,7 +19,7 @@ private
 
 open import Relation.Ternary.Construct.Empty T public
 open import Relation.Ternary.Construct.List.Interdivide empty-rel as Disjoint
-open Disjoint public using () renaming
+open Disjoint public using ([]; consˡ; consʳ) renaming
   (splits to disjoint-split
   ;list-emptiness to disjoint-empty
   ;split-positive to disjoint-positive
@@ -51,16 +52,16 @@ toPermutation (consʳ {xs = xs} {ys} {zs} {z} σ) = begin
 ⊕-functional σ₁ σ₂ = ↭-trans (toPermutation σ₁) (↭-sym (toPermutation σ₂))
 
 {- We can pull a permutation through separation -}
-postulate ↭-∙ˡ : xsˡ ⊕ xsʳ ≣ xs → xsˡ ↭ ysˡ → Σ[ ys ∈ Ctx ] ys ↭ xs × ysˡ ⊕ xsʳ ≣ ys
+-- postulate ↭-∙ˡ : xsˡ ⊕ xsʳ ≣ xs → xsˡ ↭ ysˡ → Σ[ ys ∈ Ctx ] ys ↭ xs × ysˡ ⊕ xsʳ ≣ ys
 
-↭-∙ʳ : xsˡ ⊕ xsʳ ≣ xs → xsʳ ↭ ysʳ → Σ[ ys ∈ Ctx ] ys ↭ xs × xsˡ ⊕ ysʳ ≣ ys
-↭-∙ʳ σ ρ with ↭-∙ˡ (∙-comm σ) ρ
-... | _ , ρ′ , σ′ = -, ρ′ , ∙-comm σ′
+-- ↭-∙ʳ : xsˡ ⊕ xsʳ ≣ xs → xsʳ ↭ ysʳ → Σ[ ys ∈ Ctx ] ys ↭ xs × xsˡ ⊕ ysʳ ≣ ys
+-- ↭-∙ʳ σ ρ with ↭-∙ˡ (∙-comm σ) ρ
+-- ... | _ , ρ′ , σ′ = -, ρ′ , ∙-comm σ′
 
-↭-∙ : xsˡ ⊕ xsʳ ≣ xs → xsˡ ↭ ysˡ → xsʳ ↭ ysʳ → Σ[ ys ∈ Ctx ] ys ↭ xs × ysˡ ⊕ ysʳ ≣ ys
-↭-∙ σ ρ₁ ρ₂ with ↭-∙ˡ σ ρ₁
-... | _ , ρ₃ , σ₂ with ↭-∙ʳ σ₂ ρ₂
-... | _ , ρ₄ , σ₃ = -, ↭-trans ρ₄ ρ₃ , σ₃
+-- ↭-∙ : xsˡ ⊕ xsʳ ≣ xs → xsˡ ↭ ysˡ → xsʳ ↭ ysʳ → Σ[ ys ∈ Ctx ] ys ↭ xs × ysˡ ⊕ ysʳ ≣ ys
+-- ↭-∙ σ ρ₁ ρ₂ with ↭-∙ˡ σ ρ₁
+-- ... | _ , ρ₃ , σ₂ with ↭-∙ʳ σ₂ ρ₂
+-- ... | _ , ρ₄ , σ₃ = -, ↭-trans ρ₄ ρ₃ , σ₃
 
 {- We can push permutation through separation. -}
 ∙-↭ : xsˡ ⊕ xsʳ ≣ xs → xs ↭ ys →

@@ -12,7 +12,6 @@ module Relation.Ternary.Data.Allstar
 open import Level
 open import Data.Product
 open import Data.List hiding (concat)
-open import Data.List.Relation.Ternary.Interleaving.Propositional as I
 
 open import Relation.Unary
 open import Relation.Binary.PropositionalEquality hiding ([_])
@@ -21,7 +20,7 @@ open import Relation.Ternary.Structures
 open import Relation.Ternary.Monad
 open import Relation.Ternary.Upto {A = C} _≈_
 
-open import Relation.Ternary.Construct.List.Interleave I
+open import Relation.Ternary.Construct.List.Disjoint I
 
 module _ {ℓ} (P : I → Pred C ℓ) where
 
