@@ -36,10 +36,31 @@ pattern overlaps σ = divide dup σ
 
 {- The relations betweens non-overlapping and overlapping list sep -}
 module _ where
-  open import Relation.Ternary.Construct.List.Disjoint T
+  open import Relation.Ternary.Construct.List.Disjoint T as D
 
-  postulate ⊆-⊗ : xs′ ⊆ xs → ys′ ⊆ ys → xs ⊗ ys ≣ zs → ∃ λ zs′ → xs′ ⊗ ys′ ≣ zs′ × zs′ ⊆ zs
-  -- ⊆-⊗ = {!!}
+  ⊆-⊗ : xs′ ⊆ xs → ys′ ⊆ ys → xs ⊗ ys ≣ zs → ∃ λ zs′ → xs′ ⊗ ys′ ≣ zs′ × zs′ ⊆ zs
+
+  ⊆-⊗ (_ , consˡ i₁) i₂ (consˡ σ) with ⊆-⊗ (-, i₁) i₂ σ
+  ... | _ , σ′ , i′ = -, Overlapping.consˡ σ′ , ⊆-∷ˡ i′
+  ⊆-⊗ (_ , consʳ i₁) i₂ (consˡ σ) with ⊆-⊗ (-, i₁) i₂ σ
+  ... | _ , σ′ , i′  = -, σ′ , ⊆-∷ʳ i′
+
+  ⊆-⊗ (_ , consˡ i₁) (_ , consˡ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
+  ... | _ , σ′ , i′ = -, overlaps σ′ , ⊆-∷ˡ i′
+  ⊆-⊗ (_ , consˡ i₁) (_ , consʳ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
+  ... | _ , σ′ , i′ = -, Overlapping.consˡ σ′ , ⊆-∷ˡ i′
+
+  ⊆-⊗ (_ , consʳ i₁) (_ , consˡ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
+  ... | _ , σ′ , i′ = -, Overlapping.consʳ σ′ , ⊆-∷ˡ i′
+  ⊆-⊗ (_ , consʳ i₁) (_ , consʳ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
+  ... | _ , σ′ , i′ = -, σ′ , ⊆-∷ʳ i′
+
+  ⊆-⊗ (.[] , []) (.[] , []) [] = -, ∙-idˡ , ⊆-refl 
+
+  ⊆-⊗ i₁ (_ , consˡ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
+  ... | _ , σ′ , i′ = -, Overlapping.consʳ σ′ , ⊆-∷ˡ i′
+  ⊆-⊗ i₁ (_ , consʳ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
+  ... | _ , σ′ , i′ = -, σ′ , ⊆-∷ʳ i′
 
 threeway : ∀ {a b c ab bc : List T} → a ∙ b ≣ ab → b ∙ c ≣ bc → ∃ λ abc → ab ∙ bc ≣ abc
 threeway Split.[] σ₂ = -, ∙-idˡ

@@ -31,8 +31,18 @@ open Disjoint public using ([]; consˡ; consʳ) renaming
 open Rel₃ Disjoint.splits using ()
   renaming (_∙_≣_ to _⊕_≣_; _⊙_ to _⊕_) public
 
+infixl 10 _⊆_
 _⊆_ : Ctx → Ctx → Set t
 _⊆_ = _≤_
+
+⊆-refl  = ≤-refl
+⊆-trans = ≤-trans
+
+⊆-∷ˡ : ∀ {x xs} → xs ⊆ ys → (x ∷ xs) ⊆ (x ∷ ys)
+⊆-∷ˡ σ = -, consˡ (proj₂ σ)
+
+⊆-∷ʳ : ∀ {x xs} → xs ⊆ ys → xs ⊆ (x ∷ ys)
+⊆-∷ʳ σ = -, consʳ (proj₂ σ)
 
 _∈_ : T → Ctx → Set t
 x ∈ xs = [ x ] ⊆ xs

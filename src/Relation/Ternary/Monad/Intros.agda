@@ -33,8 +33,14 @@ module _ where
     renaming
       ( ◇[_] to _⊢_)
 
-  ∼-refl  : ∀ {a : Ctx} → a ∼[ ε ] a
+  ∼-refl : ∀ {a : Ctx} → a ∼[ ε ] a
   ∼-refl = -, (-, ∙-idˡ) , LP.++-identityʳ _
+
+  ∼-all : ∀ {a : Ctx} → ε ∼[ a ] a
+  ∼-all {a} = a , ≤-refl , refl
+
+  ∼-none : ∀ {a : Ctx} → ε ∼[ a ] ε
+  ∼-none = [] , (-, ∙-idˡ) , refl
 
   ∼-trans : ∀ {a b c} → a ∼ b → b ∼ c → a ∼ c
   ∼-trans (_ , Δ₁′ , Δ₁′⊆Δ₁ , refl) (_ , Δ₂′ , Δ₂′⊆Δ₂ , refl) =
