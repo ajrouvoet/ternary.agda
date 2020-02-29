@@ -25,7 +25,7 @@ open Overlapping public renaming
   ;split-isMonoid to overlap-monoid)
 
 open Rel₃ overlap-rel using ()
-  renaming (_∙_≣_ to _⊗_≣_; _⊙_ to _⊗_; _◆_ to _◆ₓ_) public
+  renaming (_∙_≣_ to _⊗_≣_; _⊙_ to _⊗_; _◆_ to _◆ₓ_; _─⊙_ to _─⊗_) public
 
 instance overlap-intuitive : Intuitionistic overlap-rel
 Intuitionistic.Condition overlap-intuitive _ = ⊤

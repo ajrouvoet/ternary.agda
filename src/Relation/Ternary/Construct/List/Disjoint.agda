@@ -29,7 +29,7 @@ open Disjoint public using ([]; consˡ; consʳ) renaming
   ;split-isTotal to disjoint-total)
 
 open Rel₃ Disjoint.splits using ()
-  renaming (_∙_≣_ to _⊕_≣_; _⊙_ to _⊕_) public
+  renaming (_∙_≣_ to _⊕_≣_; _⊙_ to _⊕_; _─⊙_ to _─⊕_) public
 
 infixl 10 _⊆_
 _⊆_ : Ctx → Ctx → Set t
