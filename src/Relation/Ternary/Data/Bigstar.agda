@@ -1,48 +1,49 @@
-module Relation.Ternary.Separation.Bigstar where
+module Relation.Ternary.Data.Bigstar where
 
 open import Level
 open import Data.Bool
 open import Data.Product
 open import Relation.Unary
-open import Relation.Ternary.Separation
-open import Relation.Ternary.Separation.Monad
-open import Relation.Ternary.Separation.Monad.Error
-open import Relation.Ternary.Separation.Morphisms
-open Monads
+open import Relation.Ternary.Core
+open import Relation.Ternary.Structures
 
 module _
-  {a p} {A : Set a} (P : Pred A p)
-  {{ r : RawSep A }} {u} {{ _ : IsUnitalSep r u }} where
+  {a p} {A : Set a} 
+  {{ r : Rel₃ A }}
+  {e u} {_≈_ : A → A → Set e} {{ _ : IsPartialMonoid _≈_ r u }} where
 
-  data Bigstar : SPred (a ⊔ p) where
-    emp  : ε[ Bigstar ]
-    cons : ∀[ P ✴ Bigstar ⇒ Bigstar ]
+  data Bigstar (P : Pred A p) : Pred A (a ⊔ p) where
+    emp  : ε[ Bigstar P ]
+    cons : ∀[ P ⊙ Bigstar P ⇒ Bigstar P ]
 
-module _
-  {a} {A : Set a} {P : Pred A a}
-  {{ r : RawSep A }} {u} {{ _ : IsUnitalSep r u }} where
+  postulate instance bigstar-respects : ∀ {P} → Respect _≈_ (Bigstar P)
 
-  [_] : ∀[ P ⇒ Bigstar P ]
-  [ px ] = cons (px ×⟨ ⊎-idʳ ⟩ emp)
+  [_] : ∀ {P} → ∀[ P ⇒ Bigstar P ]
+  [ px ] = cons (px ∙⟨ ∙-idʳ ⟩ emp)
 
-  head : ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
-  head emp = error err
-  head pool@(cons (px ×⟨ σ ⟩ pxs)) = do
-    th₂ ×⟨ σ ⟩ pool' ×⟨ σ₂ ⟩ th₁ ← mapM (head pxs &⟨ ⊎-comm σ ⟩ px) ✴-assocᵣ
-    return (th₂ ×⟨ σ ⟩ cons (th₁ ×⟨ ⊎-comm σ₂ ⟩ pool'))
+  module _ {{ _ : IsCommutative r }} where
+    append : ∀ {P} → ∀[ P ⇒ Bigstar P ─⊙ Bigstar P ]
+    append px ⟨ σ ⟩ emp = coe (∙-id⁻ʳ σ) [ px ]
+    append px ⟨ σ ⟩ cons (qx ∙⟨ σ₁ ⟩ pxs) =
+      let _ , σ₂ , σ₃ = ∙-rotateₗ σ σ₁
+          qxs = append px ⟨ ∙-comm σ₃ ⟩ pxs
+      in cons (qx ∙⟨ σ₂ ⟩ qxs)
 
-  find : (∀ {Φ} → P Φ → Bool) → ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
-  find f emp = error err
-  find f (cons (px ×⟨ σ ⟩ pxs)) =
-    if f px
-      then return (px ×⟨ σ ⟩ pxs)
-      else do
-        px' ×⟨ σ₁ ⟩ pxs' ×⟨ σ₂ ⟩ px ← mapM (find f pxs &⟨ P ∥ ⊎-comm σ ⟩ px) ✴-assocᵣ
-        return (px' ×⟨ σ₁ ⟩ cons (px ×⟨ ⊎-comm σ₂ ⟩ pxs')) 
+  -- open import Relation.Ternary.Separation.Monad.Error
+  -- open import Relation.Ternary.Separation.Morphisms
+  -- open Monads
 
-  append : ∀[ P ⇒ Bigstar P ─✴ Bigstar P ]
-  app (append px) emp σ rewrite ⊎-id⁻ʳ σ = [ px ]
-  app (append px) (cons (qx ×⟨ σ₁ ⟩ pxs)) σ =
-    let _ , σ₂ , σ₃ = ⊎-unassoc σ (⊎-comm σ₁)
-        qxs = app (append px) pxs σ₂
-    in cons (qx ×⟨ ⊎-comm σ₃ ⟩ qxs)
+  -- head : ∀ {P} → ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
+  -- head emp = error err
+  -- head pool@(cons (px ×⟨ σ ⟩ pxs)) = do
+  --   th₂ ×⟨ σ ⟩ pool' ×⟨ σ₂ ⟩ th₁ ← mapM (head pxs &⟨ ⊎-comm σ ⟩ px) ✴-assocᵣ
+  --   return (th₂ ×⟨ σ ⟩ cons (th₁ ×⟨ ⊎-comm σ₂ ⟩ pool'))
+
+  -- find : (∀ {Φ} → P Φ → Bool) → ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
+  -- find f emp = error err
+  -- find f (cons (px ×⟨ σ ⟩ pxs)) =
+  --   if f px
+  --     then return (px ×⟨ σ ⟩ pxs)
+  --     else do
+  --       px' ×⟨ σ₁ ⟩ pxs' ×⟨ σ₂ ⟩ px ← mapM (find f pxs &⟨ P ∥ ⊎-comm σ ⟩ px) ✴-assocᵣ
+  --       return (px' ×⟨ σ₁ ⟩ cons (px ×⟨ ⊎-comm σ₂ ⟩ pxs')) 
