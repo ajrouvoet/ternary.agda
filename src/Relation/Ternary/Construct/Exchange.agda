@@ -133,7 +133,7 @@ module _
   ... | PEq.refl | PEq.refl = PEq.refl
   IsPartialMonoidˡ.identityˡ exchange-isMonoidˡ = ex (∙-idˡ , ∙-idʳ) (∙-idʳ , ∙-idˡ) (∙-idˡ )
   IsPartialMonoidˡ.identity⁻ˡ exchange-isMonoidˡ (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ε-split x₁₁ | ε-split x₂₂
-  ... | PEq.refl , PEq.refl | PEq.refl , PEq.refl =
+  ... | PEq.refl | PEq.refl =
     trans (sym (∙-id⁻ʳ x₂₁)) (∙-id⁻ˡ σ₁) , trans (sym (∙-id⁻ʳ x₁₂)) (∙-id⁻ˡ σ₂)
 
   instance exchange-isMonoid : IsPartialMonoid _≈_ exchange-rel (eps ↕ eps)

@@ -5,12 +5,12 @@ module Relation.Ternary.Construct.List.Interdivide {a} {A : Set a} (division : R
 
 open import Level
 open import Algebra.Structures using (IsMonoid)
-open import Data.Product
+open import Data.Product hiding (swap)
 open import Data.List
 open import Data.List.Properties using (++-isMonoid; ++-identityʳ)
 open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional
-open import Relation.Binary.PropositionalEquality hiding ([_])
+open import Relation.Binary.PropositionalEquality using (refl; _≡_; isEquivalence; cong)
 open import Relation.Ternary.Structures hiding (≤-refl)
 open import Relation.Ternary.Respect.Propositional
 import Data.Nat as Nat
@@ -96,7 +96,7 @@ module _ {{_ : IsCommutative division}} where
   IsCommutative.∙-comm split-isComm [] = []
 
 module _ where
-  open import Data.Nat.SizeOf {A = List A} length isEquivalence (λ where refl → refl) as SizeOf
+  open import Data.Nat.SizeOf {A = List A} length as SizeOf
   open import Data.Nat.Properties
   open import Data.List.Relation.Binary.Equality.DecPropositional
   open import Relation.Nullary
@@ -107,7 +107,7 @@ module _ where
   IsPositive.is-empty split-positive []       = yes refl
   IsPositive.is-empty split-positive (x ∷ xs) = no (λ ())
 
-  IsPositive.orderₐ split-positive = size-pre
+  IsPositive.orderₐ split-positive = size-pre isEquivalence (λ where refl → refl)
 
   IsPositive.positiveˡ split-positive (divide x σ) = Nat.s≤s (positiveˡ σ)
   IsPositive.positiveˡ split-positive (consˡ σ)    = Nat.s≤s (positiveˡ σ)
@@ -139,11 +139,57 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
   IsPartialMonoid.∙-id⁻ʳ split-isMonoid (consˡ σ) = cong (_ ∷_) (∙-id⁻ʳ σ)
   IsPartialMonoid.∙-id⁻ʳ split-isMonoid []        = refl
 
-  instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
-  list-monoid = ++-isMonoid
-
   instance split-isTotal : IsTotal _≡_ splits _++_
   IsTotal.∙-parallel split-isTotal [] σ₂ = σ₂
   IsTotal.∙-parallel split-isTotal (divide x σ₁) σ₂ = divide x (∙-parallel σ₁ σ₂)
   IsTotal.∙-parallel split-isTotal (consˡ σ₁) σ₂ = consˡ (∙-parallel σ₁ σ₂)
   IsTotal.∙-parallel split-isTotal (consʳ σ₁) σ₂ = consʳ (∙-parallel σ₁ σ₂)
+
+
+{- We need this instance to be around for the isTotal operations -}
+instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
+list-monoid = ++-isMonoid
+
+{- We can push permutation through separation. -}
+module _ where
+
+  ∙-↭ : xsˡ ∙ xsʳ ≣ xs → xs ↭ ys →
+           Σ[ yss ∈ Carrier × Carrier ]
+           let (ysˡ , ysʳ) = yss in
+           ysˡ ↭ xsˡ × ysʳ ↭ xsʳ × ysˡ ∙ ysʳ ≣ ys
+  -- refl
+  ∙-↭ σ refl = _ , ↭-refl , ↭-refl , σ
+
+  -- prep
+  ∙-↭ (consˡ σ) (prep x ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, prep x h₁ , h₂ , consˡ σ'
+  ∙-↭ (consʳ σ) (prep x ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, h₁ , prep x h₂ , consʳ σ'
+  ∙-↭ (divide τ σ) (prep x ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, prep _ h₁ , prep _ h₂ , divide τ σ'
+
+  -- swap
+  -- todo, cleanup this proof?
+  ∙-↭ (consˡ (consˡ σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, swap y x h₁ , h₂ , consˡ (consˡ σ')
+  ∙-↭ (consˡ (consʳ σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, prep _ h₁ , prep _ h₂ , consʳ (consˡ σ')
+  ∙-↭ (consˡ (divide τ σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ'  = -, swap _ _ h₁ , prep _ h₂ , divide τ (consˡ σ')
+  ∙-↭ (consʳ (consˡ σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, prep _ h₁ , prep _ h₂ , consˡ (consʳ σ')
+  ∙-↭ (consʳ (consʳ σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, h₁ , swap y x h₂ , consʳ (consʳ σ')
+  ∙-↭ (consʳ (divide τ σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, prep _ h₁ , swap _ _ h₂ , divide τ (consʳ σ') 
+  ∙-↭ (divide τ (consˡ σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, swap _ _ h₁ , prep _ h₂ , consˡ (divide τ σ')
+  ∙-↭ (divide τ (consʳ σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, prep _ h₁ , swap _ _ h₂ , consʳ (divide τ σ')
+  ∙-↭ (divide τ (divide τ' σ)) (swap x y ρ) with ∙-↭ σ ρ
+  ... | _ , h₁ , h₂ , σ' = -, swap _ _ h₁ , swap _ _ h₂ , divide τ' (divide τ σ')
+
+  -- trans
+  ∙-↭ σ (trans ρ₁ ρ₂) with ∙-↭ σ ρ₁
+  ... | _ , h₁ , h₂ , σ₂ with ∙-↭ σ₂ ρ₂
+  ... | _ , h₃ , h₄ , σ₃ = _ , trans h₃ h₁ , trans h₄ h₂ , σ₃

@@ -14,21 +14,21 @@ data Dup : A → A → A → Set a where
 instance duplicate : Rel₃ A
 duplicate = record { _∙_≣_ = Dup }
 
-instance dup-is-comm : IsCommutative duplicate
-IsCommutative.∙-comm dup-is-comm dup = dup
+instance dup-isComm : IsCommutative duplicate
+IsCommutative.∙-comm dup-isComm dup = dup
 
-dup-is-semigroupˡ : IsPartialSemigroupˡ _≡_ duplicate
-IsPartialSemigroupˡ.≈-equivalence dup-is-semigroupˡ = isEquivalence
-Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ dup-is-semigroupˡ) refl = id
-Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ dup-is-semigroupˡ) refl = id
-IsPartialSemigroupˡ.assocᵣ dup-is-semigroupˡ dup dup = -, dup , dup
+dup-isSemigroupˡ : IsPartialSemigroupˡ _≡_ duplicate
+IsPartialSemigroupˡ.≈-equivalence dup-isSemigroupˡ = isEquivalence
+Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ dup-isSemigroupˡ) refl = id
+Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ dup-isSemigroupˡ) refl = id
+IsPartialSemigroupˡ.assocᵣ dup-isSemigroupˡ dup dup = -, dup , dup
 
-instance dup-is-semigroup : IsPartialSemigroup _≡_ duplicate
-dup-is-semigroup = IsPartialSemigroupˡ.semigroupˡ dup-is-semigroupˡ
+instance dup-isSemigroup : IsPartialSemigroup _≡_ duplicate
+dup-isSemigroup = IsPartialSemigroupˡ.semigroupˡ dup-isSemigroupˡ
 
-instance dup-is-idempotent : IsIdempotent duplicate
-IsIdempotent.∙-idem dup-is-idempotent = dup
+instance dup-isIdempotent : IsIdempotent duplicate
+IsIdempotent.∙-idem dup-isIdempotent = dup
 
 module _ {e} {_≈_ : A → A → Set e} {{equiv : IsEquivalence _≈_}} where
-  instance dup-is-functional : IsFunctional _≈_ duplicate
-  IsFunctional.functional dup-is-functional dup dup = IsEquivalence.reflexive equiv refl
+  instance dup-isFunctional : IsFunctional _≈_ duplicate
+  IsFunctional.functional dup-isFunctional dup dup = IsEquivalence.reflexive equiv refl

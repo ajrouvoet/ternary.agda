@@ -41,12 +41,6 @@ module _
     ... | abd , σ₇ , σ₈ with ∙-assocₗ (∙-comm σ₈) σ₇
     ... | ac  , τ  , τ' = -, -, ∙-comm τ , σ₅ , τ'
 
-    recombine : ∀ {a b ab c abc} →
-      a ∙ b ≣ ab → ab ∙ c ≣ abc →
-      ∃ λ ac → a ∙ c ≣ ac × ac ∙ b ≣ abc
-    recombine σ₁ σ₂ with ∙-assocᵣ σ₁ σ₂
-    ... | _ , σ₃ , σ₄ = ∙-assocₗ σ₃ (∙-comm σ₄) 
-
   -- pairs commute
   module _ {p q} {P : Pred A p} {Q : Pred A q} where
     ⊙-swap : ∀[ (P ⊙ Q) ⇒ (Q ⊙ P) ]
