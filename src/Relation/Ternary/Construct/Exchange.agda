@@ -6,7 +6,22 @@
 -- At every node in the splitting tree, two accounts can "exchange" some amount,
 -- meaning that the demand on the left can be fulfilled by some supply on the right and vice versa.
 
-module Relation.Ternary.Construct.Exchange {ℓ e} {A : Set ℓ} (_≈ₐ_ : A → A → Set e) where
+open import Relation.Ternary.Core
+open import Relation.Ternary.Structures
+
+module Relation.Ternary.Construct.Exchange {ℓ e s} {A : Set ℓ}
+  {{r₁ : Rel₃ A}}
+  {{r₂ : Rel₃ A}}
+  {_≈ₐ_ : A → A → Set e} {εₐ}
+  {{ r₁-monoid : IsPartialMonoid _≈ₐ_ r₁ εₐ}}
+  {{ r₂-monoid : IsPartialMonoid _≈ₐ_ r₂ εₐ}}
+  {{ r₁-positive : IsPositive s _≈ₐ_ r₁ εₐ}}
+  {{ r₂-positive : IsPositive s _≈ₐ_ r₂ εₐ}}
+  {{ _ : IsCommutative r₁ }}
+  {{ _ : IsCommutative r₂ }}
+  (xsplit  : CrossSplit r₂ r₁)
+  (uncross : Uncross r₁ r₂)
+  where
 
 open import Level hiding (Lift)
 open import Data.Product
@@ -17,13 +32,18 @@ open import Relation.Binary.Structures
 open import Relation.Binary.PropositionalEquality as PEq using (_≡_)
 open IsEquivalence {{...}}
 
-open import Relation.Ternary.Core
-open import Relation.Ternary.Structures
+open Rel₃ r₁ using () renaming (_∙_≣_ to _∙₁_≣_)
+open Rel₃ r₂ using () renaming (_∙_≣_ to _∙₂_≣_)
+
+private
+  variable
+    u₁ u₂ u₃ d₁ d₂ d₃ u d : A
 
 module _ where
 
+  -- Accounts are essentially pairs, but we rewrap 'm for instance search.
   record Account : Set ℓ where
-    constructor _↕_
+    constructor _⇅_
     field
       up   : A
       down : A
@@ -37,20 +57,7 @@ module _ where
   _≈_ : Account → Account → Set _
   a ≈ b = Pointwise _≈ₐ_ _≈ₐ_ (pair a) (pair b)
 
-module _ {uₐ} {{sep : Rel₃ A }} {{_ : IsPartialMonoid _≈ₐ_ sep uₐ}} where
-
-  data Down (P : Pred A ℓ) : Pred Account ℓ where
-    ↓ : ∀ {x} → P x → Down P (uₐ ↕ x)
-
-  data Up (P : Pred A ℓ) : Pred Account ℓ where
-    ↑ : ∀ {x} → P x → Up P (x ↕ uₐ)
-
-module _
-  {{ sep : Rel₃ A }}
-  {{ _ : IsPartialSemigroup _≈ₐ_ sep }}
-  {{ _ : IsCrosssplittable _≈ₐ_ sep }}
-  {{ _ : IsCommutative sep }}
-  where
+module _ where
 
   open import Relation.Ternary.Construct.Product hiding (_≈_)
 
@@ -59,90 +66,112 @@ module _
   IsEquivalence.sym account-equiv   = map sym sym
   IsEquivalence.trans account-equiv (e₁ , e₂) (e₃ , e₄) = trans e₁ e₃ , trans e₂ e₄
 
-  -- lifted pointwise product split
-  _×∙_≣_ : (l r t : Account) → Set ℓ
-  (u₁ ↕ d₁) ×∙ (u₂ ↕ d₂) ≣ (u ↕ d) = (u₁ , d₁) ∙ (u₂ , d₂) ≣ (u , d)
+  {- Exchange with leftovers -}
+  data _-_≣_ : A → A → Account → Set ℓ where
+    sub : ∀ {e d' u'} →
+          d' ∙₁ e ≣ d →
+          u' ∙₂ e ≣ u →
+          d - u ≣ (u' ⇅ d')
 
-  -- subtract some amount from both sides of the balance
-  _/_≣_ : Account → A → Account → Set ℓ
-  ud₁ / e ≣ ud₂ = ud₂ ×∙ (e ↕ e) ≣ ud₁
+  instance sub-respectsˡ : ∀ {u r} → Respect _≈ₐ_ (_- u ≣ r)
+  Respect.coe sub-respectsˡ x (sub s₁ s₂) = sub (coe x s₁) s₂
 
-  data Split : Account → Account → Account → Set ℓ where
-    ex : ∀ {e₁ e₂ u₁ d₁ u₂ d₂ u₁' d₁' u₂' d₂' ud} →
+  instance sub-respectsʳ : ∀ {u r} → Respect _≈ₐ_ (u -_≣ r)
+  Respect.coe sub-respectsʳ x (sub s₁ s₂) = sub s₁ (coe x s₂)
 
-         -- bind e₁ and e₂ in oposite side
-         (u₁ ↕ d₂) / e₁ ≣ (u₁' ↕ d₂') →
-         (u₂ ↕ d₁) / e₂ ≣ (u₂' ↕ d₁') →
+  instance sub-respects : ∀ {u d} → Respect _≈_ (u - d ≣_)
+  Respect.coe sub-respects (x , y) (sub s₁ s₂) = sub (coe y s₁) (coe x s₂)
 
-         -- add the remaining supply and demand
-         (u₁' ↕ d₁') ×∙ (u₂' ↕ d₂') ≣ ud →
+  data Exchange : Account → Account → Account → Set ℓ where
+    -- exchange the rings and bind 'm
+    ex : ∀ {u₁' d₁' u₂' d₂'} →
+      -- exchange lhs to rhs and vice versa
+      d₁ - u₂ ≣ (u₂' ⇅ d₂') →
+      d₂ - u₁ ≣ (u₁' ⇅ d₁') →
 
-         Split (u₁ ↕ d₁) (u₂ ↕ d₂) ud
+      -- add the remaining supply and demand
+      u₁' ∙₁ u₂' ≣ u →
+      d₁' ∙₂ d₂' ≣ d →
+
+      Exchange (u₁ ⇅ d₁) (u₂ ⇅ d₂) (u ⇅ d)
 
   instance exchange-rel : Rel₃ Account
-  exchange-rel = record { _∙_≣_ = Split }
+  exchange-rel = record { _∙_≣_ = Exchange }
 
-  instance exchange-comm : IsCommutative exchange-rel
-  IsCommutative.∙-comm exchange-comm (ex x₁ x₂ σ) = ex x₂ x₁ (∙-comm σ)
+  instance binding-comm : IsCommutative exchange-rel
+  IsCommutative.∙-comm binding-comm (ex x₁ x₂ x₃ x₄) = ex x₂ x₁ (∙-comm x₃) (∙-comm x₄)
+    
+  exchange-isSemigroupˡ : IsPartialSemigroupˡ _≈_ exchange-rel
+
+  Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ exchange-isSemigroupˡ) (eq₁ , eq₂) (ex x₁ x₂ σ₁ σ₂) =
+    ex (coe eq₂ x₁) (coe eq₁ x₂) σ₁ σ₂
+  Respect.coe (IsPartialSemigroupˡ.∙-respects-≈  exchange-isSemigroupˡ) (eq₁ , eq₂) (ex x₁ x₂ σ₁ σ₂) =
+    ex x₁ x₂ (coe eq₁ σ₁) (coe eq₂ σ₂)
+
+  -- Associativity follows from associativity of the underlying relations,
+  -- in conjunction with the fact that the two relations are cross- and uncross-splittable.
+  -- The documentation of this repository contains drawings of this proof tree.
+  IsPartialSemigroupˡ.assocᵣ exchange-isSemigroupˡ
+    (ex (sub τ-a↓  τ-b↑) (sub τ-b↓ τ-a↑)  σ-ab↑ σ-ab↓)
+    (ex (sub τ-ab↓ τ-c↑) (sub τ-c↓ τ-ab↑) σ-abc↑ σ-abc↓)
+      with xsplit (∙-comm τ-ab↑) σ-ab↑ | xsplit σ-ab↓ τ-ab↓
+  ... | _ , ν₁ , ν₂ , ν₃ , ν₄ | _ , μ₁ , μ₂ , μ₃ , μ₄
+    with ∙-assocᵣ ν₂ σ-abc↑ | ∙-assocᵣ (∙-comm μ₃) (∙-comm σ-abc↓)
+  ... | bc↑' , ι₁ , ι₂ | bc↓ , κ₁ , κ₂
+    with ∙-assocᵣ (∙-comm ν₃) τ-a↑ | ∙-rotateᵣ (∙-comm τ-b↑) (∙-comm ν₄) | ∙-assocᵣ μ₄ (∙-comm τ-c↑)
+       | ∙-assocᵣ μ₂ τ-a↓          | ∙-rotateᵣ (∙-comm τ-b↓) μ₁          | ∙-assocᵣ (∙-comm ν₁) (∙-comm τ-c↓)
+  ... | _ , α-a↑ , ≺-ea>bc | _ , α-b↑ , ν₅ | _ , α-c↑ , μ₅
+      | _ , α-a↓ , ≺-ebc>a | _ , α-b↓ , ν₆ | _ , α-c↓ , μ₆
+    with uncross (∙-comm ≺-ebc>a) ι₂ ν₅ μ₅ | uncrossover uncross ≺-ea>bc (∙-comm κ₂) μ₆ ν₆
+  ... | _ , τ-bc↑ , σ-bc↑ | _ , bo , bu =
+    -, ex (sub α-a↓ (∙-comm τ-bc↑)) (sub (∙-comm bo) α-a↑) ι₁ (∙-comm κ₁) 
+     , ex (sub (∙-comm α-b↓) (∙-comm α-c↑)) (sub (∙-comm α-c↓) (∙-comm α-b↑)) σ-bc↑ bu
 
   instance exchange-isSemigroup : IsPartialSemigroup _≈_ exchange-rel
+  exchange-isSemigroup = IsPartialSemigroupˡ.semigroupˡ exchange-isSemigroupˡ
 
-  Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ exchange-isSemigroup) (eq₁ , eq₂) (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) σ)
-    = ex (coe eq₁ x₁₁ , x₁₂) (x₂₁ , coe eq₂ x₂₂) σ 
-  Respect.coe (IsPartialSemigroup.∙-respects-≈  exchange-isSemigroup) (eq₁ , eq₂) (ex x₁ x₂ (σ₁ , σ₂))
-    = ex x₁ x₂ (coe eq₁ σ₁ , coe eq₂ σ₂)
-  Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ exchange-isSemigroup) (eq₁ , eq₂) (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) σ)
-    = ex (x₁₁ , coe eq₂ x₁₂) (coe eq₁ x₂₁ , x₂₂) σ 
+{- "Identity laws" for the auxiliary exchange relation -}
+module _ where
 
-  IsPartialSemigroup.∙-assocᵣ exchange-isSemigroup
-    (ex {a>b}  {b>a}  {a↑}  {a↓}  {b↑} {b↓} {a↑'}  {a↓'}  {b↑'} {b↓'} x₁ x₂ σ₁)
-    (ex {ab>c} {c>ab} {ab↑} {ab↓} {c↑} {c↓} {ab↑'} {ab↓'} {c↑'} {c↓'} x₃ x₄ σ₂)
-    with cross (proj₁ σ₁) (proj₁ x₃) | cross (proj₂ σ₁) (proj₂ x₄)
-  ... | (a↑'' , a>c , b↑'' , b>c) , z₁ , z₂ , z₃ , z₄
-      | (a↓'' , c>a , b↓'' , c>b) , m₁ , m₂ , m₃ , m₄
-      with ∙-assocᵣ z₃ (proj₁ σ₂) | ∙-assocᵣ z₁ (proj₁ x₁)
-         | recombine z₂ (proj₁ x₂) | ∙-assocᵣ (∙-comm m₄) (∙-comm (proj₁ x₄))
-         | ∙-assocᵣ m₃ (proj₂ σ₂) | ∙-assocᵣ m₁ (proj₂ x₂)
-         | recombine m₂ (proj₂ x₁) | ∙-assocᵣ (∙-comm z₄) (∙-comm (proj₂ x₃))
-  ... | bc↑ , z₅ , σ₃ | a>bc , x₅ , k₃ | _ , k₁ , k₂ | _ , x₆ , x₇
-      | bc↓ , σ₄ , m₅ | bc>a , y₁ , k₄ | _ , y₃ , y₄ | _ , y₅ , y₆
-      with uncross (∙-comm k₁) x₇ (∙-comm k₄) σ₃
-         | uncross (∙-comm y₆) y₃ (∙-comm m₅) k₃
-  ... | _  , x₈ , x₉ | _ , y₇ , y₈ =
-    -, ex (x₅ , y₈) (∙-comm x₉ , y₁) (z₅  , σ₄)
-     , ex (k₂ , ∙-comm y₅) (∙-comm x₆ , y₄) (x₈ , ∙-comm y₇)
-
-  IsPartialSemigroup.∙-assocₗ exchange-isSemigroup σ₁ σ₂ =
-    let _ , σ₃ , σ₄ = ∙-assocᵣ (∙-comm σ₂) (∙-comm σ₁) in -, ∙-comm σ₄ , ∙-comm σ₃
-
-module _
-  {{ sep : Rel₃ A }} {eps}
-  {{ cs⁻ : IsCrosssplittable _≈ₐ_ sep }}
-  {s} {{ _   : IsPositive s _≈ₐ_ sep eps }}
-  {{ un  : IsPartialMonoid _≈ₐ_ sep eps }}
-  {{ _   : IsCommutative sep }}
-  where
-
-  open import Relation.Ternary.Construct.Product hiding (_≈_)
-
-  instance exchange-emptiness : Emptiness (eps ↕ eps)
+  instance exchange-emptiness : Emptiness (εₐ ⇅ εₐ)
   exchange-emptiness = record {}
 
-  exchange-isMonoidˡ : IsPartialMonoidˡ _≈_ exchange-rel (eps ↕ eps)
-  IsPartialMonoidˡ.ε-uniq exchange-isMonoidˡ (eq₁ , eq₂) with ε-unique eq₁ | ε-unique eq₂
-  ... | PEq.refl | PEq.refl = PEq.refl
-  IsPartialMonoidˡ.identityˡ exchange-isMonoidˡ = ex (∙-idˡ , ∙-idʳ) (∙-idʳ , ∙-idˡ) (∙-idˡ )
-  IsPartialMonoidˡ.identity⁻ˡ exchange-isMonoidˡ (ex (x₁₁ , x₁₂) (x₂₁ , x₂₂) (σ₁ , σ₂)) with ε-split x₁₁ | ε-split x₂₂
-  ... | PEq.refl | PEq.refl =
-    trans (sym (∙-id⁻ʳ x₂₁)) (∙-id⁻ˡ σ₁) , trans (sym (∙-id⁻ʳ x₁₂)) (∙-id⁻ˡ σ₂)
+  ε-sub : ∀ {xs} → εₐ - xs ≣ (xs ⇅ εₐ)
+  ε-sub = sub ∙-idˡ ∙-idʳ
 
-  instance exchange-isMonoid : IsPartialMonoid _≈_ exchange-rel (eps ↕ eps)
+  sub-ε : ∀ {xs} → xs - ε ≣ (ε ⇅ xs)
+  sub-ε = sub ∙-idʳ ∙-idˡ
+
+  ε-sub⁻ : ∀ {xs ys zs} → ε - xs ≣ (ys ⇅ zs) → ys ≈ₐ xs × zs ≡ ε
+  ε-sub⁻ (sub x x₁) with ε-split x
+  ... | PEq.refl = ∙-id⁻ʳ x₁ , PEq.refl
+
+  sub-ε⁻ : ∀ {xs ys zs} → xs - ε ≣ (ys ⇅ zs) → zs ≈ₐ xs × ys ≡ ε
+  sub-ε⁻ (sub x x₁) with ε-split x₁
+  ... | PEq.refl = ∙-id⁻ʳ x , PEq.refl
+
+  xs-xs≡ε : ∀ {xs} → xs - xs ≣ ε
+  xs-xs≡ε = sub ∙-idˡ ∙-idˡ
+
+{- Exchange is a partial monoid -}
+module _ where
+
+  exchange-isMonoidˡ : IsPartialMonoidˡ _≈_ exchange-rel (εₐ ⇅ εₐ)
+
+  IsPartialMonoidˡ.ε-uniq exchange-isMonoidˡ {u ⇅ d} (eq₁ , eq₂) with ε-unique {{r₁-monoid}} eq₁ | ε-unique {{r₂-monoid}} eq₂
+  ... | PEq.refl | PEq.refl = PEq.refl
+
+  IsPartialMonoidˡ.identityˡ exchange-isMonoidˡ = ex ε-sub sub-ε ∙-idˡ ∙-idʳ
+  IsPartialMonoidˡ.identity⁻ˡ exchange-isMonoidˡ (ex x₁ x₂ σ₁ σ₂) with ε-sub⁻ x₁ | sub-ε⁻ x₂
+  ... | ρ₁ , PEq.refl | ρ₂ , PEq.refl = trans (sym ρ₁) (∙-id⁻ˡ σ₁) , trans (sym ρ₂) (∙-id⁻ʳ σ₂)
+
+  instance exchange-isMonoid : IsPartialMonoid _≈_ exchange-rel (εₐ ⇅ εₐ)
   exchange-isMonoid = IsPartialMonoidˡ.partialMonoidˡ exchange-isMonoidˡ
 
-  -- One can only subtract 'smaller' things
-  module _ where
-    subtract-↓-smaller : ∀ {xs zs : Account} {ys} → xs / ys ≣ zs → ys ≤ₐ down xs
-    subtract-↓-smaller (_ , d) = positiveʳ d
+module _ where
 
-    subtract-↑-smaller : ∀ {xs zs : Account} {ys} → xs / ys ≣ zs → ys ≤ₐ up xs
-    subtract-↑-smaller (u , _) = positiveʳ u
+  data Down (P : Pred A ℓ) : Pred Account ℓ where
+    ↓ : ∀ {x} → P x → Down P (εₐ ⇅ x)
+
+  data Up (P : Pred A ℓ) : Pred Account ℓ where
+    ↑ : ∀ {x} → P x → Up P (x ⇅ εₐ)

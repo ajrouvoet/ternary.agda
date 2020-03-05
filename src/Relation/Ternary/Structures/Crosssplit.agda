@@ -33,6 +33,16 @@ module _ (r₁ r₂ : Rel₃ A) where
       a ∙₂ b ≣ z
       × c ∙₁ d ≣ z
 
+module _ {r₁ r₂ : Rel₃ A} where
+
+  crossover : CrossSplit r₁ r₂ → CrossSplit r₂ r₁
+  crossover f σ₁ σ₂ with f σ₂ σ₁
+  ... | _ , τ₁ , τ₂ , τ₃ , τ₄ = -, τ₃ , τ₄ , τ₁ , τ₂
+
+  uncrossover : Uncross r₁ r₂ → Uncross r₂ r₁
+  uncrossover f σ₁ σ₂ σ₃ σ₄ with f σ₃ σ₄ σ₁ σ₂
+  ... | _ , τ₁ , τ₂ = -, τ₂ , τ₁
+
 record IsCrosssplittable {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
 
