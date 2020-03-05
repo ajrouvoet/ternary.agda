@@ -14,7 +14,7 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module BagXSplit
+module CrossSplittable
   {{div₁ : Rel₃ A}} {{div₂ : Rel₃ A}}
   {e} {_≈_ : A → A → Set e}
   {{_ : IsCommutative div₁}} {{_ : IsPartialSemigroup _≈_ div₁}}
@@ -48,8 +48,8 @@ module BagXSplit
 
   module _ (no-div₂ : ∀ {x y xy} → ¬ (x ∙ₐ₂ y ≣ xy)) where
 
-    unxross : Uncross L.bags R.bags
-    unxross (hustle ρx₁ ρy₁ ρz₁ σ₁) (hustle ρx₂ ρy₂ ρz₂ σ₂)
+    unxcross : Uncross L.bags R.bags
+    unxcross (hustle ρx₁ ρy₁ ρz₁ σ₁) (hustle ρx₂ ρy₂ ρz₂ σ₂)
             (hustle ρx₃ ρy₃ ρz₃ σ₃) (hustle ρx₄ ρy₄ ρz₄ σ₄)
               with ↭-∙ no-div₂ σ₃ (↭-trans ρx₃ (↭-sym ρx₁)) (↭-trans ρy₃ (↭-sym ρx₂))
                  | ↭-∙ no-div₂ σ₄ (↭-trans ρx₄ (↭-sym ρy₁)) (↭-trans ρy₄ (↭-sym ρy₂))

@@ -32,8 +32,8 @@ open import Relation.Binary.Structures
 open import Relation.Binary.PropositionalEquality as PEq using (_≡_)
 open IsEquivalence {{...}}
 
-open Rel₃ r₁ using () renaming (_∙_≣_ to _∙₁_≣_)
-open Rel₃ r₂ using () renaming (_∙_≣_ to _∙₂_≣_)
+open Rel₃ r₁ using () renaming (_∙_≣_ to _∙₁_≣_; _⊙_ to _⊙₁_; _─⊙_ to _─⊙₁_)
+open Rel₃ r₂ using () renaming (_∙_≣_ to _∙₂_≣_; _⊙_ to _⊙₂_; _─⊙_ to _─⊙₂_)
 
 private
   variable
@@ -170,8 +170,50 @@ module _ where
 
 module _ where
 
-  data Down (P : Pred A ℓ) : Pred Account ℓ where
-    ↓ : ∀ {x} → P x → Down P (εₐ ⇅ x)
+  module _ (P : Pred A ℓ) where
 
-  data Up (P : Pred A ℓ) : Pred Account ℓ where
-    ↑ : ∀ {x} → P x → Up P (x ⇅ εₐ)
+    data Down : Pred Account ℓ where
+      ↓ : ∀ {x} → P x → Down (εₐ ⇅ x)
+
+    data Up : Pred Account ℓ where
+      ↑ : ∀ {x} → P x → Up (x ⇅ εₐ)
+
+
+  module _ {P : Pred A ℓ} {{_ : Respect _≈ₐ_ P}} where
+
+    instance ↓-respects : Respect _≈_ (Down P)
+    Respect.coe ↓-respects x (↓ x₁) with ε-unique {{r₂-monoid}} (proj₁ x)
+    ... | PEq.refl = ↓ (coe (proj₂ x) x₁)
+
+    instance ↑-respects : Respect _≈_ (Up P)
+    Respect.coe ↑-respects x (↑ x₁) with ε-unique {{r₁-monoid}} (proj₂ x)
+    ... | PEq.refl = ↑ (coe (proj₁ x) x₁)
+
+  open import Data.Unit
+
+  ups : ∀ {xs ys zs} → Exchange (xs ⇅ ε) (ys ⇅ ε) zs → ∃ λ xys → zs ≈ (xys ⇅ ε) × xs ∙₁ ys ≣ xys
+  ups (ex x x₁ x₂ x₃) with ε-sub⁻ x | ε-sub⁻ x₁
+  ... | eq₁ , PEq.refl | eq₂ , PEq.refl = -, (refl , reflexive (PEq.sym (ε∙ε x₃))) , coe eq₂ (coe eq₁ x₂)
+
+  downs : ∀ {xs ys zs} → Exchange (ε ⇅ xs) (ε ⇅ ys) zs → ∃ λ xys → zs ≈ (ε ⇅ xys) × xs ∙₂ ys ≣ xys
+  downs (ex x x₁ x₂ x₃) with sub-ε⁻ x | sub-ε⁻ x₁
+  ... | eq₁ , PEq.refl | eq₂ , PEq.refl = -, (reflexive (PEq.sym (ε∙ε x₂)) , refl) , ∙-comm (coe eq₁ (coe eq₂ x₃))
+
+  module _ {P Q : Pred A ℓ} where
+    zipUp : ∀[ (Up P) ⊙ (Up Q) ⇒ Up (P ⊙₁ Q) ]
+    zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) with ups σ
+    ... | _ , eq , σ↑ = coe (sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx)) 
+
+    zipDown : ∀[ (Down P) ⊙ (Down Q) ⇒ Down (P ⊙₂ Q) ]
+    zipDown (↓ p ∙⟨ σ ⟩ ↓ q) with downs σ
+    ... | _ , eq , σ↓ = coe (sym eq) (↓ (p ∙⟨ σ↓ ⟩ q))
+
+  module _ {P Q : Pred A ℓ} {{_ : Respect _≈ₐ_ Q}} where
+
+    upMap : ∀[ Up (P ─⊙₁ Q) ⇒ (Up P ─⊙ Up Q) ]
+    upMap (↑ f) ⟨ σ ⟩ ↑ px with ups σ
+    ... | _ , eq , σ↑ = coe (sym eq) (↑ (f ⟨ σ↑ ⟩ px))
+
+    downMap : ∀[ Down (P ─⊙₂ Q) ⇒ (Down P ─⊙ Down Q) ]
+    downMap (↓ f) ⟨ σ ⟩ ↓ px with downs σ
+    ... | _ , eq , σ↓ = coe (sym eq) (↓ (f ⟨ σ↓ ⟩ px))
