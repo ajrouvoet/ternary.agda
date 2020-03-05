@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
 
-module Relation.Ternary.Construct.List.Interdivide {a} {A : Set a} (division : Rel₃ A) where
+module Relation.Ternary.Construct.List {a} {A : Set a} (division : Rel₃ A) where
 
 open import Level
 open import Algebra.Structures using (IsMonoid)

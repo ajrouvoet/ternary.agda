@@ -10,14 +10,13 @@ open import Relation.Binary.PropositionalEquality using (refl; _≡_)
 open import Relation.Unary.PredicateTransformer using (Pt; PT)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
-open import Relation.Ternary.Construct.List.Interleave
+open import Relation.Ternary.Construct.List.Disjoint
 open import Relation.Ternary.Construct.Product
 open import Relation.Ternary.Construct.Market
 open import Relation.Ternary.Monad
 
 open import Data.Unit
 open import Data.Product
-open import Data.List.Relation.Ternary.Interleaving.Propositional as I
 
 module _ {ℓ} {C : Set ℓ} {{r : Rel₃ C}}
   {{_ : IsCommutative r}}

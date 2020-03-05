@@ -22,8 +22,8 @@ module BagXSplit
   (xsplitₐ : CrossSplit div₁ div₂)
   where
 
-  open import Relation.Ternary.Construct.List.Interdivide div₁ as I₁
-  open import Relation.Ternary.Construct.List.Interdivide div₂ as I₂
+  open import Relation.Ternary.Construct.List div₁ as I₁
+  open import Relation.Ternary.Construct.List div₂ as I₂
 
   open Rel₃ div₁ using () renaming (_∙_≣_ to _∙ₐ₁_≣_)
   open Rel₃ div₂ using () renaming (_∙_≣_ to _∙ₐ₂_≣_)
@@ -34,7 +34,7 @@ module BagXSplit
   open Rel₃ L.bags using () renaming (_∙_≣_ to _∙₁_≣_)
   open Rel₃ R.bags using () renaming (_∙_≣_ to _∙₂_≣_)
 
-  open import Relation.Ternary.Construct.List.Interdivide.Properties
+  open import Relation.Ternary.Construct.List.Properties
   private module X = ListXSplit div₁ div₂ xsplitₐ
   
   xsplit : CrossSplit L.bags R.bags

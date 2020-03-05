@@ -23,7 +23,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Relation.Ternary.Data.Allstar A
 open import Relation.Ternary.Upto.Quotient
-open import Relation.Ternary.Monad {_≈_ = _≈_} {{ rel }}
+open import Relation.Ternary.Monad
 
 private
   variable
@@ -35,7 +35,7 @@ module ReaderTransformer
   (M : Pt C a) {{monad : Monad ⊤ (λ _ _ → M)}}
   where
 
-  open import Relation.Ternary.Construct.List.Interleave A
+  open import Relation.Ternary.Construct.List.Disjoint A
 
   variable
     P Q R : Pred C a

@@ -20,7 +20,7 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-open import Relation.Ternary.Construct.List.Interdivide div
+open import Relation.Ternary.Construct.List div
 
 private
   variable

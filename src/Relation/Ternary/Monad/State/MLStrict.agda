@@ -7,7 +7,7 @@ open import Relation.Ternary.Structures
 open import Relation.Ternary.Construct.Market
 open import Relation.Ternary.Monad
 
-module Relation.Ternary.Monad.State.ML
+module Relation.Ternary.Monad.State.MLStrict
   {ℓ}
 
   -- value types
@@ -26,7 +26,7 @@ open import Relation.Ternary.Construct.Product
 open import Relation.Ternary.Data.Allstar T
 
 open import Relation.Ternary.Construct.Duplicate T
-open import Relation.Ternary.Construct.List.Interdivide duplicate
+open import Relation.Ternary.Construct.List duplicate
 
 instance splits-intuitive : Intuitionistic {A = List T} splits
 Intuitionistic.Condition splits-intuitive _ = ⊤
@@ -56,7 +56,7 @@ module HeapOps
     in return (
       lift refl
         ∙⟨ offerᵣ ∙-∙ ⟩
-      lift (cons (v ∙⟨ τ₂ ⟩ st)) (∙-∙ₗ τ₁))
+      lift (cons (v ∙⟨ τ₂ ⟩ st)) (∙-∙ₗₗ τ₁))
 
   read : ∀ {a} → ∀[ Just a ⇒ StateT M Cells (V a) ]
 

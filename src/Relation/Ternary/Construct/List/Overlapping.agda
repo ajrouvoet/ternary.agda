@@ -7,63 +7,89 @@ open import Data.List
 
 open import Relation.Unary hiding (_⊢_; _⊆_)
 open import Relation.Unary.PredicateTransformer using (Pt)
+open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
 private
   Ctx = List T
   variable
-    xs xs′ ys ys′ zs : Ctx
+    xs xs′ ys ys′ zs xsˡ xsʳ : Ctx
 
-open import Relation.Ternary.Construct.Duplicate T public
-open import Relation.Ternary.Construct.List.Interdivide duplicate as Overlapping
-open Overlapping public renaming
-  (splits to overlap-rel
-  ;split-positive to overlap-positive
-  ;split-isSemigroup to overlap-semigroup
-  ;split-isComm to overlap-commutative
-  ;split-isMonoid to overlap-monoid)
+{- Redeclare instances to severe the dependency on Duplicate instances -}
+module _ where 
+  open import Relation.Ternary.Construct.Duplicate T as D
+  open import Relation.Ternary.Construct.List duplicate as Overlapping
+  open Overlapping using ([]; consˡ; consʳ; list-monoid; list-emptiness) public
 
-open Rel₃ overlap-rel using ()
-  renaming (_∙_≣_ to _⊗_≣_; _⊙_ to _⊗_; _◆_ to _◆ₓ_; _─⊙_ to _─⊗_) public
+  open Rel₃ splits using ()
+    renaming (_∙_≣_ to _⊗_≣_; _⊙_ to _⊗_; _◆_ to _◆ₓ_; _─⊙_ to _─⊗_) public
 
-instance overlap-intuitive : Intuitionistic overlap-rel
-Intuitionistic.Condition overlap-intuitive _ = ⊤
-Intuitionistic.∙-copy overlap-intuitive {[]} = ∙-idˡ
-Intuitionistic.∙-copy overlap-intuitive {x ∷ xs} = Overlapping.divide dup ∙-copy
+  instance overlap-rel : Rel₃ Ctx
+  overlap-rel = splits
 
-pattern overlaps σ = divide dup σ
+  instance overlap-positive : IsPositive _ _≡_ overlap-rel []
+  overlap-positive = split-positive
+
+  instance overlap-semigroup : IsPartialSemigroup _≡_ overlap-rel
+  overlap-semigroup = split-isSemigroup
+
+  instance overlap-commutative : IsCommutative overlap-rel
+  overlap-commutative = split-isComm
+
+  instance overlap-monoid : IsPartialMonoid _≡_ overlap-rel []
+  overlap-monoid = split-isMonoid {{D.dup-isSemigroup}}
+
+  instance overlap-total : IsTotal _≡_ overlap-rel _++_
+  overlap-total = split-isTotal {{D.dup-isSemigroup}}
+
+  instance overlap-intuitive : Intuitionistic overlap-rel
+  Intuitionistic.Condition overlap-intuitive _ = ⊤
+  Intuitionistic.∙-copy overlap-intuitive {[]} = ∙-idˡ {{overlap-monoid}}
+  Intuitionistic.∙-copy overlap-intuitive {x ∷ xs} = divide dup ∙-copy
+
+  pattern overlaps σ = divide dup σ
 
 {- The relations betweens non-overlapping and overlapping list sep -}
 module _ where
-  open import Relation.Ternary.Construct.List.Disjoint T as D
+  import Relation.Ternary.Construct.List.Disjoint T as D
 
-  ⊆-⊗ : xs′ ⊆ xs → ys′ ⊆ ys → xs ⊗ ys ≣ zs → ∃ λ zs′ → xs′ ⊗ ys′ ≣ zs′ × zs′ ⊆ zs
+  ⊆-⊗ : xs′ D.⊆ xs → ys′ D.⊆ ys → xs ⊗ ys ≣ zs → ∃ λ zs′ → xs′ ⊗ ys′ ≣ zs′ × zs′ D.⊆ zs
 
   ⊆-⊗ (_ , consˡ i₁) i₂ (consˡ σ) with ⊆-⊗ (-, i₁) i₂ σ
-  ... | _ , σ′ , i′ = -, Overlapping.consˡ σ′ , ⊆-∷ˡ i′
+  ... | _ , σ′ , i′ = -, consˡ σ′ , D.⊆-∷ˡ i′
   ⊆-⊗ (_ , consʳ i₁) i₂ (consˡ σ) with ⊆-⊗ (-, i₁) i₂ σ
-  ... | _ , σ′ , i′  = -, σ′ , ⊆-∷ʳ i′
+  ... | _ , σ′ , i′  = -, σ′ , D.⊆-∷ʳ i′
 
   ⊆-⊗ (_ , consˡ i₁) (_ , consˡ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
-  ... | _ , σ′ , i′ = -, overlaps σ′ , ⊆-∷ˡ i′
+  ... | _ , σ′ , i′ = -, overlaps σ′ , D.⊆-∷ˡ i′
   ⊆-⊗ (_ , consˡ i₁) (_ , consʳ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
-  ... | _ , σ′ , i′ = -, Overlapping.consˡ σ′ , ⊆-∷ˡ i′
+  ... | _ , σ′ , i′ = -, consˡ σ′ , D.⊆-∷ˡ i′
 
   ⊆-⊗ (_ , consʳ i₁) (_ , consˡ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
-  ... | _ , σ′ , i′ = -, Overlapping.consʳ σ′ , ⊆-∷ˡ i′
+  ... | _ , σ′ , i′ = -, consʳ σ′ , D.⊆-∷ˡ i′
   ⊆-⊗ (_ , consʳ i₁) (_ , consʳ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
-  ... | _ , σ′ , i′ = -, σ′ , ⊆-∷ʳ i′
+  ... | _ , σ′ , i′ = -, σ′ , D.⊆-∷ʳ i′
 
-  ⊆-⊗ (.[] , []) (.[] , []) [] = -, ∙-idˡ , ⊆-refl 
+  ⊆-⊗ (.[] , []) (.[] , []) [] = -, ∙-idˡ , D.⊆-refl 
 
   ⊆-⊗ i₁ (_ , consˡ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
-  ... | _ , σ′ , i′ = -, Overlapping.consʳ σ′ , ⊆-∷ˡ i′
+  ... | _ , σ′ , i′ = -, consʳ σ′ , D.⊆-∷ˡ i′
   ⊆-⊗ i₁ (_ , consʳ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
-  ... | _ , σ′ , i′ = -, σ′ , ⊆-∷ʳ i′
+  ... | _ , σ′ , i′ = -, σ′ , D.⊆-∷ʳ i′
 
-threeway : ∀ {a b c ab bc : List T} → a ∙ b ≣ ab → b ∙ c ≣ bc → ∃ λ abc → ab ∙ bc ≣ abc
-threeway Split.[] σ₂ = -, ∙-idˡ
+module _ where
+
+  open import Data.List.Relation.Binary.Permutation.Propositional
+  open import Data.List.Relation.Binary.Permutation.Propositional.Properties
+
+  postulate ⊗-↭ : xsˡ ⊗ xsʳ ≣ xs → xs ↭ ys →
+                  Σ[ yss ∈ Ctx × Ctx ]
+                  let (ysˡ , ysʳ) = yss in
+                  ysˡ ↭ xsˡ × ysʳ ↭ xsʳ × ysˡ ⊗ ysʳ ≣ ys
+
+threeway : ∀ {a b c ab bc : List T} → a ⊗ b ≣ ab → b ⊗ c ≣ bc → ∃ λ abc → ab ⊗ bc ≣ abc
+threeway [] σ₂ = -, ∙-idˡ
 threeway (consˡ σ₁) σ₂ with threeway σ₁ σ₂
 ... | _ , σ₃ = -, consˡ σ₃
 threeway σ₁@(consʳ _) (consʳ σ₂) with threeway σ₁ σ₂

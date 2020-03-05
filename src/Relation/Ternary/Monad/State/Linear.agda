@@ -25,11 +25,10 @@ open import Relation.Ternary.Monad
 open import Relation.Ternary.Construct.Market
 open import Relation.Ternary.Respect.Propositional
 
-open import Relation.Ternary.Construct.List.Interleave T
+open import Relation.Ternary.Construct.List.Disjoint T
 open import Relation.Ternary.Data.Allstar T
 
 open import Data.Product
-open import Data.List.Relation.Ternary.Interleaving.Propositional as I
   
 module HeapOps 
   -- inner monad
@@ -51,7 +50,7 @@ module HeapOps
     in return (
       lift refl
         ∙⟨ offerᵣ ∙-∙ ⟩
-      lift (cons (v ∙⟨ τ₂ ⟩ st)) (∙-∙ₗ τ₁))
+      lift (cons (v ∙⟨ τ₂ ⟩ st)) (∙-∙ₗₗ τ₁))
 
   -- A linear read on a store: you lose the reference.
   -- This is pure, because with the reference being lost, the cell is destroyed: no resources leak.
@@ -77,7 +76,7 @@ module HeapOps
     in return (
       lift (refl ∙⟨ consˡ ∙-idˡ ⟩ vb)
         ∙⟨ offerᵣ (consˡ κ₄) ⟩
-      lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-∙ₗ (∙-comm κ₃)))
+      lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-∙ₗₗ (∙-comm κ₃)))
 
   -- A linear (strong) update on the store
   update! : ∀ {a b} → ∀[ Just a ⇒ (V a ─⊙ StateT M Cells (V b)) ─⊙ StateT M Cells (Just b) ]

@@ -1,4 +1,4 @@
-module Relation.Ternary.Construct.List.Interdivide.Properties {ℓ} {A : Set ℓ} where
+module Relation.Ternary.Construct.List.Properties {ℓ} {A : Set ℓ} where
 
 open import Level
 open import Data.Unit using (⊤)
@@ -19,7 +19,7 @@ module _
   {{div : Rel₃ A}} {{_ : IsPartialSemigroup _≈_ div}} {{_ : IsCommutative div}}
   (no-div : ∀ {x y xy : A} → ¬ (x ∙ y ≣ xy)) where
 
-  open import Relation.Ternary.Construct.List.Interdivide div
+  open import Relation.Ternary.Construct.List div
 
   ↭-∙ˡ : ∀ {xsˡ xsʳ ysˡ xs} → xsˡ ∙ xsʳ ≣ xs → xsˡ ↭ ysˡ → Σ[ ys ∈ List A ] ys ↭ xs × (ysˡ ∙ xsʳ ≣ ys)
   ↭-∙ˡ [] ρ = -, ↭-sym ρ , ∙-idʳ
@@ -60,8 +60,8 @@ module ListXSplit
   (xsplitₐ : CrossSplit div₁ div₂)
   where
 
-  open import Relation.Ternary.Construct.List.Interdivide div₁ as L
-  open import Relation.Ternary.Construct.List.Interdivide div₂ as R
+  open import Relation.Ternary.Construct.List div₁ as L
+  open import Relation.Ternary.Construct.List div₂ as R
   open Rel₃ div₁ using () renaming (_∙_≣_ to _∙ₐ₁_≣_)
   open Rel₃ div₂ using () renaming (_∙_≣_ to _∙ₐ₂_≣_)
   open Rel₃ L.splits using () renaming (_∙_≣_ to _∙₁_≣_)
