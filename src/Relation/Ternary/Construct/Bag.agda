@@ -46,8 +46,8 @@ Rel₃._∙_≣_ bags = BagSplit
 module _ {e} {_≈_ : A → A → Set e} {{_ : IsCommutative div}} {{_ : IsPartialSemigroup _≈_ div}} where
 
   -- commutativity follows immediately from commutativity of list separation
-  instance comm : IsCommutative bags
-  IsCommutative.∙-comm comm (hustle ρ₁ ρ₂ ρ₃ sep) = hustle ρ₂ ρ₁ ρ₃ (∙-comm sep)
+  instance bags-isCommutative : IsCommutative bags
+  IsCommutative.∙-comm bags-isCommutative (hustle ρ₁ ρ₂ ρ₃ sep) = hustle ρ₂ ρ₁ ρ₃ (∙-comm sep)
 
   bags-isSemigroupˡ : IsPartialSemigroupˡ _↭_ bags
 
@@ -70,15 +70,15 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsCommutative div}} {{_ : IsParti
   bags-isSemigroup = IsPartialSemigroupˡ.semigroupˡ bags-isSemigroupˡ
 
   -- The identities follow almost immediately from the identity laws of list separation
-  bags-monoidˡ : IsPartialMonoidˡ _↭_ bags []
-  IsPartialMonoidˡ.ε-uniq bags-monoidˡ ρ = sym (↭-[] (↭-sym ρ))
-  IsPartialMonoidˡ.identityˡ bags-monoidˡ = hustle ↭-refl ↭-refl ↭-refl ∙-idˡ
-  IsPartialMonoidˡ.identity⁻ˡ bags-monoidˡ (hustle ρx ρy ρz σ) with ↭-[] ρx
+  bags-isMonoidˡ : IsPartialMonoidˡ _↭_ bags []
+  IsPartialMonoidˡ.ε-uniq bags-isMonoidˡ ρ = sym (↭-[] (↭-sym ρ))
+  IsPartialMonoidˡ.identityˡ bags-isMonoidˡ = hustle ↭-refl ↭-refl ↭-refl ∙-idˡ
+  IsPartialMonoidˡ.identity⁻ˡ bags-isMonoidˡ (hustle ρx ρy ρz σ) with ↭-[] ρx
   ... | refl with ∙-id⁻ˡ σ
   ... | refl = ↭-trans (↭-sym ρy) ρz
 
-  instance bags-monoid : IsPartialMonoid _↭_ bags []
-  bags-monoid = IsPartialMonoidˡ.partialMonoidˡ bags-monoidˡ
+  instance bags-isMonoid : IsPartialMonoid _↭_ bags []
+  bags-isMonoid = IsPartialMonoidˡ.partialMonoidˡ bags-isMonoidˡ
 
   open import Data.Nat.SizeOf {A = List A} length as SizeOf
   
