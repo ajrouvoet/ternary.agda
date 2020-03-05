@@ -93,7 +93,9 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsCommutative div}} {{_ : IsParti
 
   IsPositive.orderₐ bags-positive = size-pre ↭-isEquivalence ↭-length
 
-  IsPositive.positiveˡ bags-positive (hustle ρx ρy ρz sep) rewrite sym (↭-length ρx) | sym (↭-length ρz) = positiveˡ sep
-  IsPositive.positiveʳ bags-positive (hustle ρx ρy ρz sep) rewrite sym (↭-length ρy) | sym (↭-length ρz) = positiveʳ sep
+  IsPositive.positiveˡ bags-positive (hustle ρx ρy ρz sep)
+    rewrite sym (↭-length ρx) | sym (↭-length ρz) = positiveˡ sep
+  IsPositive.positiveʳ bags-positive (hustle ρx ρy ρz sep)
+    rewrite sym (↭-length ρy) | sym (↭-length ρz) = positiveʳ sep
 
   IsPositive.ε-least bags-positive {[]} Nat.z≤n = ↭-refl
