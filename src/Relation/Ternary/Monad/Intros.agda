@@ -16,7 +16,7 @@ open import Relation.Ternary.Structures
 open import Relation.Ternary.Monad.Possibly
 
 open import Relation.Ternary.Construct.List.Disjoint T as D hiding (_∈_)
-open import Relation.Ternary.Construct.List.Overlapping T --using (_⊗_≣_; ⊆-⊗)
+open import Relation.Ternary.Construct.List.Overlapping T as O
 
 private
   Ctx = List T

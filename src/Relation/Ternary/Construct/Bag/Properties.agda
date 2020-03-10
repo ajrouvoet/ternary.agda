@@ -1,7 +1,7 @@
 module Relation.Ternary.Construct.Bag.Properties {ℓ} {A : Set ℓ} where
 
 open import Level
-open import Data.Unit using (⊤)
+open import Data.Unit using (⊤; tt)
 open import Data.Product hiding (swap)
 open import Data.List
 open import Data.List.Extra
@@ -28,8 +28,8 @@ module CrossSplittable
   open Rel₃ div₁ using () renaming (_∙_≣_ to _∙ₐ₁_≣_)
   open Rel₃ div₂ using () renaming (_∙_≣_ to _∙ₐ₂_≣_)
 
-  open import Relation.Ternary.Construct.Bag div₁ as L
-  open import Relation.Ternary.Construct.Bag div₂ as R
+  open import Relation.Ternary.Construct.Bag div₁ tt as L
+  open import Relation.Ternary.Construct.Bag div₂ tt as R
 
   open Rel₃ L.bags using () renaming (_∙_≣_ to _∙₁_≣_)
   open Rel₃ R.bags using () renaming (_∙_≣_ to _∙₂_≣_)

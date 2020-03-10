@@ -23,6 +23,9 @@ record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set
     ∙-assocᵣ : RightAssoc rel
     ∙-assocₗ : LeftAssoc rel
 
+  sPred : ∀ ℓ → Set (a ⊔ suc ℓ)
+  sPred ℓ = A → Set ℓ
+
   -- the "product" and arrow respect the equivalence
   module _ where
 

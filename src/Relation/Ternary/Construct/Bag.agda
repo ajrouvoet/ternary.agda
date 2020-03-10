@@ -1,11 +1,16 @@
 {-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
+open import Relation.Ternary.Structures
+open import Data.Unit using (⊤)
 
-module Relation.Ternary.Construct.Bag {ℓ} {A : Set ℓ} (div : Rel₃ A) where
+module Relation.Ternary.Construct.Bag
+  {ℓ} {A : Set ℓ} (div : Rel₃ A) 
+  {e} {_≈_ : A → A → Set e} {{_ : IsCommutative div}} {{_ : IsPartialSemigroup _≈_ div}}
+  (force : ⊤)
+  where
 
 open import Level
 import Data.Nat as Nat
-open import Data.Unit using (⊤)
 open import Data.Product hiding (swap)
 open import Data.List
 open import Data.List.Extra
@@ -18,7 +23,6 @@ open import Relation.Nullary
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
-open import Relation.Ternary.Structures
 
 open import Relation.Ternary.Construct.List div
 
@@ -43,7 +47,7 @@ record BagSplit (xs ys zs : List A) : Set ℓ where
 instance bags : Rel₃ (List A)
 Rel₃._∙_≣_ bags = BagSplit
 
-module _ {e} {_≈_ : A → A → Set e} {{_ : IsCommutative div}} {{_ : IsPartialSemigroup _≈_ div}} where
+module _ where
 
   -- commutativity follows immediately from commutativity of list separation
   instance bags-isCommutative : IsCommutative bags

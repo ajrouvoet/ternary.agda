@@ -51,10 +51,10 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
   ε∙ε : ∀[ ε ∙ ε ⇒ Emp ]
   ε∙ε p = ε-unique (∙-id⁻ˡ p)
 
-  ∙-id⁺ˡ : ∀ {Φ} → ∀[ _≈_ Φ ⇒ ε ∙ Φ ]
+  ∙-id⁺ˡ : ∀[ _≈_ Φ ⇒ ε ∙ Φ ]
   ∙-id⁺ˡ eq = coe eq ∙-idˡ
 
-  ∙-id⁺ʳ : ∀ {Φ} → ∀[ _≈_ Φ ⇒ Φ ∙ ε ]
+  ∙-id⁺ʳ : ∀[ _≈_ Φ ⇒ Φ ∙ ε ]
   ∙-id⁺ʳ eq = coe eq ∙-idʳ
 
   module _ {p} {P : Pred A p} {{_ : Respect _≈_ P}} where
