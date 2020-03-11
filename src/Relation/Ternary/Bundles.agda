@@ -1,14 +1,11 @@
-{-# OPTIONS --postfix-projections #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Bundles where
 
 open import Level
 open import Relation.Binary
 open import Relation.Binary.Bundles
-open import Relation.Ternary.Core hiding (_⊙_)
-open import Relation.Ternary.Structures using
-  ( IsPartialSemigroup
-  ; IsPartialMonoid
-  ; IsJoinoid )
+open import Relation.Ternary.Core
+open import Relation.Ternary.Structures
 
 record PartialSemigroup a e : Set (suc (a ⊔ e)) where
   infix 4 _≈_
@@ -18,6 +15,28 @@ record PartialSemigroup a e : Set (suc (a ⊔ e)) where
     {rel}       : Rel₃ Carrier
 
     isSemigroup : IsPartialSemigroup _≈_ rel
+
+  open Rel₃ rel public
+  open IsPartialSemigroup isSemigroup public
+
+  -- TODO, this one should come from setoid
+  instance equivalence : IsEquivalence _≈_
+  equivalence = ≈-equivalence
+
+  instance setoid : Setoid a e
+  setoid = record { isEquivalence = ≈-equivalence }
+
+  open Setoid setoid public using (partialSetoid; _≉_)
+
+record PartialCommutativeSemigroup a e : Set (suc (a ⊔ e)) where
+  infix 4 _≈_
+  field
+    {Carrier}   : Set a
+    {_≈_}       : Carrier → Carrier → Set e
+    {rel}       : Rel₃ Carrier
+
+    isSemigroup   : IsPartialSemigroup _≈_ rel
+    isCommutative : IsCommutative rel
 
   open Rel₃ rel public
   open IsPartialSemigroup isSemigroup public
@@ -42,11 +61,8 @@ record PartialMonoid a e : Set (suc (a ⊔ e)) where
 
   open IsPartialMonoid isMonoid public
 
-  instance partialSemigroup : PartialSemigroup a e
-  partialSemigroup = record { isSemigroup = isPartialSemigroup }
-
-open PartialSemigroup {{...}} public
-open PartialMonoid    {{...}} public
+  -- instance partialSemigroup : PartialSemigroup a e
+  -- partialSemigroup = record { isSemigroup = isPartialSemigroup }
 
 -- record PartialJoinoid a e : Set (suc (a ⊔ e)) where
 --   field

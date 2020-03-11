@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Structures.Crosssplit {a} {A : Set a} where
 
 open import Level
@@ -49,5 +49,3 @@ record IsCrosssplittable {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set 
   field
     cross   : CrossSplit rel rel
     uncross : Uncross rel rel
-
-open IsCrosssplittable {{...}} public

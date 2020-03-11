@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Structures.Total {a} {A : Set a} where
 
 open import Level
@@ -20,9 +20,14 @@ record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A 
   field
     ∙-parallel : ∀ {a b c d ab cd} → a ∙ b ≣ ab → c ∙ d ≣ cd → (a ++ c) ∙ (b ++ d) ≣ (ab ++ cd)
 
-  module _ {unit} {{_ : IsMonoid _≈_ _++_ unit}} {{_ : IsPartialMonoid _≈_ rel unit}} where
+  module WithMonoid {unit}
+    (monoid          : IsMonoid _≈_ _++_ unit)
+    (isPartialMonoid : IsPartialMonoid _≈_ rel unit) where
 
-    open IsMonoid {{...}}
+    open IsMonoid monoid
+    open IsPartialMonoid isPartialMonoid
+    open IsPartialSemigroup isPartialSemigroup
+
     ∙-∙ₗₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → (Φₑ ++ Φ₁) ∙ Φ₂ ≣ (Φₑ ++ Φ)
     ∙-∙ₗₗ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {a = Φₑ} {b = unit} {c = Φ₁} ∙-idʳ σ
     ... | z = coe (identityˡ _) z
@@ -40,9 +45,5 @@ record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A 
     ... | z = coe (identityʳ _) z
 
     ∙-∙ : ∀ {Φₗ Φᵣ : A} → Φₗ ∙ Φᵣ ≣ (Φₗ ++ Φᵣ)
-    ∙-∙ {Φₗ} {Φᵣ} with ∙-parallel {a = Φₗ} {b = ε} {c = ε} {d = Φᵣ} ∙-idʳ ∙-idˡ
-    ... | z =
-      coe {{∙-respects-≈ˡ}} (identityʳ _)
-        (coe {{∙-respects-≈ʳ}} (identityˡ _) z)
-
-open IsTotal {{...}} public
+    ∙-∙ {Φₗ} {Φᵣ} with ∙-parallel {a = Φₗ} {b = unit} {c = unit} {d = Φᵣ} ∙-idʳ ∙-idˡ
+    ... | z = coe (identityʳ _) (coe (identityˡ _) z)

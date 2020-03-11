@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Structures.Functional
   {a} {A : Set a} where
 
@@ -20,5 +20,3 @@ record IsFunctional {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (a �
 
   field
     functional : Functional _≈_ rel
-
-open IsFunctional {{...}} public

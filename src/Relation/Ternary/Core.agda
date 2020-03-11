@@ -200,12 +200,9 @@ module _ {a} {A : Set a} where
       ∀ {a b c b∩c a-b∩c} → b ∩ c ≣ b∩c → a ∸ b∩c ≣ a-b∩c →
       ∃₂ λ a-b a-c → (a ∸ b ≣ a-b) × (a ∸ c ≣ a-c) × (a-b ⊎ a-c ≣ a-b∩c)
       
-
 module _ {a} {A : Set a} where
 
   open import Data.List
 
   Just : A → Pred (List A) _
   Just t = Exactly [ t ]
-
-open Rel₃ {{...}} public
