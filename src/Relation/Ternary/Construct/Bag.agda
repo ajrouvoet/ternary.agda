@@ -25,6 +25,7 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 
 open import Relation.Ternary.Construct.List div
+open import Relation.Ternary.Construct.List div public using (list-emptiness)
 
 private
   variable
@@ -88,18 +89,18 @@ module _ where
   
   -- Positivity follows by the positivity of list separation together 
   -- with the fact that permutations are length preserving
-  instance bags-positive : IsPositive _ _↭_ bags []
+  instance bags-isPositive : IsPositive _ _↭_ bags []
 
-  IsPositive._≤ₐ_ bags-positive = SizeOf._≤ₐ_
+  IsPositive._≤ₐ_ bags-isPositive = SizeOf._≤ₐ_
 
-  IsPositive.is-empty bags-positive []      = yes refl
-  IsPositive.is-empty bags-positive (x ∷ σ) = no ¬∷↭[]
+  IsPositive.is-empty bags-isPositive []      = yes refl
+  IsPositive.is-empty bags-isPositive (x ∷ σ) = no ¬∷↭[]
 
-  IsPositive.orderₐ bags-positive = size-pre ↭-isEquivalence ↭-length
+  IsPositive.orderₐ bags-isPositive = size-pre ↭-isEquivalence ↭-length
 
-  IsPositive.positiveˡ bags-positive (hustle ρx ρy ρz sep)
+  IsPositive.positiveˡ bags-isPositive (hustle ρx ρy ρz sep)
     rewrite sym (↭-length ρx) | sym (↭-length ρz) = positiveˡ sep
-  IsPositive.positiveʳ bags-positive (hustle ρx ρy ρz sep)
+  IsPositive.positiveʳ bags-isPositive (hustle ρx ρy ρz sep)
     rewrite sym (↭-length ρy) | sym (↭-length ρz) = positiveʳ sep
 
-  IsPositive.ε-least bags-positive {[]} Nat.z≤n = ↭-refl
+  IsPositive.ε-least bags-isPositive {[]} Nat.z≤n = ↭-refl

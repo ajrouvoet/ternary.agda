@@ -99,8 +99,8 @@ module _ where
   instance exchange-rel : Rel₃ Account
   exchange-rel = record { _∙_≣_ = Exchange }
 
-  instance binding-comm : IsCommutative exchange-rel
-  IsCommutative.∙-comm binding-comm (ex x₁ x₂ x₃ x₄) = ex x₂ x₁ (∙-comm x₃) (∙-comm x₄)
+  instance exchange-isCommutative : IsCommutative exchange-rel
+  IsCommutative.∙-comm exchange-isCommutative (ex x₁ x₂ x₃ x₄) = ex x₂ x₁ (∙-comm x₃) (∙-comm x₄)
     
   exchange-isSemigroupˡ : IsPartialSemigroupˡ _≈_ exchange-rel
 

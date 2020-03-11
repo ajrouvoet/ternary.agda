@@ -76,22 +76,22 @@ module Bind
   {i ℓ₁ ℓ₂} {I : Set i} {M : RawMonad I ℓ₁ ℓ₂} {{ monad : Monad I M }}
   {{ _ : ∀ {i₁ i₂ Q} → Respect _≈_ (M i₁ i₂ Q) }} where
 
-    infixl 1 _=<<_
-    _=<<_ : ∀ {i₁ i₂ i₃ P Q} → ∀[ P ⇒ M i₂ i₃ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₃ Q ]
-    f =<< mp =
-      bind
-        (arr λ where
-          σ px → coe (∙-id⁻ˡ σ) (f px)) ⟨ ∙-idˡ ⟩ mp
+  infixl 1 _=<<_
+  _=<<_ : ∀ {i₁ i₂ i₃ P Q} → ∀[ P ⇒ M i₂ i₃ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₃ Q ]
+  f =<< mp =
+    bind
+      (arr λ where
+        σ px → coe (∙-id⁻ˡ σ) (f px)) ⟨ ∙-idˡ ⟩ mp
 
-    infixl 1 _>>=_
-    _>>=_ : ∀ {Φ} {i₁ i₂ i₃ P Q} → M i₁ i₂ P Φ → ∀[ P ⇒ M i₂ i₃ Q ] → M i₁ i₃ Q Φ
-    mp >>= f = f =<< mp
+  infixl 1 _>>=_
+  _>>=_ : ∀ {Φ} {i₁ i₂ i₃ P Q} → M i₁ i₂ P Φ → ∀[ P ⇒ M i₂ i₃ Q ] → M i₁ i₃ Q Φ
+  mp >>= f = f =<< mp
 
-    mapM : ∀ {i₁ i₂ P Q} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
-    mapM f mp = mp >>= (return ∘ f)
+  mapM : ∀ {i₁ i₂ P Q} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
+  mapM f mp = mp >>= (return ∘ f)
 
-    _⟨$⟩_ : ∀ {i₁ i₂ P Q} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
-    f ⟨$⟩ mp = mapM f mp
+  _⟨$⟩_ : ∀ {i₁ i₂ P Q} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
+  f ⟨$⟩ mp = mapM f mp
 
 open Bind public
 
