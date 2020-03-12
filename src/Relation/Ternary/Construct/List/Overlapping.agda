@@ -5,10 +5,11 @@ open import Level
 open import Data.Unit using (⊤)
 open import Data.Product
 open import Data.List
+open import Data.Nat
 
 open import Relation.Unary hiding (_⊢_; _⊆_)
 open import Relation.Unary.PredicateTransformer using (Pt)
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Structures.Syntax
@@ -79,6 +80,11 @@ module _ where
   ... | _ , σ′ , i′ = -, consʳ σ′ , D.⊆-∷ˡ i′
   ⊆-⊗ i₁ (_ , consʳ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
   ... | _ , σ′ , i′ = -, σ′ , D.⊆-∷ʳ i′
+
+indexOf : ∀ {x} {xs ys : Ctx} → [ x ] ∙ xs ≣ ys → ℕ
+indexOf (overlaps i) = 0
+indexOf (consˡ i)    = 0
+indexOf (consʳ i)    = ℕ.suc (indexOf i)
 
 threeway : ∀ {a b c ab bc : List T} → a ⊗ b ≣ ab → b ⊗ c ≣ bc → ∃ λ abc → ab ⊗ bc ≣ abc
 threeway [] σ₂ = -, ∙-idˡ
