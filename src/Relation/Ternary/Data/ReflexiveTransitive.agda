@@ -3,10 +3,7 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
 module Relation.Ternary.Data.ReflexiveTransitive
-  {c e} {C : Set c} {{rc : Rel₃ C}}
-  {_≈_ : C → C → Set e} {u}
-  {{monoid : IsPartialMonoid _≈_ rc u}}
-  {{comm   : IsCommutative rc}}
+  {c} {C : Set c} {{rc : Rel₃ C}}
   where
 
 open import Level
@@ -15,7 +12,9 @@ open import Relation.Unary
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Structures.Syntax
 
-module _ {A : Set c} (R : A → A → Pred C c) where
+module _
+  {A : Set c} (R : A → A → Pred C c) {u}
+  {{_ : Emptiness {A = C} u}} where
 
   data Star : (a₁ a₂ : A) → Pred C c where
     nil   : ∀ {a}        → ε[ Star a a ]
@@ -24,7 +23,11 @@ module _ {A : Set c} (R : A → A → Pred C c) where
   data Plus : (a₁ a₂ : A) → Pred C c where
     cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ⊙ Star a₂ a₃ ⇒ Plus a₁ a₃ ]
   
-module _ {A : Set c} {R : A → A → Pred C c} where
+module _
+  {A : Set c} {R : A → A → Pred C c}
+  {e u} {_≈_ : C → C → Set e}
+  {{monoid : IsPartialMonoid _≈_ rc u}}
+  where
 
   instance star-respects : ∀ {a₁ a₂ : A} → Respect _≈_ (Star R a₁ a₂)
   Respect.coe star-respects eq nil with ε-unique eq
