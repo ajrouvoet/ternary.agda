@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --without-K #-}
+{-# OPTIONS --safe #-}
 -- The Exchange PRSA
 --
 -- This proof relevant separation algebra balances multiple "accounts"
@@ -25,6 +25,7 @@ module Relation.Ternary.Construct.Exchange {ℓ e s} {A : Set ℓ}
 
 open import Level hiding (Lift)
 open import Data.Product
+open import Function using (case_of_; _∘_)
 
 open import Relation.Unary
 open import Relation.Binary hiding (_⇒_)
@@ -206,10 +207,18 @@ module _ {P Q : Pred A ℓ} where
   zipDown : ∀[ (Down P) ⊙ (Down Q) ⇒ Down (P ⊙₂ Q) ]
   zipDown (↓ p ∙⟨ σ ⟩ ↓ q) = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (p ∙⟨ σ↓ ⟩ q))
 
+module _ {P} where
+
+  pure : ∀[ P ⇒ Up P ∘ (_⇅ ε) ] 
+  pure px = ↑ px
+
 module _ {P Q : Pred A ℓ} {{_ : Respect _≈ₐ_ Q}} where
 
   upMap : ∀[ Up (P ─⊙₁ Q) ⇒ (Up P ─⊙ Up Q) ]
   upMap (↑ f) ⟨ σ ⟩ ↑ px = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (f ⟨ σ↑ ⟩ px))
+
+  _<*>_ : ∀[ Up (P ⇒ Q) ∘ (_⇅ ε) ] → ∀[ Up P ⇒ Up Q ]
+  f <*> (↑ upx) = ↑ (case f of λ where (↑ f) → f upx)
 
   downMap : ∀[ Down (P ─⊙₂ Q) ⇒ (Down P ─⊙ Down Q) ]
   downMap (↓ f) ⟨ σ ⟩ ↓ px = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (f ⟨ σ↓ ⟩ px))
