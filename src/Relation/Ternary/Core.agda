@@ -207,5 +207,3 @@ module _ {a} {A : Set a} where
 
   Just : A → Pred (List A) _
   Just t = Exactly [ t ]
-
-open Rel₃ {{...}} public

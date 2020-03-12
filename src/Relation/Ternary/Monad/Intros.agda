@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Monad.Intros {t} (T : Set t) where
 
 open import Function
@@ -13,6 +14,7 @@ open import Relation.Binary
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad.Possibly
 
 open import Relation.Ternary.Construct.List.Disjoint T as D hiding (_∈_)

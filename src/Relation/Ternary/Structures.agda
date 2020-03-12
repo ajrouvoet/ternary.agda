@@ -1,10 +1,5 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Structures where
-
-open import Relation.Binary.Structures
-open IsEquivalence {{...}}
-  using ()
-  renaming (refl to ≈-refl; sym to ≈-sym; trans to ≈-trans) public
 
 open import Relation.Ternary.Structures.PartialSemigroup public
 open import Relation.Ternary.Structures.PartialMonoid public

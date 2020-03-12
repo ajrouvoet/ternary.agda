@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 open import Relation.Ternary.Core
 
 module Relation.Ternary.Structures.PartialJoinoid {a} {A : Set a} where
@@ -12,7 +12,14 @@ open import Relation.Ternary.Structures.PartialMonoid
 open import Relation.Ternary.Structures.PartialBand
 open import Relation.Ternary.Structures.Commutative
 open import Relation.Ternary.Structures.Functional
-open IsEquivalence {{...}} using () renaming (sym to ≈-sym)
+
+open IsEquivalence      {{...}} using () renaming (sym to ≈-sym)
+open IsPartialSemigroup {{...}}
+open IsPartialMonoid    {{...}}
+open IsIdempotent       {{...}}
+open IsFunctional       {{...}}
+open Rel₃               {{...}}
+open CommutativeSemigroupOps
 
 record IsJoinoid {e₂}
   -- (_≤_ : A → A → Set e₁)
@@ -76,8 +83,6 @@ record IsJoinoid {e₂}
       coe {{∙-respects-≈ˡ}} (functional τ₁ σ) (
       coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ˡ τ₂)) τ₃)
 
-open IsJoinoid {{...}} public hiding (_▹_≣_; _∥_≣_; _∣_≣_)
-
 -- every functional, idempotent, commutative monoid yields a joinoid.
 module FromMonoid (rel : Rel₃ A)
   {e} {_≈_ : A → A → Set e} 
@@ -85,6 +90,8 @@ module FromMonoid (rel : Rel₃ A)
   {{ f : IsFunctional _≈_ rel }}
   {{ f : IsIdempotent rel }}
   where
+
+  open IsJoinoid {{...}}
 
   instance free-joinoid : IsJoinoid _≈_ rel rel rel u
   IsJoinoid.∥-isCommutativeMonoid free-joinoid = m

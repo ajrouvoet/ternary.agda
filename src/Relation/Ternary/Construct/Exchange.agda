@@ -1,3 +1,4 @@
+{-# OPTIONS --safe --without-K #-}
 -- The Exchange PRSA
 --
 -- This proof relevant separation algebra balances multiple "accounts"
@@ -19,8 +20,8 @@ module Relation.Ternary.Construct.Exchange {ℓ e s} {A : Set ℓ}
   {{ r₂-positive : IsPositive s _≈ₐ_ r₂ εₐ}}
   {{ _ : IsCommutative r₁ }}
   {{ _ : IsCommutative r₂ }}
-  (xsplit  : CrossSplit r₂ r₁)
-  (uncross : Uncross r₁ r₂) where
+  (xsplitₐ  : CrossSplit r₂ r₁)
+  (uncrossₐ : Uncross r₁ r₂) where
 
 open import Level hiding (Lift)
 open import Data.Product
@@ -29,7 +30,9 @@ open import Relation.Unary
 open import Relation.Binary hiding (_⇒_)
 open import Relation.Binary.Structures
 open import Relation.Binary.PropositionalEquality as PEq using (_≡_)
-open IsEquivalence {{...}}
+open import Relation.Ternary.Structures.Syntax
+
+open IsEquivalence (≈-equivalence {{IsPartialMonoid.isSemigroup r₁-monoid}})
 
 private
   variable
@@ -59,9 +62,9 @@ module _ where
   a ≈ b = Pointwise _≈ₐ_ _≈ₐ_ (pair a) (pair b)
 
   instance account-equiv : IsEquivalence _≈_
-  IsEquivalence.refl account-equiv  = refl , refl
-  IsEquivalence.sym account-equiv   = map sym sym
-  IsEquivalence.trans account-equiv (e₁ , e₂) (e₃ , e₄) = trans e₁ e₃ , trans e₂ e₄
+  IsEquivalence.refl account-equiv  = ≈-refl , ≈-refl
+  IsEquivalence.sym account-equiv   = map ≈-sym ≈-sym
+  IsEquivalence.trans account-equiv (e₁ , e₂) (e₃ , e₄) = ≈-trans e₁ e₃ , ≈-trans e₂ e₄
 
   {- Exchange with leftovers -}
   data _-_≣_ : A → A → Account → Set ℓ where
@@ -115,7 +118,7 @@ module _ where
   IsPartialSemigroupˡ.assocᵣ exchange-isSemigroupˡ
     (ex (sub τ-a↓  τ-b↑) (sub τ-b↓ τ-a↑)  σ-ab↑ σ-ab↓)
     (ex (sub τ-ab↓ τ-c↑) (sub τ-c↓ τ-ab↑) σ-abc↑ σ-abc↓)
-      with xsplit (∙-comm τ-ab↑) σ-ab↑ | xsplit σ-ab↓ τ-ab↓
+      with xsplitₐ (∙-comm τ-ab↑) σ-ab↑ | xsplitₐ σ-ab↓ τ-ab↓
   ... | _ , ν₁ , ν₂ , ν₃ , ν₄ | _ , μ₁ , μ₂ , μ₃ , μ₄
     with ∙-assocᵣ ν₂ σ-abc↑ | ∙-assocᵣ (∙-comm μ₃) (∙-comm σ-abc↓)
   ... | bc↑' , ι₁ , ι₂ | bc↓ , κ₁ , κ₂
@@ -123,7 +126,7 @@ module _ where
        | ∙-assocᵣ μ₂ τ-a↓          | ∙-rotateᵣ (∙-comm τ-b↓) μ₁          | ∙-assocᵣ (∙-comm ν₁) (∙-comm τ-c↓)
   ... | _ , α-a↑ , ≺-ea>bc | _ , α-b↑ , ν₅ | _ , α-c↑ , μ₅
       | _ , α-a↓ , ≺-ebc>a | _ , α-b↓ , ν₆ | _ , α-c↓ , μ₆
-    with uncross (∙-comm ≺-ebc>a) ι₂ ν₅ μ₅ | uncrossover uncross ≺-ea>bc (∙-comm κ₂) μ₆ ν₆
+    with uncrossₐ (∙-comm ≺-ebc>a) ι₂ ν₅ μ₅ | uncrossover uncrossₐ ≺-ea>bc (∙-comm κ₂) μ₆ ν₆
   ... | _ , τ-bc↑ , σ-bc↑ | _ , bo , bu =
     -, ex (sub α-a↓ (∙-comm τ-bc↑)) (sub (∙-comm bo) α-a↑) ι₁ (∙-comm κ₁) 
      , ex (sub (∙-comm α-b↓) (∙-comm α-c↑)) (sub (∙-comm α-c↓) (∙-comm α-b↑)) σ-bc↑ bu
@@ -198,15 +201,15 @@ module _ where
 
 module _ {P Q : Pred A ℓ} where
   zipUp : ∀[ (Up P) ⊙ (Up Q) ⇒ Up (P ⊙₁ Q) ]
-  zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx)) 
+  zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx)) 
 
   zipDown : ∀[ (Down P) ⊙ (Down Q) ⇒ Down (P ⊙₂ Q) ]
-  zipDown (↓ p ∙⟨ σ ⟩ ↓ q) = let _ , eq , σ↓ = downs σ in coe (sym eq) (↓ (p ∙⟨ σ↓ ⟩ q))
+  zipDown (↓ p ∙⟨ σ ⟩ ↓ q) = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (p ∙⟨ σ↓ ⟩ q))
 
 module _ {P Q : Pred A ℓ} {{_ : Respect _≈ₐ_ Q}} where
 
   upMap : ∀[ Up (P ─⊙₁ Q) ⇒ (Up P ─⊙ Up Q) ]
-  upMap (↑ f) ⟨ σ ⟩ ↑ px = let _ , eq , σ↑ = ups σ in coe (sym eq) (↑ (f ⟨ σ↑ ⟩ px))
+  upMap (↑ f) ⟨ σ ⟩ ↑ px = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (f ⟨ σ↑ ⟩ px))
 
   downMap : ∀[ Down (P ─⊙₂ Q) ⇒ (Down P ─⊙ Down Q) ]
-  downMap (↓ f) ⟨ σ ⟩ ↓ px = let _ , eq , σ↓ = downs σ in coe (sym eq) (↓ (f ⟨ σ↓ ⟩ px))
+  downMap (↓ f) ⟨ σ ⟩ ↓ px = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (f ⟨ σ↓ ⟩ px))

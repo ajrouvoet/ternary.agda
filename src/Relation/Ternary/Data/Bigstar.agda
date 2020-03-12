@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
@@ -11,6 +12,7 @@ open import Data.Bool
 open import Data.Product
 open import Relation.Unary
 open import Relation.Binary.PropositionalEquality using (refl)
+open import Relation.Ternary.Structures.Syntax
 
 data Bigstar {p} (P : Pred A p) : Pred A (a ⊔ p) where
   emp  : ε[ Bigstar P ]

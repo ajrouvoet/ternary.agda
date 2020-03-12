@@ -1,6 +1,5 @@
-{-# OPTIONS --safe #-}
-module Relation.Ternary.Structures.Positive
-  {a} {A : Set a} where
+{-# OPTIONS --safe --without-K #-}
+module Relation.Ternary.Structures.Positive {a} {A : Set a} where
 
 open import Level
 open import Relation.Unary
@@ -12,7 +11,9 @@ open import Relation.Binary.PropositionalEquality as P using (_≡_)
 open import Relation.Ternary.Core using (Rel₃)
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
-open IsEquivalence {{...}}
+
+open IsEquivalence   {{...}}
+open IsPartialMonoid {{...}}
 
 -- Positivity means that split off fragments are not bigger than their source.
 -- With ε as the smallest element.
@@ -44,5 +45,3 @@ record IsPositive {e} s (_≈_ : A → A → Set e) (rel : Rel₃ A) ε : Set (a
     ε-split σ with ε-split′ σ
     ... | eq₁ , eq₂ with ε-unique (sym eq₁) | ε-unique (sym eq₂)
     ... | P.refl | P.refl = P.refl
-
-open IsPositive {{...}} public

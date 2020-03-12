@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Construct.Duplicate {a} (A : Set a) where
 
 open import Function

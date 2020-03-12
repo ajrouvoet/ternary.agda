@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 
 {- A graded possibility modality -}
 module Relation.Ternary.Monad.Possibly {ℓa} {A : Set ℓa} where
@@ -11,6 +11,7 @@ open import Relation.Binary.Structures
 open import Relation.Binary.PropositionalEquality using (_≡_)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
 open import Relation.Ternary.Monad.Update
 open import Algebra.Structures

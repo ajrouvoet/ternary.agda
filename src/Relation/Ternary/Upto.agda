@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 open import Relation.Binary.Structures
 
 module Relation.Ternary.Upto {a e} {A : Set a} (_≈_ : A → A → Set e) where
@@ -6,11 +6,11 @@ module Relation.Ternary.Upto {a e} {A : Set a} (_≈_ : A → A → Set e) where
 open import Level
 open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
-open IsEquivalence {{...}}
 open import Data.Unit
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
 
 module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid _≈_ r u }} where

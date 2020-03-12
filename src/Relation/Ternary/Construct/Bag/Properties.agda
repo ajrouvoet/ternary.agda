@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Construct.Bag.Properties {ℓ} {A : Set ℓ} where
 
 open import Level

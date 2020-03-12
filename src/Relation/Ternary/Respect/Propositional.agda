@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import Relation.Unary
 
@@ -8,8 +8,6 @@ module Relation.Ternary.Respect.Propositional
 open import Function using (id)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
-
-open import Relation.Binary.PropositionalEquality
 
 instance respect-≡ : Respect _≡_ P
 Respect.coe respect-≡ refl = id

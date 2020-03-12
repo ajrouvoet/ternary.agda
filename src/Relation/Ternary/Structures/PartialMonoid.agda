@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Structures.PartialMonoid {a} {A : Set a} where
 
 open import Level
@@ -27,15 +27,15 @@ record Emptiness (unit : A) : Set where
   ε[_] : ∀ {ℓ} → Pred A ℓ → Set ℓ
   ε[ P ] = P ε
 
-  data Empty {p} (P : Set p) : Pred A p where
+  data Empty {p} (P : Set p) : Pred A (a ⊔ p) where
     emp : P → Empty P ε
 
-open Emptiness {{...}} public
+open Emptiness {{...}}
 
 record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : A) : Set (a ⊔ e) where
   field
-    overlap {{ emptiness }}          : Emptiness unit
-    overlap {{ isPartialSemigroup }} : IsPartialSemigroup _≈_ rel
+    overlap {{ emptiness }}   : Emptiness unit
+    overlap {{ isSemigroup }} : IsPartialSemigroup _≈_ rel
 
   open Rel₃ rel
 
@@ -78,6 +78,8 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
   {- A free preorder -}
   module _ where
 
+    open IsPartialSemigroup isSemigroup
+
     ≤-reflexive : Φ₁ ≡ Φ₂ → Φ₁ ≤ Φ₂
     ≤-reflexive refl = ε , ∙-idʳ
 
@@ -94,5 +96,3 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
 
     ε-minimal : ∀ {Φ} → ε ≤ Φ
     ε-minimal {Φ} = Φ , ∙-idˡ
-
-open IsPartialMonoid {{...}} public

@@ -1,3 +1,4 @@
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Construct.List.Properties {ℓ} {A : Set ℓ} where
 
 open import Level
@@ -13,6 +14,7 @@ open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 
 module _
   {e} {_≈_ : A → A → Set e}

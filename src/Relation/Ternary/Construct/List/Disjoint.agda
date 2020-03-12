@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Construct.List.Disjoint {t} (T : Set t) where
 
 open import Level
@@ -11,6 +11,7 @@ open import Data.List.Relation.Binary.Permutation.Propositional.Properties
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 
 private
   Ctx = List T
@@ -20,13 +21,13 @@ private
 open import Relation.Ternary.Construct.Empty T public
 open import Relation.Ternary.Construct.List empty-rel as Disjoint
 open Disjoint public using ([]; consˡ; consʳ; list-monoid) renaming
-  (splits to disjoint-split
-  ;list-emptiness to disjoint-empty
-  ;split-positive to disjoint-positive
-  ;split-isComm to disjoint-commutative
-  ;split-isSemigroup to disjoint-semigroup
-  ;split-isMonoid to disjoint-monoid
-  ;split-isTotal to disjoint-total)
+  (splits           to disjoint-split
+  ;list-emptiness   to disjoint-empty
+  ;list-positive    to disjoint-positive
+  ;list-isComm      to disjoint-commutative
+  ;list-isSemigroup to disjoint-semigroup
+  ;list-isMonoid    to disjoint-monoid
+  ;list-isTotal     to disjoint-total)
 
 open Rel₃ Disjoint.splits using ()
   renaming (_∙_≣_ to _⊕_≣_; _⊙_ to _⊕_; _─⊙_ to _─⊕_) public

@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Relation.Ternary.Construct.List.Overlapping {t} (T : Set t) where
 
 open import Level
@@ -10,6 +11,7 @@ open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 
 private
   Ctx = List T
@@ -29,24 +31,24 @@ module _ where
   overlap-rel = splits
 
   instance overlap-positive : IsPositive _ _≡_ overlap-rel []
-  overlap-positive = split-positive
+  overlap-positive = list-positive
 
   instance overlap-semigroup : IsPartialSemigroup _≡_ overlap-rel
-  overlap-semigroup = split-isSemigroup
+  overlap-semigroup = list-isSemigroup
 
   instance overlap-commutative : IsCommutative overlap-rel
-  overlap-commutative = split-isComm
+  overlap-commutative = list-isComm
 
   instance overlap-monoid : IsPartialMonoid _≡_ overlap-rel []
-  overlap-monoid = split-isMonoid {{D.dup-isSemigroup}}
+  overlap-monoid = list-isMonoid {{D.dup-isSemigroup}}
 
   instance overlap-total : IsTotal _≡_ overlap-rel _++_
-  overlap-total = split-isTotal {{D.dup-isSemigroup}}
+  overlap-total = list-isTotal {{D.dup-isSemigroup}}
 
-  instance overlap-intuitive : Intuitionistic overlap-rel
-  Intuitionistic.Condition overlap-intuitive _ = ⊤
-  Intuitionistic.∙-copy overlap-intuitive {[]} = ∙-idˡ {{overlap-monoid}}
-  Intuitionistic.∙-copy overlap-intuitive {x ∷ xs} = divide dup ∙-copy
+  instance overlap-intuitive : IsIntuitionistic overlap-rel
+  IsIntuitionistic.Condition overlap-intuitive _ = ⊤
+  IsIntuitionistic.∙-copy overlap-intuitive {[]} = ∙-idˡ {{overlap-monoid}}
+  IsIntuitionistic.∙-copy overlap-intuitive {x ∷ xs} = divide dup ∙-copy
 
   pattern overlaps σ = divide dup σ
 
@@ -77,16 +79,6 @@ module _ where
   ... | _ , σ′ , i′ = -, consʳ σ′ , D.⊆-∷ˡ i′
   ⊆-⊗ i₁ (_ , consʳ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
   ... | _ , σ′ , i′ = -, σ′ , D.⊆-∷ʳ i′
-
-module _ where
-
-  open import Data.List.Relation.Binary.Permutation.Propositional
-  open import Data.List.Relation.Binary.Permutation.Propositional.Properties
-
-  postulate ⊗-↭ : xsˡ ⊗ xsʳ ≣ xs → xs ↭ ys →
-                  Σ[ yss ∈ Ctx × Ctx ]
-                  let (ysˡ , ysʳ) = yss in
-                  ysˡ ↭ xsˡ × ysʳ ↭ xsʳ × ysˡ ⊗ ysʳ ≣ ys
 
 threeway : ∀ {a b c ab bc : List T} → a ⊗ b ≣ ab → b ⊗ c ≣ bc → ∃ λ abc → ab ⊗ bc ≣ abc
 threeway [] σ₂ = -, ∙-idˡ

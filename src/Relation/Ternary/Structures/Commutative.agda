@@ -1,6 +1,5 @@
-{-# OPTIONS --safe #-}
-module Relation.Ternary.Structures.Commutative
-  {a} {A : Set a} where
+{-# OPTIONS --safe --without-K #-}
+module Relation.Ternary.Structures.Commutative {a} {A : Set a} where
 
 open import Level
 open import Relation.Unary
@@ -19,13 +18,13 @@ record IsCommutative (rel : Rel₃ A) : Set (a) where
   field
     ∙-comm            : Commutative rel
 
-open IsCommutative {{...}} public
+open IsPartialSemigroup {{...}}
+open IsCommutative      {{...}}
      
-module _
-  {e} {_≈_ : A → A → Set e}
-  {rel : Rel₃ A}
-  {{_ : IsPartialSemigroup _≈_ rel}}
-  {{_ : IsCommutative rel}}
+module CommutativeSemigroupOps
+  {e} {_≈_ : A → A → Set e} {rel : Rel₃ A}
+  {{pcsg : IsPartialSemigroup _≈_ rel}}
+  {{comm : IsCommutative rel}}
   where
 
   open Rel₃ rel

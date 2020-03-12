@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Structures.Total {a} {A : Set a} where
 
 open import Level
@@ -13,6 +13,10 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core using (Rel₃; coe)
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
+
+open IsPartialMonoid    {{...}}
+open IsPartialSemigroup {{...}}
+open Emptiness {{...}}
 
 record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A → A) : Set (suc a ⊔ e) where
   open Rel₃ rel

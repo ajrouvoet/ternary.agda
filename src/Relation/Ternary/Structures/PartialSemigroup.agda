@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Structures.PartialSemigroup {a} {A : Set a} where
 
 open import Level
@@ -87,5 +87,3 @@ record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set
     ≤-trans : Φ₁ ≤ Φ₂ → Φ₂ ≤ Φ₃ → Φ₁ ≤ Φ₃
     ≤-trans (τ₁ , Φ₁∙τ₁=Φ₂) (τ₂ , Φ₂∙τ₂=Φ₃) =
       let τ₃ , p , q = ∙-assocᵣ Φ₁∙τ₁=Φ₂ Φ₂∙τ₂=Φ₃ in τ₃ , p
-
-open IsPartialSemigroup {{...}} public

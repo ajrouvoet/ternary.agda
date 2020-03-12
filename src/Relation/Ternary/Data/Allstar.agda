@@ -17,6 +17,7 @@ open import Relation.Unary
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
 open import Relation.Ternary.Upto {A = C} _≈_
 

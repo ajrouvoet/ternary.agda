@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
@@ -13,6 +13,7 @@ open import Level
 open import Data.Product
 open import Relation.Unary
 open import Relation.Binary.PropositionalEquality
+open import Relation.Ternary.Structures.Syntax
 
 module _ {A : Set c} (R : A → A → Pred C c) where
 

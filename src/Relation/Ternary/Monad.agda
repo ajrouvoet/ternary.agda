@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 open import Relation.Ternary.Core
 
 module Relation.Ternary.Monad {a}
@@ -15,6 +15,7 @@ open import Relation.Unary.PredicateTransformer using (PT)
 open import Relation.Binary.Structures
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 
 {- strong indexed monads on predicates over PRSAs -}
 RawMonad : ∀ {i} (I : Set i) → (ℓ₁ ℓ₂ : Level) → Set _

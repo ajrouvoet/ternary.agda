@@ -1,6 +1,5 @@
-{-# OPTIONS --safe #-}
-module Relation.Ternary.Structures.PartialBand
-  {a} {A : Set a} where
+{-# OPTIONS --safe --without-K #-}
+module Relation.Ternary.Structures.PartialBand {a} {A : Set a} where
 
 open import Level
 open import Relation.Unary
@@ -18,13 +17,9 @@ record IsIdempotent (rel : Rel₃ A) : Set a where
   field
     ∙-idem : Idempotent rel
 
-open IsIdempotent {{...}} public
-
 record IsBand {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (a ⊔ e) where
   open Rel₃ rel
 
   field
     {{isSemigroup}}  : IsPartialSemigroup _≈_ rel
     {{isIdempotent}} : IsIdempotent rel
-
-open IsBand {{...}} public
