@@ -19,5 +19,6 @@ open IsPositive         {{...}} public
 open IsCommutative      {{...}} public
 open IsCrosssplittable  {{...}} public
 open IsIntuitionistic   {{...}} public
+open IsJoinoid          {{...}} public
 
 open CommutativeSemigroupOps public

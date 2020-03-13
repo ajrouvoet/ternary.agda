@@ -25,6 +25,7 @@ module Relation.Ternary.Construct.Exchange {ℓ e s} {A : Set ℓ}
 
 open import Level hiding (Lift)
 open import Data.Product
+open import Data.Unit
 open import Function using (case_of_; _∘_)
 
 open import Relation.Unary
@@ -173,6 +174,11 @@ module _ where
   instance exchange-isMonoid : IsPartialMonoid _≈_ exchange-rel (εₐ ⇅ εₐ)
   exchange-isMonoid = IsPartialMonoidˡ.partialMonoidˡ exchange-isMonoidˡ
 
+module DownIntuitive {{_ : IsIntuitionistic U r₂ }} where
+
+  exchange-intuitive-down : IsIntuitionistic (λ where (u ⇅ d) → u ≡ εₐ) exchange-rel
+  IsIntuitionistic.∙-copy exchange-intuitive-down {{PEq.refl}} = ex sub-ε sub-ε ∙-idˡ ∙-copy
+
 module _ (P : Pred A ℓ) where
 
   data Down : Pred Account ℓ where
@@ -180,6 +186,13 @@ module _ (P : Pred A ℓ) where
 
   data Up : Pred Account ℓ where
     ↑ : ∀ {x} → P x → Up (x ⇅ εₐ)
+
+module _ where
+  Up⁻ : Pred Account ℓ → Pred A ℓ
+  Up⁻ P = P ∘ (_⇅ ε)
+
+  Down⁻ : Pred Account ℓ → Pred A ℓ
+  Down⁻ P = P ∘ (ε ⇅_)
 
 module _ {P : Pred A ℓ} {{_ : Respect _≈ₐ_ P}} where
 

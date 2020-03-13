@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --without-K #-}
 
 module Relation.Ternary.Construct.Product
   {ℓ₁ ℓ₂} {C₁ : Set ℓ₁} {C₂ : Set ℓ₂}
@@ -14,6 +14,7 @@ open import Data.Product.Relation.Binary.Pointwise.NonDependent
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 
 _×-∙_ : Rel₃ C₁ → Rel₃ C₂ → Rel₃ (C₁ × C₂)
 R₁ ×-∙ R₂ =
@@ -64,14 +65,16 @@ module _
       _ , r₃ , r₄ = ∙-assocₗ r₁ r₂
     in -, (l₃ , r₃) , l₄ , r₄
 
+module _ {u₁ u₂} {{_ : Emptiness {A = C₁} u₁}} {{_ : Emptiness {A = C₂} u₂}} where
+
+  instance ×-emptiness : Emptiness (u₁ , u₂)
+  ×-emptiness = record {}
+
 module _
   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}} {u₁ u₂}
   {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
   {{s₁ : IsPartialMonoid _≈₁_ R₁ u₁}} {{s₂ : IsPartialMonoid _≈₂_ R₂ u₂}}
   where
-
-  instance ×-emptiness : Emptiness (u₁ , u₂)
-  ×-emptiness = record {}
 
   instance ×-isPartialMonoid : IsPartialMonoid (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂) 
   IsPartialMonoid.ε-unique ×-isPartialMonoid (fst , snd) with ε-unique fst | ε-unique snd
@@ -132,22 +135,24 @@ module _
 --       ; ∙-∙ₗ = λ where (p , q) → ∙-∙ₗ p , ∙-∙ₗ q }
 
 {- Some useful type-formers for this instance -}
+module _ {u} {{_ : Emptiness {A = C₁} u}} where
+
+  data Π₁  {p} (P : Pred C₂ p) : Pred (C₂ × C₁) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
+    fst : ∀ {b : C₂} → P b → Π₁ P (b , ε)
+
+  data Π₂ {p} (P : Pred C₂ p) : Pred (C₁ × C₂) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
+    snd : ∀ {b : C₂} → P b → Π₂ P (ε , b)
+
 module _
   {e}
   {{r : Rel₃ C₁}}
   {_≈₁_ : C₁ → C₁ → Set e}
   {u} {{s : IsPartialMonoid _≈₁_ r u}} where
 
-  data Π₁ {p} (P : Pred C₂ p) : Pred (C₂ × C₁) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
-    fst : ∀ {b : C₂} → P b → Π₁ P (b , ε)
-
   module _ {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} {P : Pred C₂ p} where
     instance Π₁-respect-≈ : ∀ {{_ : Respect _≈₂_ P }} → Respect (Pointwise _≈₂_ _≈₁_) (Π₁ P)
     Respect.coe Π₁-respect-≈ (eq₁ , eq₂) (fst px) with ε-unique eq₂
     ... | refl = fst (coe eq₁ px)
-
-  data Π₂ {p} (P : Pred C₂ p) : Pred (C₁ × C₂) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
-    snd : ∀ {b : C₂} → P b → Π₂ P (ε , b)
 
   module _ {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} {P : Pred C₂ p} where
     instance Π₂-respect-≈ : ∀ {{_ : Respect _≈₂_ P }} → Respect (Pointwise _≈₁_ _≈₂_) (Π₂ P)
@@ -178,7 +183,7 @@ module Propositional
   module _ {ε₁ ε₂} {{_ : IsPartialMonoid _≡_ R₁ ε₁}} {{_ : IsPartialMonoid _≡_ R₂ ε₂}} where
 
     ×-isPartialMonoid-≡ : IsPartialMonoid _≡_ (R₁ ×-∙ R₂) (ε₁ , ε₂)
-    IsPartialMonoid.isPartialSemigroup ×-isPartialMonoid-≡ = ×-isPartialSemigroup
+    IsPartialMonoid.isSemigroup ×-isPartialMonoid-≡ = ×-isPartialSemigroup
     IsPartialMonoid.ε-unique ×-isPartialMonoid-≡ refl = refl
     IsPartialMonoid.∙-idˡ ×-isPartialMonoid-≡ = ∙-idˡ , ∙-idˡ
     IsPartialMonoid.∙-idʳ ×-isPartialMonoid-≡ = ∙-idʳ , ∙-idʳ

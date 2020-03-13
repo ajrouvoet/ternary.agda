@@ -169,6 +169,15 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
       par (consˡ σ₁) σ₂ = consˡ (par σ₁ σ₂)
       par (consʳ σ₁) σ₂ = consʳ (par σ₁ σ₂)
 
+module _ {{_ : IsIntuitionistic U division}} where
+
+  instance list-isIntuitionistic : IsIntuitionistic U splits
+  IsIntuitionistic.∙-copy list-isIntuitionistic {xs} = copies xs
+    where
+      copies : ∀ (xs : List A) → xs ∙ xs ≣ xs
+      copies [] = []
+      copies (x ∷ xs) = divide ∙-copy (copies xs)
+
 {- We need this instance to be around for the isTotal operations -}
 instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []
 list-monoid = ++-isMonoid

@@ -29,6 +29,11 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
     Φ₁ Φ₂ Φ₃ Φ : A
 
   module _ where
+    True : ∀ {ℓ} → Pred A ℓ
+    True = λ _ → ⊤
+      where open import Data.Unit.Polymorphic
+
+  module _ where
     -- we can see the three point relation as a predicate on the carrier
     _∙_ = _∙_≣_
 

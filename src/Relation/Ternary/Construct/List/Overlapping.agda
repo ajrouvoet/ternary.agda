@@ -46,10 +46,8 @@ module _ where
   instance overlap-total : IsTotal _≡_ overlap-rel _++_
   overlap-total = list-isTotal {{D.dup-isSemigroup}}
 
-  instance overlap-intuitive : IsIntuitionistic overlap-rel
-  IsIntuitionistic.Condition overlap-intuitive _ = ⊤
-  IsIntuitionistic.∙-copy overlap-intuitive {[]} = ∙-idˡ {{overlap-monoid}}
-  IsIntuitionistic.∙-copy overlap-intuitive {x ∷ xs} = divide dup ∙-copy
+  instance overlap-intuitive : IsIntuitionistic U overlap-rel
+  overlap-intuitive = list-isIntuitionistic {{D.dup-isIntuitive}}
 
   pattern overlaps σ = divide dup σ
 

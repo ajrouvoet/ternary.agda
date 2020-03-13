@@ -20,6 +20,7 @@ open import Data.Nat.Properties
 open import Data.List.Relation.Binary.Equality.DecPropositional
 
 open import Relation.Nullary
+open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.Structures
 open import Relation.Binary.PropositionalEquality
@@ -106,3 +107,8 @@ module _ where
     rewrite sym (↭-length ρy) | sym (↭-length ρz) = positiveʳ sep
 
   IsPositive.ε-least bags-isPositive {[]} Nat.z≤n = ↭-refl
+
+module _ {{_ : IsIntuitionistic U div}} where
+
+  instance bags-isIntuitionistic : IsIntuitionistic U bags
+  IsIntuitionistic.∙-copy bags-isIntuitionistic {xs} = hustle ↭-refl ↭-refl ↭-refl ∙-copy
