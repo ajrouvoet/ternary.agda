@@ -11,6 +11,7 @@ open import Data.Unit
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
 
 {- Quotients over a given equivalence relation -}

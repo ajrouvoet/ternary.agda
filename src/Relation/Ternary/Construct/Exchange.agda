@@ -9,19 +9,13 @@
 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Construct.Exchange.Param
 
-module Relation.Ternary.Construct.Exchange {ℓ e s} {A : Set ℓ}
-  {{r₁ : Rel₃ A}}
-  {{r₂ : Rel₃ A}}
-  {_≈ₐ_ : A → A → Set e} {εₐ}
-  {{ r₁-monoid : IsPartialMonoid _≈ₐ_ r₁ εₐ}}
-  {{ r₂-monoid : IsPartialMonoid _≈ₐ_ r₂ εₐ}}
-  {{ r₁-positive : IsPositive s _≈ₐ_ r₁ εₐ}}
-  {{ r₂-positive : IsPositive s _≈ₐ_ r₂ εₐ}}
-  {{ _ : IsCommutative r₁ }}
-  {{ _ : IsCommutative r₂ }}
-  (xsplitₐ  : CrossSplit r₂ r₁)
-  (uncrossₐ : Uncross r₁ r₂) where
+module Relation.Ternary.Construct.Exchange {ℓ e s}
+  {A : Set ℓ} {εₐ} {r₁ r₂} {_≈ₐ_ : A → A → Set e}
+  (param : Param A εₐ r₁ r₂ _≈ₐ_ s) where
+
+open Param param
 
 open import Level hiding (Lift)
 open import Data.Product
@@ -37,6 +31,9 @@ open import Relation.Ternary.Structures.Syntax
 open IsEquivalence (≈-equivalence {{IsPartialMonoid.isSemigroup r₁-monoid}})
 
 private
+  instance
+    _ = r₁
+    _ = r₂
   variable
     u₁ u₂ u₃ d₁ d₂ d₃ u d : A
 
@@ -174,12 +171,15 @@ module _ where
   instance exchange-isMonoid : IsPartialMonoid _≈_ exchange-rel (εₐ ⇅ εₐ)
   exchange-isMonoid = IsPartialMonoidˡ.partialMonoidˡ exchange-isMonoidˡ
 
-module DownIntuitive {{_ : IsIntuitionistic U r₂ }} where
+module _ where
 
-  exchange-intuitive-down : IsIntuitionistic (λ where (u ⇅ d) → u ≡ εₐ) exchange-rel
+  instance exchange-intuitive-down : IsIntuitionistic (λ where (u ⇅ d) → u ≡ εₐ) exchange-rel
   IsIntuitionistic.∙-copy exchange-intuitive-down {{PEq.refl}} = ex sub-ε sub-ε ∙-idˡ ∙-copy
 
 module _ (P : Pred A ℓ) where
+
+  Liftₓ : Pred (A × A) ℓ → Pred Account ℓ
+  Liftₓ P (u ⇅ d) = P (u , d)
 
   data Down : Pred Account ℓ where
     ↓ : ∀ {x} → P x → Down (εₐ ⇅ x)
@@ -188,6 +188,7 @@ module _ (P : Pred A ℓ) where
     ↑ : ∀ {x} → P x → Up (x ⇅ εₐ)
 
 module _ where
+
   Up⁻ : Pred Account ℓ → Pred A ℓ
   Up⁻ P = P ∘ (_⇅ ε)
 
@@ -212,6 +213,11 @@ module _ where
   downs : ∀ {xs ys zs} → Exchange (ε ⇅ xs) (ε ⇅ ys) zs → ∃ λ xys → zs ≈ (ε ⇅ xys) × xs ∙₂ ys ≣ xys
   downs (ex x x₁ x₂ x₃) with sub-ε⁻ x | sub-ε⁻ x₁
   ... | eq₁ , PEq.refl | eq₂ , PEq.refl = -, (reflexive (PEq.sym (ε∙ε x₂)) , refl) , ∙-comm (coe eq₁ (coe eq₂ x₃))
+
+  up-down=up : ∀ {xs ys zs} → (ε ⇅ xs) ∙ ys ≣ (zs ⇅ ε) → ∃ λ ys' →  ys ≈ (ys' ⇅ ε) × zs ∙₂ xs ≣ ys' 
+  up-down=up (ex (sub x y) x₁ x₂ x₃) with sub-ε⁻ x₁
+  ... | eq₁ , PEq.refl with ε-split x₃
+  ... | PEq.refl = -, (refl , ≈-sym eq₁)  , coe (∙-id⁻ˡ x₂) (coe {{∙-respects-≈ʳ}} (∙-id⁻ˡ x) y)
 
 module _ {P Q : Pred A ℓ} where
   zipUp : ∀[ (Up P) ⊙ (Up Q) ⇒ Up (P ⊙₁ Q) ]

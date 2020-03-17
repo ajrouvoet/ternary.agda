@@ -11,6 +11,7 @@ open import Function using (_∘_; case_of_; id)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
 
 open import Data.Unit
