@@ -74,8 +74,8 @@ open Strength public
 module Bind
   {e} {_≈_ : A → A → Set e}
   {u} {{pm : IsPartialMonoid _≈_ ra u}}
-  {i ℓ₁ ℓ₂} {I : Set i} {M : RawMonad I ℓ₁ ℓ₂} {{ monad : Monad I M }}
-  {{ _ : ∀ {i₁ i₂ Q} → Respect _≈_ (M i₁ i₂ Q) }} where
+  {i ℓ₁ ℓ₂} {I : Set i} {M : RawMonad I ℓ₁ ℓ₂} {{ monad : Monad I M}}
+  {{resp : ∀ {i₁ i₂ Q} → Respect _≈_ (M i₁ i₂ Q)}} where
 
   infixl 1 _=<<_
   _=<<_ : ∀ {i₁ i₂ i₃ P Q} → ∀[ P ⇒ M i₂ i₃ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₃ Q ]

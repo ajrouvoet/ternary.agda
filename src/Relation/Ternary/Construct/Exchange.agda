@@ -219,6 +219,9 @@ module _ where
   ... | eq₁ , PEq.refl with ε-split x₃
   ... | PEq.refl = -, (refl , ≈-sym eq₁)  , coe (∙-id⁻ˡ x₂) (coe {{∙-respects-≈ʳ}} (∙-id⁻ˡ x) y)
 
+  liftUp : ∀ {xs ys zs} → xs ∙₁ ys ≣ zs → (xs ⇅ εₐ) ∙ (ys ⇅ εₐ) ≣ (zs ⇅ εₐ)
+  liftUp σ = ex ε-sub ε-sub σ ∙-idˡ
+
 module _ {P Q : Pred A ℓ} where
   zipUp : ∀[ (Up P) ⊙ (Up Q) ⇒ Up (P ⊙₁ Q) ]
   zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx)) 

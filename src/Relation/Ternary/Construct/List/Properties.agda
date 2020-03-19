@@ -10,6 +10,7 @@ open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties
 
 open import Relation.Nullary
+open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
@@ -138,3 +139,28 @@ module ListXSplit
     ... | left ρ σ₄′ with unxross σ₁ σ₂ σ₃ σ₄′
     ... | _ , ρ₁ , ρ₂ , ρ₃ , ρ₄ , τ₁ , τ₂ =
       -, prep _ ρ₁ , ρ₂  , ρ₃ , ↭-trans (↭-sym ρ) (prep _ ρ₄) , R.consˡ τ₁ , L.consʳ τ₂
+
+module _ {{div : Rel₃ A}} {p} {P : Pred A p} (divP : ∀ {a b c} → a ∙ b ≣ c → P c → P a × P b) where
+
+  open import Relation.Ternary.Construct.List div
+  open import Data.List.Relation.Unary.All
+
+  splitAll : ∀ {xs ys zs} → xs ∙ ys ≣ zs → All P zs → All P xs × All P ys
+  splitAll (divide x σ) (z ∷ zs)
+    with xs , ys ← splitAll σ zs
+       | z₁ , z₂ ← divP x z = z₁ ∷ xs , z₂ ∷ ys
+  splitAll (consˡ σ) (z ∷ zs) with xs , ys ← splitAll σ zs = z ∷ xs , ys
+  splitAll (consʳ σ) (z ∷ zs) with xs , ys ← splitAll σ zs = xs , z ∷ ys
+  splitAll [] []              = [] , []
+
+module _ {{div : Rel₃ A}} {p} {P : Pred A p} (joinP : ∀ {a b c} → a ∙ b ≣ c → P a → P b → P c) where
+
+  open import Relation.Ternary.Construct.List div
+  open import Data.List.Relation.Unary.All
+
+  joinAll : ∀ {xs ys zs} → xs ∙ ys ≣ zs → All P xs → All P ys → All P zs
+  joinAll [] _ _                             = []
+  joinAll (divide x σ) (px ∷ pxs) (py ∷ pys) = joinP x px py ∷ joinAll σ pxs pys
+  joinAll (consˡ σ) (px ∷ pxs) pys           = px ∷ joinAll σ pxs pys
+  joinAll (consʳ σ) pxs (py ∷ pys)           = py ∷ joinAll σ pxs pys
+  

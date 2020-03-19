@@ -1,52 +1,55 @@
-open import Data.List
-open import Data.Product
-open import Relation.Unary hiding (_∈_)
+open import Relation.Ternary.Core
+open import Relation.Ternary.Structures
 
-module Relation.Ternary.Monad.State where
+module Relation.Ternary.Monad.State {ℓ} {C : Set ℓ} (r : Rel₃ C) 
+  {e u} {_≈_ : C → C → Set e}
+  {{m : IsPartialMonoid _≈_ r u}}
+  {{c : IsCommutative r}} where
 
 open import Level hiding (Lift)
+open import Data.Product
 open import Function using (_∘_; case_of_)
 open import Relation.Binary.PropositionalEquality using (refl; _≡_)
 open import Relation.Unary.PredicateTransformer using (Pt; PT)
+open import Relation.Unary hiding (_∈_)
 open import Relation.Ternary.Core
-open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Construct.List.Disjoint
-open import Relation.Ternary.Construct.Product
-open import Relation.Ternary.Construct.Market
 open import Relation.Ternary.Monad
 
 open import Data.Unit
 open import Data.Product
 
-module _ {ℓ} {C : Set ℓ} {{r : Rel₃ C}}
-  {{_ : IsCommutative r}}
-  {u} {{_ : IsPartialMonoid _≡_ r u}} where
+open import Relation.Ternary.Construct.Market r as Market hiding (_≈_)
 
-  STATET : (M : Pt (Market C) ℓ) → (l r : Pred (C × C) ℓ) → Pt C ℓ
+private
+  instance _ = r
+
+module _ where
+
+  STATET : (M : Pt Market ℓ) → (l r : Pred C ℓ) → Pt C ℓ
   STATET M St St' P = (● St ─⊙ M (○ P ⊙ ● St')) ∘ demand
 
-  StateT : (M : Pt (Market C) ℓ) → Pred (C × C) ℓ → Pt C ℓ
+  StateT : (M : Pt Market ℓ) → Pred C ℓ → Pt C ℓ
   StateT M St = STATET M St St
 
   open import Relation.Ternary.Monad.Identity
 
-  State : Pred (C × C) ℓ → Pt C ℓ
+  State : Pred C ℓ → Pt C ℓ
   State St = STATET Id St St
   
-module StateTransformer {ℓ}
-  {C : Set ℓ}
-  {{r : Rel₃ C}}
-  {u} {{_ : IsPartialMonoid _≡_ r u}}
-  {{_ : IsCommutative r}}
-  (M : Pt (Market C) ℓ)
-  {{monad : Monad ⊤ (λ _ _ → M) }}
-  {St : Pred (C × C) ℓ}
+module StateTransformer
+  (M : Pt Market ℓ) {{monad : Monad ⊤ (λ _ _ → M) }}
+  {St : Pred C ℓ}
   where
+
+  instance state-respects : ∀ {P St St'} → Respect _≈_ (STATET M St St' P)
+  Respect.coe state-respects eq st = coe (demands eq) st
 
   instance
     state-monad : Monad ⊤ (λ _ _ → StateT M St)
     Monad.return state-monad px ⟨ σ₂ ⟩ st = return (lift px ∙⟨ σ₂ ⟩ st )
-    ((Monad.bind state-monad {P = P} {Q = Q} f) ⟨ σ₁ ⟩ m) ⟨ σ₂@(offerᵣ σ₅) ⟩ st@(lift _ _) with ∙-assocᵣ (demand σ₁) σ₂
+    ((Monad.bind state-monad {P = P} {Q = Q} f) ⟨ σ₁ ⟩ m) ⟨ σ₂@(offerᵣ σ₅) ⟩ st@(lift _) with ∙-assocᵣ (demand σ₁) σ₂
     ... | _ , σ₃ , σ₄ = bind bound ⟨ σ₃ ⟩ (m ⟨ σ₄ ⟩ st)
       where
         bound : ((○ P ⊙ ● St) ─⊙ M (○ Q ⊙ ● St)) (demand _)
@@ -55,8 +58,8 @@ module StateTransformer {ℓ}
 
   {- Lift an M computation into a transformed state operation -}
   liftM : ∀ {Φ P} → M P (demand Φ) → StateT M St (P ∘ demand) Φ
-  liftM mp ⟨ (offerᵣ σ) ⟩ (lift μ k) =
-    mapM′ (arr λ where σ@(offerₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ k) ⟨ offerₗ (∙-comm σ) ⟩ mp
+  liftM mp ⟨ (offerᵣ σ) ⟩ (lift μ) =
+    mapM′ (arr λ where σ@(offerₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ) ⟨ offerₗ (∙-comm σ) ⟩ mp
 
   {- Lift a state computation into a transformed state operation -}
   liftState : ∀ {P} → ∀[ State St P ⇒ StateT M St P ]
@@ -76,7 +79,7 @@ module StateTransformer {ℓ}
 --   State? : ∀ (S : Pred (C × C) ℓ) → Pt C ℓ
 --   State? = StateT (Except Exc)
 
---   _orElse_ : ∀ {S P} {M : Pt (Market C) ℓ} {{monad : Monads.Monad ⊤ ℓ (λ _ _ → M) }}
+--   _orElse_ : ∀ {S P} {M : Pt Market ℓ} {{monad : Monads.Monad ⊤ ℓ (λ _ _ → M) }}
 --                 → ∀[ State? S P ⇒ (⋂[ _ ∶ Exc ] StateT M S P) ⇒ StateT M S P ]
 --   app (mp orElse mq) μ σ with app mp μ σ
 --   ... | error e = app (mq e) μ σ

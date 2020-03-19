@@ -1,4 +1,6 @@
-module Relation.Ternary.Construct.Market where
+open import Relation.Ternary.Core
+
+module Relation.Ternary.Construct.Market {ℓ} {A : Set ℓ} (rel : Rel₃ A) where
 
 open import Level hiding (Lift)
 open import Data.Product
@@ -8,25 +10,28 @@ open import Relation.Unary
 open import Relation.Binary hiding (_⇒_)
 open import Relation.Binary.PropositionalEquality using (cong)
 
-open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
 
-module _ {ℓ} (A : Set ℓ) where
+private
+  instance _ = rel
+
+module _ where
 
   data Market : Set ℓ where
     offer  : (l : A) → Market
     demand : (r : A) → Market
 
-module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
-  {{ rel : Rel₃ A }}
-  {{ _ : IsPartialSemigroup _≈ₐ_ rel }}
-  {{ _ : IsCommutative rel }} where
+module _
+  {e} {_≈ₐ_ : A → A → Set e}
+  {{sg : IsPartialSemigroup _≈ₐ_ rel}}
+  {{c : IsCommutative rel}} where
 
-  data _≈_ : Market A → Market A → Set e where
+  data _≈_ : Market → Market → Set e where
     offers  : ∀ {a b} → a ≈ₐ b → offer a ≈ offer b
     demands : ∀ {a b} → a ≈ₐ b → demand a ≈ demand b
 
-  data Split : Market A → Market A → Market A → Set ℓ where
+  data Split : Market → Market → Market → Set ℓ where
     offerₗ : {r l₁ l₂ : A} (σ : l₂ ∙ r ≣ l₁) → Split (offer l₁) (demand r) (offer l₂)
     offerᵣ : {r l₁ l₂ : A} (σ : r ∙ l₂ ≣ l₁) → Split (demand r) (offer l₁) (offer l₂)
     demand : {r₁ r₂ r : A} (σ : r₁ ∙ r₂ ≣ r) → Split (demand r₁) (demand r₂) (demand r)
@@ -42,15 +47,15 @@ module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
     assoc (demand σ₁) (demand σ₂) =
       let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in -, demand σ₃ , demand σ₄
 
-  postulate instance ≈-equiv : IsEquivalence _≈_ 
-  -- IsEquivalence.refl ≈-equiv {offer l}                = offers ≈-refl
-  -- IsEquivalence.refl ≈-equiv {demand r}               = demands ≈-refl
-  -- IsEquivalence.sym ≈-equiv (offers x)                = offers (≈-sym x)
-  -- IsEquivalence.sym ≈-equiv (demands x)               = demands (≈-sym x)
-  -- IsEquivalence.trans ≈-equiv (offers x) (offers y)   = offers (≈-trans x y)
-  -- IsEquivalence.trans ≈-equiv (demands x) (demands y) = demands (≈-trans x y)
+  instance ≈-equiv : IsEquivalence _≈_ 
+  IsEquivalence.refl ≈-equiv {offer l}                = offers ≈-refl
+  IsEquivalence.refl ≈-equiv {demand r}               = demands ≈-refl
+  IsEquivalence.sym ≈-equiv (offers x)                = offers (≈-sym x)
+  IsEquivalence.sym ≈-equiv (demands x)               = demands (≈-sym x)
+  IsEquivalence.trans ≈-equiv (offers x) (offers y)   = offers (≈-trans x y)
+  IsEquivalence.trans ≈-equiv (demands x) (demands y) = demands (≈-trans x y)
 
-  instance market-rel : Rel₃ (Market A)
+  instance market-rel : Rel₃ (Market)
   Rel₃._∙_≣_ market-rel = Split
 
   instance market-isCommutative : IsCommutative market-rel
@@ -73,14 +78,21 @@ module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
 
   --   assoc
 
-module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
- {{rel : Rel₃ A}} {u}
- {{ s : IsPartialMonoid _≈ₐ_ rel u }}
- {{ _ : IsCommutative rel }}
- where
+  data ○ {p} (P : Pred A p) : Pred (Market) (p) where
+    lift : ∀ {xs} → P xs → ○ P (demand xs)
 
-  postulate instance market-has-unit : IsPartialMonoid _≈_ market-rel (demand ε)
-  -- market-has-unit = partialMonoidˡ
+  data ● {p} (P : Pred A p) : Pred (Market) (ℓ ⊔ p) where
+    lift : ∀ {xs} → P xs → ● P (offer xs)
+
+  ●-map : ∀ {p} {P Q : Pred A p} → ∀[ P ⇒ Q ] → ∀[ ● P ⇒ ● Q ]
+  ●-map f (lift px) = lift (f px)
+
+module _ {e} {_≈ₐ_ : A → A → Set e} {u}
+  {{m    : IsPartialMonoid _≈ₐ_ rel u}}
+  {{comm : IsCommutative rel}} where
+
+  postulate instance market-isMonoid : IsPartialMonoid _≈_ market-rel (demand ε)
+  -- market-isMonoid = partialMonoidˡ
   --   (λ where (demands x) → cong demand (ε-unique x))
   --   (λ where
   --     {offer l}  → offerᵣ ∙-idˡ
@@ -92,31 +104,6 @@ module _ {ℓ e} {A : Set ℓ} {_≈ₐ_ : A → A → Set e}
   -- matching : ∀ {a b : A} {c d} → (demand a) ∙ (offer b) ≣ c → (demand (d ∙ a)) ∙ (offer (d ∙ b)) ≣ c
   -- matching (offerᵣ σ) = offerᵣ (∙-∙ₗ σ)
 
-module _ {ℓ} {A : Set ℓ} {{_ : Rel₃ A}} where
-
-  private
-    variable
-      ℓv : Level
-      P Q : Pred (A × A) ℓv
-        
-  [_]Completes : A → (A × A) → Set ℓ
-  [_]Completes x (y , z) = x ∙ z ≣ y
-
-  data ● {p} (P : Pred (A × A) p) : Pred (Market A) (ℓ ⊔ p) where
-    lift : ∀ {xs l₂} → P xs → [ l₂ ]Completes xs → ● P (offer l₂)
-
-  ●-map : ∀[ P ⇒ Q ] → ∀[ ● P ⇒ ● Q ]
-  ●-map f (lift px le) = lift (f px) le
-
-module _ {a e} {A : Set a} {{r : Rel₃ A}}
-  {_≈_ : A → A → Set e}
-  {u} {{_ : IsPartialMonoid _≈_ r u}}
-  {{ _ : IsCommutative r }} where
-
-  open import Relation.Ternary.Construct.Product
-
-  data ○ {p} (P : Pred A p) : Pred (Market A) (p) where
-    lift : ∀ {xs} → P xs → ○ P (demand xs)
 
   -- module _ {p q} {P : Pred A p} {Q : Pred (A × A) q} where
     -- ○≺●ₗ : ∀[ P ⇒ (● Q ─⊙ ● (Π₂ P ⊙ Q)) ∘ demand ]

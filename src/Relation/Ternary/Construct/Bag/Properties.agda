@@ -10,6 +10,7 @@ open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties
 
 open import Relation.Nullary
+open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
@@ -58,3 +59,32 @@ module CrossSplittable
     ... | _ , ρa , ρb , ρc' , ρd' , τ₁ , τ₂ =
       -, R.hustle (smart-trans (↭-sym ρa) ρz₁) (smart-trans (↭-sym ρb) ρz₂) ↭-refl τ₁
        , L.hustle (smart-trans (smart-trans (↭-sym ρc') ρc) ρz₃) (smart-trans (smart-trans (↭-sym ρd') ρd) ρz₄) ↭-refl τ₂
+
+open import Relation.Ternary.Structures.Syntax
+module _
+  {{div : Rel₃ A}}
+  {e} {_≈_ : A → A → Set e}
+  {{_ : IsCommutative div}} {{_ : IsPartialSemigroup _≈_ div}} where
+
+  open import Relation.Ternary.Construct.List div hiding (splits)
+  open import Relation.Ternary.Construct.Bag div tt
+  open import Data.List.Relation.Unary.All
+  import Relation.Ternary.Construct.List.Properties as List
+
+  module _ {p} {P : Pred A p} (divP : ∀ {a b c} → a ∙ b ≣ c → P c → P a × P b) where
+
+    splitAll : ∀ {xs ys zs} → xs ∙ ys ≣ zs → All P zs → All P xs × All P ys
+    splitAll (hustle ρx ρy ρz sep) pzs = 
+      let
+        pzs' = All-resp-↭ (↭-sym ρz) pzs
+        pxs' , pys' = List.splitAll divP sep pzs'
+      in All-resp-↭ ρx pxs' , All-resp-↭ ρy pys' 
+
+  module _ {p} {P : Pred A p} (joinP : ∀ {a b c} → a ∙ b ≣ c → P a → P b → P c) where
+
+    joinAll : ∀ {xs ys zs} → xs ∙ ys ≣ zs → All P xs → All P ys → All P zs
+    joinAll (hustle ρx ρy ρz sep) pxs pys =
+      let
+        pxs' = All-resp-↭ (↭-sym ρx) pxs
+        pys' = All-resp-↭ (↭-sym ρy) pys
+      in All-resp-↭ ρz (List.joinAll joinP sep pxs' pys')
