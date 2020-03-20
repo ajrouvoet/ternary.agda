@@ -1,3 +1,4 @@
+{-# OPTIONS --safe --without-K #-}
 open import Relation.Ternary.Core
 
 module Relation.Ternary.Construct.Market {ℓ} {A : Set ℓ} (rel : Rel₃ A) where
@@ -25,9 +26,10 @@ module _ where
 module _
   {e} {_≈ₐ_ : A → A → Set e}
   {{sg : IsPartialSemigroup _≈ₐ_ rel}}
+  {εₐ} {{_ : Emptiness {A = A} εₐ}}
   {{c : IsCommutative rel}} where
 
-  data _≈_ : Market → Market → Set e where
+  data _≈_ : Market → Market → Set (ℓ ⊔ e) where
     offers  : ∀ {a b} → a ≈ₐ b → offer a ≈ offer b
     demands : ∀ {a b} → a ≈ₐ b → demand a ≈ demand b
 
@@ -63,22 +65,36 @@ module _
   IsCommutative.∙-comm market-isCommutative (offerₗ σ) = offerᵣ (∙-comm σ)
   IsCommutative.∙-comm market-isCommutative (offerᵣ σ) = offerₗ (∙-comm σ)
 
-  postulate instance market-isSemigroup : IsPartialSemigroup _≈_ market-rel
-  -- market-isSemigroup = partialSemigroupˡ
+  instance market-empty : Emptiness {A = Market} (demand ε)
+  market-empty = record {}
 
-  --   (record { coe = λ where
-  --     (offers eq) (offerₗ σ) → offerₗ (coe eq σ)
-  --     (offers eq) (offerᵣ σ) → offerᵣ (coe eq σ)
-  --     (demands eq) (demand σ) → demand (coe eq σ) })
+  private
 
-  --   (record { coe = λ where
-  --     (offers eq) (offerₗ σ) → offerₗ (coe eq σ)
-  --     (demands eq) (offerᵣ σ) → offerᵣ (coe eq σ)
-  --     (demands eq) (demand σ) → demand (coe eq σ) })
+    respˡ : ∀ {b ab} → Respect _≈_ (λ a → Split a b ab)
+    Respect.coe respˡ (offers x) (offerₗ σ)  = offerₗ (coe x σ)
+    Respect.coe respˡ (demands x) (offerᵣ σ) = offerᵣ (coe x σ)
+    Respect.coe respˡ (demands x) (demand σ) = demand (coe x σ)
 
-  --   assoc
+    resp : ∀ {a b} → Respect _≈_ (λ ab → Split a b ab)
+    Respect.coe resp (offers x) (offerₗ σ)  = offerₗ (coe x σ)
+    Respect.coe resp (demands x) (demand σ) = demand (coe x σ)
+    Respect.coe resp (offers x) (offerᵣ σ)  = offerᵣ (coe x σ)
 
-  data ○ {p} (P : Pred A p) : Pred (Market) (p) where
+
+    assoc' : RightAssoc market-rel
+    assoc' (demand σ₁) (demand σ₂) with _ , σ₃ , σ₄ ← ∙-assocᵣ σ₁ σ₂ = -, demand σ₃ , demand σ₄
+    assoc' (offerₗ σ₁) (offerₗ σ₂) with _ , σ₃ , σ₄ ← ∙-assocᵣ σ₂ σ₁ = -, offerₗ σ₃ , demand (∙-comm σ₄)
+    assoc' (offerᵣ σ₁) (offerₗ σ₂) with _ , σ₃ , σ₄ ← ∙-assocₗ σ₁ σ₂ = -, offerᵣ σ₃ , offerₗ σ₄
+    assoc' (demand σ₁) (offerᵣ σ₂) with _ , σ₃ , σ₄ ← ∙-assocᵣ (∙-comm σ₁) σ₂ = -, offerᵣ σ₄ , offerᵣ σ₃
+
+  instance market-isSemigroup : IsPartialSemigroup _≈_ market-rel
+  market-isSemigroup = IsPartialSemigroupˡ.semigroupˡ record
+    { ∙-respects-≈ˡ = respˡ
+    ; ∙-respects-≈  = resp
+    ; assocᵣ = assoc'
+    }
+
+  data ○ {p} (P : Pred A p) : Pred (Market) (ℓ ⊔ p) where
     lift : ∀ {xs} → P xs → ○ P (demand xs)
 
   data ● {p} (P : Pred A p) : Pred (Market) (ℓ ⊔ p) where
@@ -91,19 +107,19 @@ module _ {e} {_≈ₐ_ : A → A → Set e} {u}
   {{m    : IsPartialMonoid _≈ₐ_ rel u}}
   {{comm : IsCommutative rel}} where
 
-  postulate instance market-isMonoid : IsPartialMonoid _≈_ market-rel (demand ε)
-  -- market-isMonoid = partialMonoidˡ
-  --   (λ where (demands x) → cong demand (ε-unique x))
-  --   (λ where
-  --     {offer l}  → offerᵣ ∙-idˡ
-  --     {demand r} → demand ∙-idˡ)
-  --   λ where
-  --     (offerᵣ σ) → offers  (≈-sym (∙-id⁻ˡ σ))
-  --     (demand σ) → demands (∙-id⁻ˡ σ)
+  instance market-isMonoid : IsPartialMonoid _≈_ market-rel (demand ε)
+  market-isMonoid = IsPartialMonoidˡ.partialMonoidˡ record
+    { ε-uniq     = λ where (demands z) → cong demand (ε-unique z) 
+    ; identityˡ  = λ where
+        {offer l}  → offerᵣ (IsPartialMonoid.∙-idˡ m)
+        {demand r} → demand (IsPartialMonoid.∙-idˡ m)
+    ; identity⁻ˡ = λ where
+        (offerᵣ σ) → offers (≈-sym (IsPartialMonoid.∙-id⁻ˡ m σ))
+        (demand σ) → demands (IsPartialMonoid.∙-id⁻ˡ m σ)
+    }
 
   -- matching : ∀ {a b : A} {c d} → (demand a) ∙ (offer b) ≣ c → (demand (d ∙ a)) ∙ (offer (d ∙ b)) ≣ c
   -- matching (offerᵣ σ) = offerᵣ (∙-∙ₗ σ)
-
 
   -- module _ {p q} {P : Pred A p} {Q : Pred (A × A) q} where
     -- ○≺●ₗ : ∀[ P ⇒ (● Q ─⊙ ● (Π₂ P ⊙ Q)) ∘ demand ]
