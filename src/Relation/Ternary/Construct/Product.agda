@@ -94,6 +94,32 @@ module _
   instance ×-isCommutative : IsCommutative ×-rel
   IsCommutative.∙-comm ×-isCommutative (fst , snd) = ∙-comm fst , ∙-comm snd
 
+module _ 
+  {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
+  {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
+  {u₁ u₂}
+  {{p₁ : IsPositive e₁ _≈₁_ R₁ u₁}}
+  {{p₂ : IsPositive e₂ _≈₂_ R₂ u₂}}
+  where
+
+  open import Relation.Nullary
+
+  instance ×-isPositive : IsPositive _ (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂)
+
+  IsPositive._≤ₐ_      ×-isPositive = Pointwise (IsPositive._≤ₐ_ p₁) (IsPositive._≤ₐ_ p₂)
+
+  IsPositive.is-empty ×-isPositive (x , y) with is-empty x | is-empty y
+  ... | yes p | yes q = yes (p , q)
+  ... | yes p | no ¬q = no λ where (p , q) → ¬q q
+  ... | no ¬p | _     = no λ where (p , q) → ¬p p
+
+  IsPositive.orderₐ    ×-isPositive = ×-isPreorder orderₐ orderₐ
+
+  IsPositive.positiveˡ ×-isPositive (σ₁ , σ₂) = positiveˡ σ₁ , positiveˡ σ₂
+  IsPositive.positiveʳ ×-isPositive (σ₁ , σ₂) = positiveʳ σ₁ , positiveʳ σ₂ 
+
+  IsPositive.ε-least   ×-isPositive (σ₁ , σ₂) = ε-least σ₁ , ε-least σ₂
+
 module _
   {{∥₁ ∣₁ ▹₁ : Rel₃ C₁}} {{∥₂ ∣₂ ▹₂ : Rel₃ C₂}}
   {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
@@ -135,29 +161,34 @@ module _
 --       ; ∙-∙ₗ = λ where (p , q) → ∙-∙ₗ p , ∙-∙ₗ q }
 
 {- Some useful type-formers for this instance -}
+module _ {u} {{_ : Emptiness {A = C₂} u}} where
+
+  data Π₁  {p} (P : Pred C₁ p) : Pred (C₁ × C₂) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
+    fst : ∀ {b} → P b → Π₁ P (b , ε)
+
+{- Some useful type-formers for this instance -}
 module _ {u} {{_ : Emptiness {A = C₁} u}} where
 
-  data Π₁  {p} (P : Pred C₂ p) : Pred (C₂ × C₁) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
-    fst : ∀ {b : C₂} → P b → Π₁ P (b , ε)
-
   data Π₂ {p} (P : Pred C₂ p) : Pred (C₁ × C₂) (ℓ₁ ⊔ ℓ₂ ⊔ p) where
-    snd : ∀ {b : C₂} → P b → Π₂ P (ε , b)
+    snd : ∀ {b} → P b → Π₂ P (ε , b)
 
 module _
-  {e}
-  {{r : Rel₃ C₁}}
-  {_≈₁_ : C₁ → C₁ → Set e}
-  {u} {{s : IsPartialMonoid _≈₁_ r u}} where
+  {e} {{r : Rel₃ C₂}}
+  {_≈₂_ : C₂ → C₂ → Set e} {u} {{s : IsPartialMonoid _≈₂_ r u}}
+  {e₁ p} {_≈₁_ : C₁ → C₁ → Set e₁} where
 
-  module _ {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} {P : Pred C₂ p} where
-    instance Π₁-respect-≈ : ∀ {{_ : Respect _≈₂_ P }} → Respect (Pointwise _≈₂_ _≈₁_) (Π₁ P)
-    Respect.coe Π₁-respect-≈ (eq₁ , eq₂) (fst px) with ε-unique eq₂
-    ... | refl = fst (coe eq₁ px)
+  instance Π₁-respect-≈ : ∀ {P : Pred C₁ p} {{_ : Respect _≈₁_ P }} → Respect (Pointwise _≈₁_ _≈₂_) (Π₁ P)
+  Respect.coe Π₁-respect-≈ (eq₁ , eq₂) (fst px) with ε-unique eq₂
+  ... | refl = fst (coe eq₁ px)
 
-  module _ {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} {P : Pred C₂ p} where
-    instance Π₂-respect-≈ : ∀ {{_ : Respect _≈₂_ P }} → Respect (Pointwise _≈₁_ _≈₂_) (Π₂ P)
-    Respect.coe Π₂-respect-≈ (eq₁ , eq₂) (snd px) with ε-unique eq₁
-    ... | refl = snd (coe eq₂ px)
+module _
+  {e} {{r : Rel₃ C₁}}
+  {_≈₁_ : C₁ → C₁ → Set e} {u} {{s : IsPartialMonoid _≈₁_ r u}}
+  {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} where
+
+  instance Π₂-respect-≈ : ∀ {P : Pred C₂ p} {{_ : Respect _≈₂_ P }} → Respect (Pointwise _≈₁_ _≈₂_) (Π₂ P)
+  Respect.coe Π₂-respect-≈ (eq₁ , eq₂) (snd px) with ε-unique eq₁
+  ... | refl = snd (coe eq₂ px)
 
 module Propositional
   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
