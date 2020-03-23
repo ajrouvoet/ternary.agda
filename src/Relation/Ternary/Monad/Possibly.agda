@@ -51,6 +51,16 @@ module Possibly {r g} {G : Set g}
   pack : ∀[ ◇[ Δ ] P ⇒ ◇ P ]
   pack px = -, px
 
+  module IsMonotone {{r  : Rel₃ A}}
+    (mono : ∀ {cₙ cₙ₊₁ a b} → cₙ ∼ cₙ₊₁ → a ∙ b ≣ cₙ₊₁ → cₙ ∼ a)
+    where
+
+    π₁ : ∀[ ◇ (P ⊙ Q) ⇒ ◇ P ]
+    π₁ (_ , possibly r (px ∙⟨ σ ⟩ qx)) with _ , r' ← mono (-, r) σ          = -, (possibly r' px)
+
+    π₂ : {{_ : IsCommutative r}} → ∀[ ◇ (P ⊙ Q) ⇒ ◇ Q ]
+    π₂ (_ , possibly r (px ∙⟨ σ ⟩ qx)) with _ , r' ← mono (-, r) (∙-comm σ) = -, (possibly r' qx)
+
   module ◇-GradedMonad
     {{r  : Rel₃ A}} {{g : Rel₃ G}}
     {e}  {_≈_ : G → G → Set e} {ug} {{gm : IsPartialMonoid _≈_ g ug}}
