@@ -2,12 +2,13 @@
 module Relation.Ternary.Construct.List.Overlapping {t} (T : Set t) where
 
 open import Level
+open import Function
 open import Data.Unit using (⊤)
 open import Data.Product
 open import Data.List
 open import Data.Nat
 
-open import Relation.Unary hiding (_⊢_; _⊆_)
+open import Relation.Unary hiding (_⊢_; _⊆_; _∈_)
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Ternary.Core
@@ -79,10 +80,18 @@ module _ where
   ⊆-⊗ i₁ (_ , consʳ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
   ... | _ , σ′ , i′ = -, σ′ , D.⊆-∷ʳ i′
 
-indexOf : ∀ {x} {xs ys : Ctx} → [ x ] ∙ xs ≣ ys → ℕ
-indexOf (overlaps i) = 0
-indexOf (consˡ i)    = 0
-indexOf (consʳ i)    = ℕ.suc (indexOf i)
+module _ where
+  open import Data.List.Membership.Propositional
+  open import Data.List.Relation.Unary.Any using (index; module Any); open Any
+  open import Data.Fin
+
+  member : ∀ {x} {xs ys : Ctx} → [ x ] ∙ xs ≣ ys → x ∈ ys
+  member (overlaps σ)                = here refl
+  member (consˡ σ)                   = here refl
+  member (consʳ σ) with p ← member σ = there p
+
+  indexOf : ∀ {x} {xs ys : Ctx} → [ x ] ∙ xs ≣ ys → ℕ
+  indexOf = toℕ ∘ index ∘ member
 
 threeway : ∀ {a b c ab bc : List T} → a ⊗ b ≣ ab → b ⊗ c ≣ bc → ∃ λ abc → ab ⊗ bc ≣ abc
 threeway [] σ₂ = -, ∙-idˡ
