@@ -7,15 +7,21 @@
 -- At every node in the splitting tree, two accounts can "exchange" some amount,
 -- meaning that the demand on the left can be fulfilled by some supply on the right and vice versa.
 
+open import Relation.Unary using (U)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
-open import Relation.Ternary.Construct.Exchange.Param
 
 module Relation.Ternary.Construct.Exchange {ℓ e s}
   {A : Set ℓ} {εₐ} {r₁ r₂} {_≈ₐ_ : A → A → Set e}
-  (param : Param A εₐ r₁ r₂ _≈ₐ_ s) where
-
-open Param param
+  {{r₁-monoid  : IsPartialMonoid _≈ₐ_ r₁ εₐ}}
+  {{r₂-monoid  : IsPartialMonoid _≈ₐ_ r₂ εₐ}}
+  {{r₁-positive  : IsPositive s _≈ₐ_ r₁ εₐ}}
+  {{r₂-positive  : IsPositive s _≈ₐ_ r₂ εₐ}}
+  {{r₁-comm : IsCommutative r₁}}
+  {{r₂-comm : IsCommutative r₂}}
+  {{r₂-intuitive : IsIntuitionistic U r₂}}
+  (xsplitₐ  : CrossSplit r₂ r₁)
+  (uncrossₐ : Uncross r₁ r₂) where
 
 open import Level hiding (Lift)
 open import Data.Product
