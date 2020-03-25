@@ -20,10 +20,10 @@ open import Data.Nat.Properties
 open import Data.List.Relation.Binary.Equality.DecPropositional
 
 open import Relation.Nullary
-open import Relation.Unary
+open import Relation.Unary hiding (_∈_)
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.Structures
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality hiding ([_])
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.Syntax
 
@@ -50,6 +50,9 @@ record BagSplit (xs ys zs : List A) : Set ℓ where
 -- Split yields a separation algebra
 instance bags : Rel₃ (List A)
 Rel₃._∙_≣_ bags = BagSplit
+
+^_ : xs ∙ ys ≣ zs → BagSplit xs ys zs
+^ σ = hustle refl refl refl σ
 
 module _ where
 

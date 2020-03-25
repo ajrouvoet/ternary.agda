@@ -5,7 +5,7 @@ open import Data.Nat
 open import Data.List
 
 open import Relation.Nullary
-open import Relation.Binary.PropositionalEquality as PropEq
+open import Relation.Binary.PropositionalEquality as PropEq hiding ([_])
 open import Relation.Binary
 
 module _ {a} {A : Set a} where
@@ -25,6 +25,11 @@ module _ {a} {A : Set a} where
   ¬∷↭[] : ∀ {x} → ¬ ((x ∷ xs) ↭ [])
   ¬∷↭[] (trans s₁ s₂) with ↭-[] s₂
   ... | refl = ¬∷↭[] s₁
+
+  ↭-one : ∀ {x} → xs ↭ [ x ] → xs ≡ [ x ]
+  ↭-one refl                                          = refl
+  ↭-one (prep _ ρ) rewrite ↭-[] ρ                     = refl
+  ↭-one (_↭_.trans ρ₁ ρ₂) rewrite ↭-one ρ₂ | ↭-one ρ₁ = refl
 
   ↭-length : xs ↭ ys → length xs ≡ length ys 
   ↭-length refl = refl
