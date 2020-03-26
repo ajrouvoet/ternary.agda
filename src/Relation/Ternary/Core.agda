@@ -91,6 +91,11 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
     _─⊙_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
     _─⊙_ = _─⊙[ id ]_
 
+  module _ {p q} {P : Pred A p} {Q : Pred A q} where
+
+    apply : ∀[ (P ─⊙ Q) ⊙ P ⇒ Q ]
+    apply (f ∙⟨ σ ⟩ px) = f ⟨ σ ⟩ px
+
 {- Rel morphisms -}
 module _ {a} {A : Set a} where
 

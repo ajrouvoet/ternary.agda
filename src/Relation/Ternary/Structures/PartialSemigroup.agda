@@ -46,10 +46,6 @@ record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set
       let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in
       p ∙⟨ σ₃ ⟩ q ∙⟨ σ₄ ⟩ r
 
-  module _ {p q} {P : Pred A p} {Q : Pred A q} where
-    apply : ∀[ (P ─⊙ Q) ⊙ P ⇒ Q ]
-    apply (f ∙⟨ σ ⟩ px) = f ⟨ σ ⟩ px
-
   {- Weak mapping _⊙_ -}
   module _ {p q p' q'}
     {P : Pred A p} {Q : Pred A q} {P' : Pred A p'} {Q' : Pred A q'} where
