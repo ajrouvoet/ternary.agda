@@ -31,7 +31,7 @@ module _ where
   -- McBride's introduction turnstile
   open Possibly _∼[_]_
     public
-    using (◇; module ◇-Zip; module ◇-Monad; _∼_; pack)
+    using (◇; module ◇-Zip; _∼_; pack)
     renaming
       ( ◇[_] to _⊢_)
 
@@ -57,8 +57,7 @@ module _ where
   ∼-fp : ∀ {fr Φ₁ Φ₂} → Φ₁ ∼ Φ₂ → (di₁ : fr ◆ₓ Φ₁) → ∃ λ (di₂ : fr ◆ₓ Φ₂) → whole di₁ ∼ whole di₂
   ∼-fp (Δ′ , i , τ , refl) (fst , σ₁) = (-, ∙-∙ᵣᵣ σ₁) , _ , (i , τ , refl)
 
-  open ◇-Monad ∼-isPreorder ∼-fp public
-    renaming (◇-⤇ to ⊢-⤇)
+  open ◇-Monad _∼[_]_ ∼-isPreorder ∼-fp public
 
   ∼-pull : ∀ {Δ₁ Δ₂ Δ a b c a' b'} →
       Δ₁ ⊗ Δ₂ ≣ Δ  → a ⊗ b ≣ c    →

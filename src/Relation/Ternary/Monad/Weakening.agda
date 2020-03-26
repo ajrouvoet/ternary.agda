@@ -24,12 +24,14 @@ module _ where
   -- _⇈_ : ∀ {ℓ} {P : Pred A ℓ} {Φ₁ Φ₂ Φ} → P Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → (P ⇑) Φ
   pattern _⇈_ px σ = px ∙⟨ σ ⟩ tt
 
-  instance ⇑-monad : ∀ {ℓ} → Monad ⊤ (λ _ _ → _⇑ {ℓ})
-  Monad.return ⇑-monad px = px ⇈ ∙-idʳ
-  Monad.bind ⇑-monad f ⟨ σ₁ ⟩ (px ∙⟨ σ₂ ⟩ tt) with ∙-assocₗ σ₁ σ₂
-  ... | _ , σ₃ , σ₄ with f ⟨ σ₃ ⟩ px
-  ... | qx ∙⟨ σ₅ ⟩ tt with ∙-assocᵣ σ₅ σ₄
-  ... | _ , σ₆ , σ₇ = qx ⇈ σ₆
+  instance
+    ⇑-monad : Monad ⊤ (λ _ _ → _⇑)
+    Monad.return ⇑-monad px = px ⇈ ∙-idʳ
+    Monad._=<<_ ⇑-monad f (px ⇈ wk) with qx ⇈ wk' ← f px =
+      let _ , wk₃ , wk₄ = ∙-assocᵣ wk' wk in qx ⇈ wk₃
+
+    ⇑-strong : Strong ⊤ (λ _ _ → _⇑)
+    Strong.str ⇑-strong qx ⟨ σ ⟩ px ⇈ wk with _ , σ₃ , σ₄ ← ∙-assocₗ σ wk = (qx ∙⟨ σ₃ ⟩ px) ⇈ σ₄
 
   module _ {ℓ} {P Q : Pred A ℓ} where
     π₁ : ∀[ P ⊙ Q ⇒ P ⇑ ]

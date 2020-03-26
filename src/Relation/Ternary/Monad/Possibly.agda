@@ -12,8 +12,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Structures.Syntax
-open import Relation.Ternary.Monad
-open import Relation.Ternary.Monad.Update
+open import Relation.Ternary.Monad hiding (_>>=_)
 open import Algebra.Structures
 
 open import Data.Unit
@@ -27,9 +26,7 @@ private
 GradedRel : ∀ {a g} → Set a → Set g → ∀ ℓ → Set (a ⊔ g ⊔ suc ℓ)
 GradedRel A G ℓ = A → G → A → Set ℓ
 
-module Possibly {r g} {G : Set g}
-  (_∼[_]_  : GradedRel A G r)
-  where
+module Possibly {r g} {G : Set g} (_∼[_]_  : GradedRel A G r) where
 
   private
     variable
@@ -61,6 +58,15 @@ module Possibly {r g} {G : Set g}
     π₂ : {{_ : IsCommutative r}} → ∀[ ◇ (P ⊙ Q) ⇒ ◇ Q ]
     π₂ (_ , possibly r (px ∙⟨ σ ⟩ qx)) with _ , r' ← mono (-, r) (∙-comm σ) = -, (possibly r' qx)
 
+  module _ {{r  : Rel₃ A}} {e}  {_≈_ : A → A → Set e}
+    {{∼-respects-≈ˡ : ∀ {g a} → Respect _≈_ (_∼[ g ] a)}} where
+
+    instance ◇[]-respect-≈ : ∀ {p} {P : Pred A p} {g} → Respect _≈_ (◇[ g ] P)
+    Respect.coe ◇[]-respect-≈ eq (possibly rel px) = possibly (coe eq rel) px
+
+    instance ◇-respect-≈ : ∀ {p} {P : Pred A p} → Respect _≈_ (◇ P)
+    Respect.coe ◇-respect-≈ eq (g , px) = g , coe eq px
+
   module ◇-GradedMonad
     {{r  : Rel₃ A}} {{g : Rel₃ G}}
     {e}  {_≈_ : G → G → Set e} {ug} {{gm : IsPartialMonoid _≈_ g ug}}
@@ -83,30 +89,51 @@ module Possibly {r g} {G : Set g}
     gstr (px ∙⟨ σ ⟩ possibly rel qx) with ∼-fp rel (-, σ)
     ... | di , rel' = possibly rel' (px ∙⟨ proj₂ di ⟩ qx)
 
-  module ◇-Monad
-    {{r  : Rel₃ A}}
-    (∼-isPreorder : IsPreorder _≡_ _∼_)
-    (∼-fp : ∀ {fr Φ₁ Φ₂} → Φ₁ ∼ Φ₂ → (di₁ : fr ◆ Φ₁) → ∃ λ (di₂ : fr ◆ Φ₂) → whole di₁ ∼ whole di₂)
-    where
-    open IsPreorder ∼-isPreorder
-
-    instance ◇-monad : ∀  {ℓ} → Monad ⊤ (λ _ _ → ◇ {ℓ = ℓ})
-    Monad.return ◇-monad px =
-      -, possibly (proj₂ refl) px
-    Monad.bind ◇-monad f ⟨ σ ⟩ (_ , possibly rel px) with ∼-fp (-, rel) (-, σ)
-    ... | (_ , σ′) , rel' with f ⟨ σ′ ⟩ px
-    ... | _ , (possibly rel'' qx) = -, (possibly (proj₂ (trans rel' (-, rel''))) qx)
-
-    ◇-⤇ : ∀[ ◇ P ⇒ ⤇ P ]
-    ◇-⤇ (_ , possibly r px) = local (λ fr → _ , proj₁ (∼-fp (-, r) fr) , px)
-
   module ◇-Zip
     {{r  : Rel₃ A}} {{g : Rel₃ G}}
-    (∼-pull : ∀ {a b c a' b' Δ₁ Δ₂ Δ} →
-      Δ₁ ∙ Δ₂ ≣ Δ  → a ∙ b ≣ c    →
-      a ∼[ Δ₁ ] a' → b ∼[ Δ₂ ] b' →
-      ∃ λ c' → a' ∙ b' ≣ c' × c ∼[ Δ ] c') where
+    (∼-pull : ∀ {a b c a' b' Δ₁ Δ₂ Δ}
+            → Δ₁ ∙ Δ₂ ≣ Δ
+            → a ∙ b ≣ c
+            → a ∼[ Δ₁ ] a'
+            → b ∼[ Δ₂ ] b'
+            → ∃ λ c' → a' ∙ b' ≣ c' × c ∼[ Δ ] c') where
 
       ◇-zip : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] P ⊙ ◇[ Δ₂ ] Q ⇒ ◇[ Δ ] (P ⊙ Q) ]
       ◇-zip δ (possibly r₁ px ∙⟨ σ ⟩ possibly r₂ qx) with ∼-pull δ σ r₁ r₂ 
       ... | _ , σ′ , r′ = possibly r′ (px ∙⟨ σ′ ⟩ qx)
+
+  module ◇-Unzip
+    {{r  : Rel₃ A}}
+    (∼-push : ∀ {a b c c' Δ}
+            → c' ∼[ Δ ] c
+            → a ∙ b ≣ c
+            → ∃₂ λ a' b'
+            → a' ∼[ Δ ] a × b' ∼[ Δ ] b × a' ∙ b' ≣ c') where
+
+      ◇-unzip : ∀[ ◇[ Δ ] (P ⊙ Q) ⇒ ◇[ Δ ] P ⊙ ◇[ Δ ] Q ]
+      ◇-unzip (possibly rel (px ∙⟨ σ ⟩ qx)) with _ , _ , r₂ , r₃ , τ ← ∼-push rel σ =
+        possibly r₂ px ∙⟨ τ ⟩ possibly r₃ qx
+
+module ◇-Monad
+  {G : Set ℓa} (_∼[_]_  : GradedRel A G ℓa)
+  {{r  : Rel₃ A}}
+  (open Possibly _∼[_]_)
+  (∼-isPreorder : IsPreorder _≡_ _∼_)
+  (∼-fp : ∀ {fr Φ₁ Φ₂} → Φ₁ ∼ Φ₂ → (di₁ : fr ◆ Φ₁) → ∃ λ (di₂ : fr ◆ Φ₂) → whole di₁ ∼ whole di₂)
+  where
+
+  open IsPreorder ∼-isPreorder
+
+  instance
+    ◇-monad : Monad ⊤ (λ _ _ → ◇)
+    Monad.return ◇-monad px =
+      -, possibly (proj₂ refl) px
+    Monad._=<<_ ◇-monad f (_ , possibly r px) with (_ , possibly r' qx) ← f px =
+      -, possibly (proj₂ (trans (-, r) (-, r'))) qx
+
+    ◇-strong : Strong ⊤ (λ _ _ → ◇)
+    Strong.str ◇-strong qx ⟨ σ ⟩ (_ , possibly rel px) with fr , rel' ← ∼-fp (-, rel) (-, σ) =
+      -, Possibly.possibly (proj₂ rel') (qx ∙⟨ proj₂ fr ⟩ px)
+
+  -- ◇-⤇ : ∀[ ◇ P ⇒ ⤇ P ]
+  -- ◇-⤇ (_ , possibly r px) = local (λ fr → _ , proj₁ (∼-fp (-, r) fr) , px)

@@ -20,7 +20,9 @@ Id : ∀ {ℓ} → Pt A ℓ
 Id P = P
 
 instance
-  id-monad : ∀ {ℓ} → Monad {ℓ₁ = ℓ} ⊤ (λ _ _ → Id)
+  id-monad : Monad ⊤ (λ _ _ → Id)
   Monad.return id-monad = id
-  Monad.bind id-monad f ⟨ σ ⟩ px = f ⟨ σ ⟩ px
+  Monad._=<<_ id-monad f px = f px
 
+  id-strong : Strong ⊤ (λ _ _ → Id)
+  Strong.str id-strong qx ⟨ σ ⟩ px = qx ∙⟨ σ ⟩ px
