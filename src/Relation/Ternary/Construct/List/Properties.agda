@@ -57,9 +57,9 @@ module _
 
 module ListXSplit
   (div₁ : Rel₃ A) (div₂ : Rel₃ A)
-  {e} {_≈_ : A → A → Set e}
-  {{_ : IsCommutative div₁}} {{_ : IsPartialSemigroup _≈_ div₁}}
-  {{_ : IsCommutative div₂}} {{_ : IsPartialSemigroup _≈_ div₂}}
+  {e} {_≈₁_ : A → A → Set e} {_≈₂_ : A → A → Set e}
+  {{_ : IsCommutative div₁}} {{_ : IsPartialSemigroup _≈₁_ div₁}}
+  {{_ : IsCommutative div₂}} {{_ : IsPartialSemigroup _≈₂_ div₂}}
   (xsplitₐ : CrossSplit div₁ div₂)
   where
 
