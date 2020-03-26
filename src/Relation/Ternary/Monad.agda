@@ -89,6 +89,13 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
 
   {- Monoid structure gives a nice shorthand when the lhs is resourceless -}
   module _ {u} {e} {_≈_ : A → A → Set e} {{pm : IsPartialMonoid _≈_ ra u}} where
+    open import Relation.Binary.PropositionalEquality
+    
+    _>>_ : ∀ {i₁ i₂ i₃ P Φ₂} {{_ : Respect _≈_ (M i₂ i₃ P)}} → M i₁ i₂ Emp ε → M i₂ i₃ P Φ₂ → M i₁ i₃ P Φ₂
+    mp >> mq = do
+      px ∙⟨ σ ⟩ refl ← mp &⟨ M _ _ _ # ∙-idʳ ⟩ mq
+      coe (∙-id⁻ʳ σ) px
+
     _&_ : ∀ {i₁ i₂ P Q} → M i₁ i₂ P ε → ∀[ Q ⇒ M i₁ i₂ (Q ⊙ P) ]
     mp & q = mp &⟨ ∙-idʳ ⟩ q
 
@@ -100,7 +107,6 @@ open Strong {{...}} public
 --   {u} {{pm : IsPartialMonoid _≈_ ra u}}
 --   {i ℓ₁ ℓ₂} {I : Set i} {M : RawMonad I ℓ₁ ℓ₂} {{ monad : StrongMonad I M }}
 --   {ℓ₃} (_≈ₘ_ : ∀ {i₁ i₂ P x} (l r : M i₁ i₂ P x) → Set ℓ₃)
---   {{ _ : ∀ {P i₁ i₂} → Respect _≈_ (M i₁ i₂ P) }}
 --   where
 
 --   -- poinwise lifted

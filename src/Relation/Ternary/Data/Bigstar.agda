@@ -14,6 +14,7 @@ open import Relation.Unary
 open import Relation.Binary.PropositionalEquality using (refl)
 open import Relation.Ternary.Structures.Syntax
 
+infixr 10 cons
 data Bigstar {p} (P : Pred A p) : Pred A (a ⊔ p) where
   emp  : ε[ Bigstar P ]
   cons : ∀[ P ⊙ Bigstar P ⇒ Bigstar P ]
@@ -22,6 +23,8 @@ instance bigstar-respects : ∀ {p} {P : Pred A p} → Respect _≈_ (Bigstar P)
 Respect.coe bigstar-respects eq emp with ε-unique eq
 ... | refl = emp
 Respect.coe bigstar-respects eq (cons x) = cons (coe eq x)
+
+pattern _✴⟨_⟩_ px σ qx = cons (px ∙⟨ σ ⟩ qx)
 
 [_] : ∀ {p} {P : Pred A p} → ∀[ P ⇒ Bigstar P ]
 [ px ] = cons (px ∙⟨ ∙-idʳ ⟩ emp)
