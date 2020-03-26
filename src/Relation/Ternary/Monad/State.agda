@@ -39,7 +39,7 @@ module _ where
   State St = STATET Id St St
   
 module StateTransformer
-  (M : Pt Market ℓ) {{monad : Monad ⊤ (λ _ _ → M) }}
+  (M : Pt Market ℓ) {{strong : Strong ⊤ (λ _ _ → M)}}
   {St : Pred C ℓ}
   where
 
@@ -49,12 +49,16 @@ module StateTransformer
   instance
     state-monad : Monad ⊤ (λ _ _ → StateT M St)
     Monad.return state-monad px ⟨ σ₂ ⟩ st = return (lift px ∙⟨ σ₂ ⟩ st )
-    ((Monad.bind state-monad {P = P} {Q = Q} f) ⟨ σ₁ ⟩ m) ⟨ σ₂@(offerᵣ σ₅) ⟩ st@(lift _) with ∙-assocᵣ (demand σ₁) σ₂
-    ... | _ , σ₃ , σ₄ = bind bound ⟨ σ₃ ⟩ (m ⟨ σ₄ ⟩ st)
-      where
-        bound : ((○ P ⊙ ● St) ─⊙ M (○ Q ⊙ ● St)) (demand _)
-        bound ⟨ offerᵣ σ₆ ⟩ (lift px ∙⟨ offerᵣ σ₅ ⟩ st') with ∙-assocₗ σ₅ σ₆
-        ... | _ , τ₁ , τ₂ = let mq = f ⟨ ∙-comm τ₁ ⟩ px in mq ⟨ offerᵣ τ₂ ⟩ st'
+    Monad._=<<_ state-monad f mp ⟨ σ ⟩ st = do
+      lift px ∙⟨ σ ⟩ st ← mp ⟨ σ ⟩ st
+      f px ⟨ σ ⟩ st
+
+    state-strong : Strong ⊤ (λ _ _ → StateT M St)
+    Strong.str state-strong {Q = Q} qx ⟨ σ₁ ⟩ mpx ⟨ σ₂ ⟩ st = do
+      let _ , σ₃ , σ₄  = ∙-assocᵣ (demand σ₁) σ₂
+      lift qx ∙⟨ offerᵣ σ₅ ⟩ lift px ∙⟨ offerᵣ σ₆ ⟩ st ← mpx ⟨ σ₄ ⟩ st &⟨ ○ Q # σ₃ ⟩ lift qx
+      let _ , σ₇ , σ₈  = ∙-assocₗ σ₆ σ₅
+      return ((lift (qx ∙⟨ ∙-comm σ₇ ⟩ px)) ∙⟨ offerᵣ σ₈ ⟩ st)
 
   {- Lift an M computation into a transformed state operation -}
   liftM : ∀ {Φ P} → M P (demand Φ) → StateT M St (P ∘ demand) Φ

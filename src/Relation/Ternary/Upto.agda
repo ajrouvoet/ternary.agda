@@ -16,21 +16,21 @@ open import Relation.Ternary.Monad
 module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid _≈_ r u }} where
   open import Data.Unit
 
-  record Upto p : Set (e ⊔ suc p ⊔ a) where
+  record Upto : Set (e ⊔ suc a) where
     field
-      ⌈_⌉                    : Pt A p
-      overlap {{respectful}} : ∀ {P : Pred A p} → Respect _≈_ ⌈ P ⌉
+      ⌈_⌉                    : Pt A a
+      overlap {{respectful}} : ∀ {P : Pred A a} → Respect _≈_ ⌈ P ⌉
       overlap {{monad}}      : Monad ⊤ (λ _ _ → ⌈_⌉) 
 
-    _over_ : ∀ {P : Pred A p} {a b} → P a → a ≈ b → ⌈ P ⌉ b
+    _over_ : ∀ {P : Pred A a} {a b} → P a → a ≈ b → ⌈ P ⌉ b
     px over eq = coe {{respectful}} eq (return px)
 
     infixl 8 _∼>_
-    _∼>_ : ∀ {q} (P : Pred A q) (Q : Pred A p) → Pred A (p ⊔ q)
+    _∼>_ : ∀ {q} (P : Pred A q) (Q : Pred A a) → Pred A (a ⊔ q)
     (P ∼> Q) Φ = P Φ → ⌈ Q ⌉ Φ
 
     infixl 8 _∼⊙_
-    _∼⊙_ : ∀ {q} (P : Pred A q) (Q : Pred A p) → Pred A (a ⊔ p ⊔ q)
+    _∼⊙_ : ∀ {q} (P : Pred A q) (Q : Pred A a) → Pred A (a ⊔ q)
     P ∼⊙ Q = P ─⊙ ⌈ Q ⌉
 
   open Upto {{...}} public
