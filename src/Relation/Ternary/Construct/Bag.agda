@@ -15,7 +15,7 @@ open import Data.Product hiding (swap)
 open import Data.List
 open import Data.List.Extra
 open import Data.List.Relation.Binary.Permutation.Propositional
-open import Data.List.Relation.Binary.Permutation.Propositional.Properties
+open import Data.List.Relation.Binary.Permutation.Propositional.Properties as Pm
 open import Data.Nat.Properties
 open import Data.List.Relation.Binary.Equality.DecPropositional
 
@@ -110,6 +110,10 @@ module _ where
     rewrite sym (↭-length ρy) | sym (↭-length ρz) = positiveʳ sep
 
   IsPositive.ε-least bags-isPositive {[]} Nat.z≤n = ↭-refl
+
+  instance bags-isTotal : IsTotal _↭_ bags _++_
+  IsTotal.∙-parallel bags-isTotal (hustle ρ₁ ρ₂ ρ₃ l) (hustle ρ₄ ρ₅ ρ₆ r) =
+    hustle (Pm.++⁺ ρ₁ ρ₄) (Pm.++⁺ ρ₂ ρ₅) (Pm.++⁺ ρ₃ ρ₆) (∙-parallel l r)
 
 module _ {{_ : IsIntuitionistic U div}} where
 

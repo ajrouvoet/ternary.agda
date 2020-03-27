@@ -3,6 +3,7 @@ module Relation.Ternary.Structures.Total {a} {A : Set a} where
 
 open import Level
 open import Function using (_∘_)
+open import Data.Product
 open import Algebra
 
 open import Relation.Unary hiding (Empty)
@@ -22,7 +23,14 @@ record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A 
   open Rel₃ rel
 
   field
-    ∙-parallel : ∀ {a b c d ab cd} → a ∙ b ≣ ab → c ∙ d ≣ cd → (a ++ c) ∙ (b ++ d) ≣ (ab ++ cd)
+    ∙-parallel  : ∀ {a b c d ab cd} → a ∙ b ≣ ab → c ∙ d ≣ cd → (a ++ c) ∙ (b ++ d) ≣ (ab ++ cd)
+    -- ∙-parallel⁻ : ∀ {xs ys zs₂} zs₁ → xs ∙ ys ≣ (zs₁ ++ zs₂) →
+    --               Σ[ parts ∈ A × A × A × A ]
+    --                 let xs₁ , xs₂ , ys₁ , ys₂ = parts
+    --                  in xs₁ ∙ xs₂ ≣ xs
+    --                   × ys₁ ∙ ys₂ ≣ ys
+    --                   × xs₁ ∙ ys₁ ≣ zs₁
+    --                   × xs₂ ∙ ys₂ ≣ zs₂
 
   module _ {unit} {{_ : IsMonoid _≈_ _++_ unit}} {{_ : IsPartialMonoid _≈_ rel unit}} where
 

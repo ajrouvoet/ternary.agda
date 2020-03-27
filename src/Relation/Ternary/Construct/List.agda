@@ -169,19 +169,19 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
       par (consˡ σ₁) σ₂ = consˡ (par σ₁ σ₂)
       par (consʳ σ₁) σ₂ = consʳ (par σ₁ σ₂)
 
-  IsTotal.∙-parallel⁻ list-isTotal = unpar
-    where
-      unpar : ∀ {xs ys zs₂} zs₁ → Split xs ys (zs₁ ++ zs₂) →
-                  Σ[ parts ∈ List A × List A × List A × List A ]
-                    let xs₁ , xs₂ , ys₁ , ys₂ = parts
-                     in Split xs₁ xs₂ xs
-                      × Split ys₁ ys₂ ys
-                      × Split xs₁ ys₁ zs₁
-                      × Split xs₂ ys₂ zs₂
-      unpar []    σ = -, ∙-idˡ , ∙-idˡ , ∙-idˡ , σ
-      unpar (_ ∷ zs₁) (divide x σ) with _ , τ₁ , τ₂ , τ₃ , τ₄ ← unpar zs₁ σ = -, consˡ τ₁ , consˡ τ₂ , divide x τ₃ , τ₄
-      unpar (_ ∷ zs₁) (consˡ σ)    with _ , τ₁ , τ₂ , τ₃ , τ₄ ← unpar zs₁ σ = -, consˡ τ₁ , τ₂ , consˡ τ₃ , τ₄
-      unpar (_ ∷ zs₁) (consʳ σ)    with _ , τ₁ , τ₂ , τ₃ , τ₄ ← unpar zs₁ σ = -, τ₁ , consˡ τ₂ , consʳ τ₃ , τ₄
+  -- IsTotal.∙-parallel⁻ list-isTotal = unpar
+  --   where
+  --     unpar : ∀ {xs ys zs₂} zs₁ → Split xs ys (zs₁ ++ zs₂) →
+  --                 Σ[ parts ∈ List A × List A × List A × List A ]
+  --                   let xs₁ , xs₂ , ys₁ , ys₂ = parts
+  --                    in Split xs₁ xs₂ xs
+  --                     × Split ys₁ ys₂ ys
+  --                     × Split xs₁ ys₁ zs₁
+  --                     × Split xs₂ ys₂ zs₂
+  --     unpar []    σ = -, ∙-idˡ , ∙-idˡ , ∙-idˡ , σ
+  --     unpar (_ ∷ zs₁) (divide x σ) with _ , τ₁ , τ₂ , τ₃ , τ₄ ← unpar zs₁ σ = -, consˡ τ₁ , consˡ τ₂ , divide x τ₃ , τ₄
+  --     unpar (_ ∷ zs₁) (consˡ σ)    with _ , τ₁ , τ₂ , τ₃ , τ₄ ← unpar zs₁ σ = -, consˡ τ₁ , τ₂ , consˡ τ₃ , τ₄
+  --     unpar (_ ∷ zs₁) (consʳ σ)    with _ , τ₁ , τ₂ , τ₃ , τ₄ ← unpar zs₁ σ = -, τ₁ , consˡ τ₂ , consʳ τ₃ , τ₄
 
 module _ {{_ : IsIntuitionistic U division}} where
 

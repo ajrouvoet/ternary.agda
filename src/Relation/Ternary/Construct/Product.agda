@@ -12,6 +12,7 @@ open import Relation.Binary
 open import Relation.Binary.PropositionalEquality as PEq
 open import Data.Product.Relation.Binary.Pointwise.NonDependent
 
+open import Algebra.Structures
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Structures.Syntax
@@ -146,19 +147,35 @@ module _
     let _ , χ₁ , χ₂ = ∥-distrib-∣ˡ σ₁₂ σ₂₂ σ₃₂ in
     -, (τ₁ , χ₁) , (τ₂ , χ₂)
 
---   module _
---     {{sep₁ : Rel₃ C₁}} {{sep₂ : Rel₃ C₂}}
---     {{s₁ : HasConcat _≈₁_ sep₁}} {{s₂ : HasConcat _≈₂_ sep₂}}
---     where
+  module _
+    {{sep₁ : Rel₃ C₁}} {{sep₂ : Rel₃ C₂}} {_∙₁_ _∙₂_}
+    {{s₁ : IsTotal _≈₁_ sep₁ _∙₁_}} {{s₂ : IsTotal _≈₂_ sep₂ _∙₂_}}
+    where
 
---     private
---       module S₁ = HasConcat s₁
---       module S₂ = HasConcat s₂
+    private
+      _∙×_ : (C₁ × C₂) → (C₁ × C₂) → (C₁ × C₂)
+      cs ∙× ds = zip _∙₁_ _∙₂_ cs ds
 
---     instance ×-concat : HasConcat (Pointwise _≈₁_ _≈₂_) ×-rel
---     ×-concat = record
---       { _∙_ = (λ where (a , b) (c , d) → (a S₁.∙ c , b S₂.∙ d))
---       ; ∙-∙ₗ = λ where (p , q) → ∙-∙ₗ p , ∙-∙ₗ q }
+    {- TODO std lib contribution -}
+    module _ {{m₁ : IsMonoid _≈₁_ _∙₁_ ε}} {{m₂ : IsMonoid _≈₂_ _∙₂_ ε}} where
+
+      open IsMonoid {{...}}
+
+      ×-isTotalMagma : IsMagma (Pointwise _≈₁_ _≈₂_) _∙×_
+      IsMagma.isEquivalence ×-isTotalMagma = ×-equiv
+      IsMagma.∙-cong ×-isTotalMagma (e₁ , e₂) (e₃ , e₄) = ∙-cong e₁ e₃ , ∙-cong e₂ e₄
+
+      ×-isTotalSemigroup : IsSemigroup (Pointwise _≈₁_ _≈₂_) _∙×_
+      IsSemigroup.isMagma ×-isTotalSemigroup = ×-isTotalMagma
+      IsSemigroup.assoc ×-isTotalSemigroup x y z = assoc _ _ _ , assoc _ _ _
+
+      instance ×-monoid : IsMonoid (Pointwise _≈₁_ _≈₂_) _∙×_ ε
+      IsMonoid.isSemigroup ×-monoid = ×-isTotalSemigroup
+      IsMonoid.identity ×-monoid    = (λ (x , y) → identityˡ x , identityˡ y)
+                                    , (λ (x , y) → identityʳ x , identityʳ y)
+
+    instance ×-concat : IsTotal (Pointwise _≈₁_ _≈₂_) (×-rel {{sep₁}} {{sep₂}}) _∙×_
+    IsTotal.∙-parallel  ×-concat σ₁ σ₂ = zip ∙-parallel ∙-parallel σ₁ σ₂
 
 {- Some useful type-formers for this instance -}
 module _ {u} {{_ : Emptiness {A = C₂} u}} where

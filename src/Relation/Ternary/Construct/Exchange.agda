@@ -28,6 +28,7 @@ open import Data.Product
 open import Data.Unit
 open import Function using (case_of_; _∘_)
 
+open import Algebra.Structures
 open import Relation.Unary
 open import Relation.Binary hiding (_⇒_)
 open import Relation.Binary.Structures
@@ -139,6 +140,41 @@ module _ where
   instance exchange-isSemigroup : IsPartialSemigroup _≈_ exchange-rel
   exchange-isSemigroup = IsPartialSemigroupˡ.semigroupˡ exchange-isSemigroupˡ
 
+module _ {_∙_} {{_ : IsTotal _≈ₐ_ r₁ _∙_}} {{_ : IsTotal _≈ₐ_ r₂ _∙_}} where
+
+  _↟_ : Account → Account → Account
+  (u₁ ⇅ d₁) ↟ (u₂ ⇅ d₂) = (u₁ ∙ u₂) ⇅ (d₁ ∙ d₂)
+
+  instance exchange-isTotal : IsTotal _≈_ exchange-rel _↟_
+  IsTotal.∙-parallel exchange-isTotal (ex x₁ x₂ σ₁ σ₂) (ex x₃ x₄ σ₃ σ₄) =
+    ex (sub-∙ x₁ x₃) (sub-∙ x₂ x₄) (∙-parallel σ₁ σ₃) (∙-parallel σ₂ σ₄)
+
+    where
+      sub-∙ : ∀ {d₁ d₂ u₁ u₂ u₁' u₂' d₁' d₂'} →
+              (d₁ - u₁ ≣ (u₁' ⇅ d₁')) →
+              (d₂ - u₂ ≣ (u₂' ⇅ d₂')) →
+              (d₁ ∙ d₂) - (u₁ ∙ u₂) ≣ ((u₁' ∙ u₂') ⇅ (d₁' ∙ d₂'))
+      sub-∙ (sub x x₁) (sub x₂ x₃) = sub (∙-parallel x x₂) (∙-parallel x₁ x₃)
+
+  module _ {{m : IsMonoid _≈ₐ_ _∙_ ε}} where
+
+    open IsMonoid {{...}}
+
+    private
+      acc-magma : IsMagma _≈_ _↟_
+      IsMagma.isEquivalence acc-magma = account-equiv
+      IsMagma.∙-cong acc-magma e₁ e₂ = ∙-cong (proj₁ e₁) (proj₁ e₂)
+                                     , ∙-cong (proj₂ e₁) (proj₂ e₂)
+
+      acc-semigroup : IsSemigroup _≈_ _↟_
+      IsSemigroup.isMagma acc-semigroup = acc-magma
+      IsSemigroup.assoc acc-semigroup x y z = assoc _ _ _ , assoc _ _ _
+
+    instance acc-monoid : IsMonoid _≈_ _↟_ (εₐ ⇅ εₐ)
+    IsMonoid.isSemigroup acc-monoid = acc-semigroup
+    IsMonoid.identity acc-monoid = (λ x → (identityˡ _) , identityˡ _ )
+                                 , (λ x → (identityʳ _) , identityʳ _ )
+
 {- "Identity laws" for the auxiliary exchange relation -}
 module _ where
 
@@ -161,6 +197,9 @@ module _ where
 
   xs-xs≡ε : ∀ {xs} → xs - xs ≣ ε
   xs-xs≡ε = sub ∙-idˡ ∙-idˡ
+
+  no-sub : ∀ {xs ys} → xs - ys ≣ (ys ⇅ xs)
+  no-sub = sub ∙-idʳ ∙-idʳ
 
 {- Exchange is a partial monoid -}
 module _ where
