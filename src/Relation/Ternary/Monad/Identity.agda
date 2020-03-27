@@ -1,3 +1,4 @@
+{-# OPTIONS --safe --without-K #-}
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
@@ -16,13 +17,34 @@ open import Relation.Ternary.Monad
 
 open import Data.Unit
 
-Id : ∀ {ℓ} → Pt A ℓ
-Id P = P
+module Unwrapped where
 
-instance
-  id-monad : Monad ⊤ (λ _ _ → Id)
-  Monad.return id-monad = id
-  Monad._=<<_ id-monad f px = f px
+  Id : ∀ {ℓ} → Pt A ℓ
+  Id P = P
 
-  id-strong : Strong ⊤ (λ _ _ → Id)
-  Strong.str id-strong qx ⟨ σ ⟩ px = qx ∙⟨ σ ⟩ px
+  instance
+    id-monad : Monad ⊤ (λ _ _ → Id)
+    Monad.return id-monad = id
+    Monad._=<<_ id-monad f px = f px
+
+    id-strong : Strong ⊤ (λ _ _ → Id)
+    Strong.str id-strong qx ⟨ σ ⟩ px = qx ∙⟨ σ ⟩ px
+
+module Wrapped where
+
+  record Id {ℓ} (P : Pred A ℓ) (Φ : A) : Set ℓ where
+    constructor mkId
+    field
+      runId : P Φ
+
+  open Id public
+
+  instance
+    id-monad : Monad ⊤ (λ _ _ → Id)
+    Monad.return id-monad = mkId
+    Monad._=<<_ id-monad f px = f (runId px)
+
+    id-strong : Strong ⊤ (λ _ _ → Id)
+    Strong.str id-strong qx ⟨ σ ⟩ px = mkId (qx ∙⟨ σ ⟩ runId px)
+
+open Unwrapped public
