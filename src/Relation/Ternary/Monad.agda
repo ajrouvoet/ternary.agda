@@ -44,20 +44,20 @@ open Monad {{...}} public
 record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   field
     {{monad}} : Monad I M
-    str       : ∀ {i₁ i₂} {P Q : Pred A a} → ∀[ Q ⇒ M i₁ i₂ P ─⊙ M i₁ i₂ (Q ⊙ P) ]
+    str       : ∀ {i₁ i₂} {P Q : Pred A a} → ∀[ Q ⇒ M i₁ i₂ P ─✴ M i₁ i₂ (Q ✴ P) ]
 
   module _ {i₁ i₂ i₃} {P Q} where
-    bind : ∀[ (P ─⊙ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─⊙ M i₁ i₃ Q) ]
-    bind f ⟨ σ ⟩ mp with f✴mp ← str {Q = _ ─⊙ _} f ⟨ σ ⟩ mp = join (apply ⟨$⟩ f✴mp)
+    bind : ∀[ (P ─✴ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─✴ M i₁ i₃ Q) ]
+    bind f ⟨ σ ⟩ mp with f✴mp ← str {Q = _ ─✴ _} f ⟨ σ ⟩ mp = join (apply ⟨$⟩ f✴mp)
 
-    bind-syntax : (P ─⊙ M i₂ i₃ Q) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₃ Q Φ 
+    bind-syntax : (P ─✴ M i₂ i₃ Q) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₃ Q Φ 
     bind-syntax f σ m = bind f ⟨ σ ⟩ m
 
     syntax bind-syntax f σ m = m ⟨ σ ⟩= f
 
   {- strong `fmap` from monadic interface -}
   module _ where
-    mapM′ : ∀ {P Q i₁ i₂} → ∀[ (P ─⊙ Q) ⇒ (M i₁ i₂ P ─⊙ M i₁ i₂ Q) ]
+    mapM′ : ∀ {P Q i₁ i₂} → ∀[ (P ─✴ Q) ⇒ (M i₁ i₂ P ─✴ M i₁ i₂ Q) ]
     mapM′ f = bind (arr λ where
       σ px → return (f ⟨ σ ⟩ px))
 
@@ -66,10 +66,10 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
     {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ ra}} 
     {i₁ i₂ i₃} {P Q R : Pred A a} where
 
-    kleisli : ∀[ (Q ─⊙ M i₂ i₃ R) ⇒ (P ─⊙ M i₁ i₂ Q) ─⊙ (P ─⊙ M i₁ i₃ R) ]
+    kleisli : ∀[ (Q ─✴ M i₂ i₃ R) ⇒ (P ─✴ M i₁ i₂ Q) ─✴ (P ─✴ M i₁ i₃ R) ]
     kleisli g ⟨ σ ⟩ f = bind g ∘⟨ σ ⟩ f
 
-    kleisli-syntax : (P ─⊙ M i₁ i₂ Q) Φ₁ → Φ₂ ∙ Φ₁ ≣ Φ → (Q ─⊙ M i₂ i₃ R) Φ₂ → (P ─⊙ M i₁ i₃ R) Φ 
+    kleisli-syntax : (P ─✴ M i₁ i₂ Q) Φ₁ → Φ₂ ∙ Φ₁ ≣ Φ → (Q ─✴ M i₂ i₃ R) Φ₂ → (P ─✴ M i₁ i₃ R) Φ 
     kleisli-syntax g σ f = kleisli f ⟨ σ ⟩ g
 
     syntax kleisli-syntax f σ g = f ⟨ σ ⟩=> g
@@ -78,12 +78,12 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   module _ {i₁ i₂} {P : Pred A a} where
 
     infixl 5 str-syntax
-    str-syntax  : ∀ {Q : Pred A a} → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ⊙ P) Φ
+    str-syntax  : ∀ {Q : Pred A a} → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
     str-syntax qx σ mp = str qx ⟨ σ ⟩ mp
     syntax str-syntax qx σ mp = mp &⟨ σ ⟩ qx
 
     infixl 5 typed-str-syntax
-    typed-str-syntax : ∀ {Φ₁ Φ₂ Φ} Q → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ⊙ P) Φ
+    typed-str-syntax : ∀ {Φ₁ Φ₂ Φ} Q → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
     typed-str-syntax Q qx σ mp = str {Q = Q} qx ⟨ σ ⟩ mp
     syntax typed-str-syntax Q qx σ mp = mp &⟨ Q # σ ⟩ qx
 
@@ -96,7 +96,7 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
       px ∙⟨ σ ⟩ refl ← mp &⟨ M _ _ _ # ∙-idʳ ⟩ mq
       coe (∙-id⁻ʳ σ) px
 
-    _&_ : ∀ {i₁ i₂ P Q} → M i₁ i₂ P ε → ∀[ Q ⇒ M i₁ i₂ (Q ⊙ P) ]
+    _&_ : ∀ {i₁ i₂ P Q} → M i₁ i₂ P ε → ∀[ Q ⇒ M i₁ i₂ (Q ✴ P) ]
     mp & q = mp &⟨ ∙-idʳ ⟩ q
 
 open Strong {{...}} public
@@ -110,13 +110,13 @@ open Strong {{...}} public
 --   where
 
 --   -- poinwise lifted
---   _≐ₘ_ : ∀ {p i₁ i₂} {P : Pred A p} {Q} {x} (f g : (P ─⊙ M i₁ i₂ Q) x) → Set (ℓ₃ ⊔ a ⊔ p)
+--   _≐ₘ_ : ∀ {p i₁ i₂} {P : Pred A p} {Q} {x} (f g : (P ─✴ M i₁ i₂ Q) x) → Set (ℓ₃ ⊔ a ⊔ p)
 --   _≐ₘ_ {P = P} {Q} {x} f g = ∀ {y z} {σ : x ∙ y ≣ z} {px : P y} → (f ⟨ σ ⟩ px) ≈ₘ (g ⟨ σ ⟩ px)
 
---   module _ {P i₁ i₂ Q x} {f : (P ─⊙ M i₁ i₂ Q) x} where
+--   module _ {P i₁ i₂ Q x} {f : (P ─✴ M i₁ i₂ Q) x} where
 --     RightId = (f ⟨ ∙-idˡ ⟩=> arrow return) ≐ₘ f 
 --     LeftId  = (arrow return ⟨ ∙-idʳ ⟩=> f) ≐ₘ f
---     Assoc   = ∀ {i₃ i₄ R S} {y z} {g : (Q ─⊙ M i₂ i₃ R) y} {h : (R ─⊙ M i₃ i₄ S) z}
+--     Assoc   = ∀ {i₃ i₄ R S} {y z} {g : (Q ─✴ M i₂ i₃ R) y} {h : (R ─✴ M i₃ i₄ S) z}
 --               {xy xyz} {σ : y ∙ x ≣ xy} {τ : z ∙ xy ≣ xyz} →
 --               let _ , σ₃ , σ₄ = ∙-assocₗ τ σ in
 --               ((f ⟨ σ ⟩=> g) ⟨ τ ⟩=> h) ≐ₘ (f ⟨ σ₄ ⟩=> (g ⟨ σ₃ ⟩=> h))

@@ -43,7 +43,7 @@ module ReaderTransformer
   module _ where
 
     Reader : ∀ (Γ₁ Γ₂ : List A) → Pt C a
-    Reader Γ₁ Γ₂ P = (Allstar V Γ₁) ─⊙ M (P ⊙ Allstar V Γ₂)
+    Reader Γ₁ Γ₂ P = (Allstar V Γ₁) ─✴ M (P ✴ Allstar V Γ₂)
 
     instance
       reader-monad : Monad (List A) Reader
@@ -75,7 +75,7 @@ module ReaderTransformer
 
     liftM : ∀[ M P ⇒ Reader Γ Γ P ]
     liftM mp ⟨ σ ⟩ env =
-      mapM (mp &⟨ ∙-comm σ ⟩ env) ⊙-swap
+      mapM (mp &⟨ ∙-comm σ ⟩ env) ✴-swap
 
     lookup : ∀ {a} → ε[ Reader [ a ] [] (V a) ]
     lookup =

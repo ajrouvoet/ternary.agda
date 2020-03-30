@@ -61,7 +61,7 @@ module HeapOps
   ... | refl | _ , τ₁ , τ₂ = return (lift v ∙⟨ offerᵣ τ₂ ⟩ lift st' (∙-comm τ₁))
 
   -- Writing into a cell, returning the current contents
-  write : ∀ {a b} → ∀[ Just b ⊙ (V a) ⇒ StateT M Cells (Just a ⊙ V b) ]
+  write : ∀ {a b} → ∀[ Just b ✴ (V a) ⇒ StateT M Cells (Just a ✴ V b) ]
   write (refl ∙⟨ σ₁ ⟩ v) ⟨ offerᵣ σ₃ ⟩ (lift st σ₂) with ∙-assocᵣ (∙-comm σ₁) σ₃
   -- first we reassociate the arguments in the order that we want to piece it back together
   ... | _ , τ₁ , τ₂ with ∙-assocᵣ (∙-comm τ₁) σ₂
@@ -79,7 +79,7 @@ module HeapOps
       lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-∙ₗₗ (∙-comm κ₃)))
 
   -- A linear (strong) update on the store
-  update! : ∀ {a b} → ∀[ Just a ⇒ (V a ─⊙ StateT M Cells (V b)) ─⊙ StateT M Cells (Just b) ]
+  update! : ∀ {a b} → ∀[ Just a ⇒ (V a ─✴ StateT M Cells (V b)) ─✴ StateT M Cells (Just b) ]
   update! ptr ⟨ σ ⟩ f = do
     f ∙⟨ σ₁ ⟩ a ← read ptr &⟨ ∙-comm σ ⟩ f
     b           ← f ⟨ σ₁ ⟩ a

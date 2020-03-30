@@ -65,18 +65,18 @@ module HeapOps
   ... | _ , σ₃ , σ₄ with read' σ₃ st
     where
 
-      read' : ∀ {a} {as xs : List T} → [ a ] ∙ as ≣ xs → ∀[ Allstar V xs ⇒ V a ⊙ Allstar V as ]
-      read' (divide dup ptr) (cons (v ∙⟨ σ ⟩ vs)) with ⊙-assocᵣ ((v ∙⟨ ∙-copy ⟩ v) ∙⟨ σ ⟩ vs)
+      read' : ∀ {a} {as xs : List T} → [ a ] ∙ as ≣ xs → ∀[ Allstar V xs ⇒ V a ✴ Allstar V as ]
+      read' (divide dup ptr) (cons (v ∙⟨ σ ⟩ vs)) with ✴-assocᵣ ((v ∙⟨ ∙-copy ⟩ v) ∙⟨ σ ⟩ vs)
       ... | c ∙⟨ σ' ⟩ vs' = c ∙⟨ σ' ⟩ subst (λ zs → Allstar _ (_ ∷ zs) _) (sym (∙-id⁻ˡ ptr)) (cons vs')
       read' (consˡ ptr) (cons (v ∙⟨ σ ⟩ vs)) rewrite ∙-id⁻ˡ ptr = v ∙⟨ σ ⟩ vs
-      read' (consʳ ptr) (cons (w ∙⟨ σ ⟩ vs)) with ⊙-rotateₗ (w ∙⟨ σ ⟩ (read' ptr vs))
-      ... | (v ∙⟨ σ' ⟩ vs∙w) = v ∙⟨ σ' ⟩ cons (⊙-swap vs∙w)
+      read' (consʳ ptr) (cons (w ∙⟨ σ ⟩ vs)) with ✴-rotateₗ (w ∙⟨ σ ⟩ (read' ptr vs))
+      ... | (v ∙⟨ σ' ⟩ vs∙w) = v ∙⟨ σ' ⟩ cons (✴-swap vs∙w)
 
   ... | v ∙⟨ σ₅ ⟩ st' with ∙-assocₗ σ₄ σ₅
   ... | _ , σ₆ , σ₇ = return (lift v ∙⟨ offerᵣ (∙-comm σ₆) ⟩ (lift st' σ₇))
 
   -- -- Writing into a cell, returning the current contents
-  -- write : ∀ {a b} → ∀[ Just b ⊙ (V a) ⇒ StateT M Cells (Just a ⊙ V b) ]
+  -- write : ∀ {a b} → ∀[ Just b ✴ (V a) ⇒ StateT M Cells (Just a ✴ V b) ]
   -- write (refl ∙⟨ σ₁ ⟩ v) ⟨ offerᵣ σ₃ ⟩ (lift st σ₂) with ∙-assocᵣ (∙-comm σ₁) σ₃
   -- -- first we reassociate the arguments in the order that we want to piece it back together
   -- ... | _ , τ₁ , τ₂ with ∙-assocᵣ (∙-comm τ₁) σ₂
@@ -94,7 +94,7 @@ module HeapOps
   --     lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-∙ₗ (∙-comm κ₃)))
 
   -- -- A linear (strong) update on the store
-  -- update! : ∀ {a b} → ∀[ Just a ⇒ (V a ─⊙ StateT M Cells (V b)) ─⊙ StateT M Cells (Just b) ]
+  -- update! : ∀ {a b} → ∀[ Just a ⇒ (V a ─✴ StateT M Cells (V b)) ─✴ StateT M Cells (Just b) ]
   -- update! ptr ⟨ σ ⟩ f = do
   --   f ∙⟨ σ₁ ⟩ a ← read ptr &⟨ ∙-comm σ ⟩ f
   --   b           ← f ⟨ σ₁ ⟩ a

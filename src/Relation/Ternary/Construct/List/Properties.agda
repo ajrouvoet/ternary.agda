@@ -4,13 +4,13 @@ module Relation.Ternary.Construct.List.Properties {ℓ} {A : Set ℓ} where
 open import Level
 open import Data.Unit using (⊤)
 open import Data.Product hiding (swap)
-open import Data.List
+open import Data.List hiding (_∷ʳ_)
 open import Data.List.Extra
 open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties
 
 open import Relation.Nullary
-open import Relation.Unary
+open import Relation.Unary hiding (_⊆_)
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core

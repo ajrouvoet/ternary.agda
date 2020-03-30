@@ -4,7 +4,7 @@ module Relation.Ternary.Bundles where
 open import Level
 open import Relation.Binary
 open import Relation.Binary.Bundles
-open import Relation.Ternary.Core hiding (_⊙_)
+open import Relation.Ternary.Core hiding (_✴_)
 open import Relation.Ternary.Structures using
   ( IsPartialSemigroup
   ; IsPartialMonoid
@@ -69,5 +69,5 @@ open PartialMonoid    {{...}} public
 
 -- -- module _ {a e} {{ s₁ : PartialSemigroup 0ℓ e}} {{s₂ : PartialSemigroup a e}} where
 
--- --   another-assoc : ∀ {P Q R : ℕ → Set} → ∀[ P ⊙ (Q ⊙ R) ⇒ (P ⊙ Q) ⊙ R ]
+-- --   another-assoc : ∀ {P Q R : ℕ → Set} → ∀[ P ✴ (Q ✴ R) ⇒ (P ✴ Q) ✴ R ]
 -- --   another-assoc = {!!}

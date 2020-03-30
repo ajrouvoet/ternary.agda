@@ -5,7 +5,7 @@ open import Level
 open import Function
 open import Data.Unit using (⊤)
 open import Data.Product
-open import Data.List
+open import Data.List hiding (_∷ʳ_)
 open import Data.Nat
 
 open import Relation.Unary hiding (_⊢_; _⊆_; _∈_)
@@ -24,10 +24,10 @@ private
 module _ where 
   open import Relation.Ternary.Construct.Duplicate T as D
   open import Relation.Ternary.Construct.List duplicate as Overlapping
-  open Overlapping using ([]; consˡ; consʳ; list-monoid; list-emptiness) public
+  open Overlapping using ([]; consˡ; consʳ; list-monoid; list-emptiness; from-⊆) public
 
   open Rel₃ splits using ()
-    renaming (_∙_≣_ to _⊗_≣_; _⊙_ to _⊗_; _◆_ to _◆ₓ_; _─⊙_ to _─⊗_) public
+    renaming (_∙_≣_ to _⊗_≣_; _✴_ to _⊗_; _◆_ to _◆ₓ_; _─✴_ to _─⊗_) public
 
   instance overlap-rel : Rel₃ Ctx
   overlap-rel = splits
@@ -52,33 +52,23 @@ module _ where
 
   pattern overlaps σ = divide dup σ
 
-{- The relations betweens non-overlapping and overlapping list sep -}
+{- The relations betweens non-overlapping list sep and sublists -}
 module _ where
-  import Relation.Ternary.Construct.List.Disjoint T as D
+  open import Data.List.Relation.Binary.Sublist.Propositional
 
-  ⊆-⊗ : xs′ D.⊆ xs → ys′ D.⊆ ys → xs ⊗ ys ≣ zs → ∃ λ zs′ → xs′ ⊗ ys′ ≣ zs′ × zs′ D.⊆ zs
+  ⊆-⊗ : xs′ ⊆ xs → ys′ ⊆ ys → xs ⊗ ys ≣ zs → ∃ λ zs′ → xs′ ⊗ ys′ ≣ zs′ × zs′ ⊆ zs
 
-  ⊆-⊗ (_ , consˡ i₁) i₂ (consˡ σ) with ⊆-⊗ (-, i₁) i₂ σ
-  ... | _ , σ′ , i′ = -, consˡ σ′ , D.⊆-∷ˡ i′
-  ⊆-⊗ (_ , consʳ i₁) i₂ (consˡ σ) with ⊆-⊗ (-, i₁) i₂ σ
-  ... | _ , σ′ , i′  = -, σ′ , D.⊆-∷ʳ i′
+  ⊆-⊗ (_  ∷ʳ i₁) (_  ∷ʳ i₂) (overlaps σ) with _ , σ' , i ← ⊆-⊗ i₁ i₂ σ = -, σ'       , _ ∷ʳ i
+  ⊆-⊗ (_  ∷ʳ i₁) (eq ∷  i₂) (overlaps σ) with _ , σ' , i ← ⊆-⊗ i₁ i₂ σ = -, consʳ σ' , eq ∷ i
+  ⊆-⊗ (eq ∷  i₁) (_  ∷ʳ i₂) (overlaps σ) with _ , σ' , i ← ⊆-⊗ i₁ i₂ σ = -, consˡ σ' , eq ∷ i
+  ⊆-⊗ (refl ∷  i₁) (refl ∷ i₂) (overlaps σ) with _ , σ' , i ← ⊆-⊗ i₁ i₂ σ = -, overlaps σ' , refl ∷ i
 
-  ⊆-⊗ (_ , consˡ i₁) (_ , consˡ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
-  ... | _ , σ′ , i′ = -, overlaps σ′ , D.⊆-∷ˡ i′
-  ⊆-⊗ (_ , consˡ i₁) (_ , consʳ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
-  ... | _ , σ′ , i′ = -, consˡ σ′ , D.⊆-∷ˡ i′
+  ⊆-⊗ (_  ∷ʳ i₁) i₂ (consˡ σ) with _ , σ' , i ← ⊆-⊗ i₁ i₂ σ = -, σ'       , _ ∷ʳ i
+  ⊆-⊗ (eq ∷  i₁) i₂ (consˡ σ) with _ , σ' , i ← ⊆-⊗ i₁ i₂ σ = -, consˡ σ' , eq ∷ i
+  ⊆-⊗ i₁ (_  ∷ʳ i₂) (consʳ σ) with _ , σ' , i ← ⊆-⊗ i₁ i₂ σ = -, σ'       , _ ∷ʳ i
+  ⊆-⊗ i₁ (eq ∷  i₂) (consʳ σ) with _ , σ' , i ← ⊆-⊗ i₁ i₂ σ = -, consʳ σ' , eq ∷ i
 
-  ⊆-⊗ (_ , consʳ i₁) (_ , consˡ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
-  ... | _ , σ′ , i′ = -, consʳ σ′ , D.⊆-∷ˡ i′
-  ⊆-⊗ (_ , consʳ i₁) (_ , consʳ i₂) (overlaps σ) with ⊆-⊗ (-, i₁) (-, i₂) σ
-  ... | _ , σ′ , i′ = -, σ′ , D.⊆-∷ʳ i′
-
-  ⊆-⊗ (.[] , []) (.[] , []) [] = -, ∙-idˡ , D.⊆-refl 
-
-  ⊆-⊗ i₁ (_ , consˡ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
-  ... | _ , σ′ , i′ = -, consʳ σ′ , D.⊆-∷ˡ i′
-  ⊆-⊗ i₁ (_ , consʳ i₂) (consʳ σ) with ⊆-⊗ i₁ (-, i₂) σ
-  ... | _ , σ′ , i′ = -, σ′ , D.⊆-∷ʳ i′
+  ⊆-⊗ [] [] [] = -, [] , []
 
 module _ where
   open import Data.List.Membership.Propositional

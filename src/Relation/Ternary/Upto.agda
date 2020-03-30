@@ -29,8 +29,8 @@ module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid _≈_ r u }} where
     _∼>_ : ∀ {q} (P : Pred A q) (Q : Pred A a) → Pred A (a ⊔ q)
     (P ∼> Q) Φ = P Φ → ⌈ Q ⌉ Φ
 
-    infixl 8 _∼⊙_
-    _∼⊙_ : ∀ {q} (P : Pred A q) (Q : Pred A a) → Pred A (a ⊔ q)
-    P ∼⊙ Q = P ─⊙ ⌈ Q ⌉
+    infixl 8 _∼✴_
+    _∼✴_ : ∀ {q} (P : Pred A q) (Q : Pred A a) → Pred A (a ⊔ q)
+    P ∼✴ Q = P ─✴ ⌈ Q ⌉
 
   open Upto {{...}} public

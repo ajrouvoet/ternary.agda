@@ -30,29 +30,7 @@ open Disjoint public using ([]; consˡ; consʳ; list-monoid) renaming
   ;list-isTotal     to disjoint-total)
 
 open Rel₃ Disjoint.splits using ()
-  renaming (_∙_≣_ to _⊕_≣_; _⊙_ to _⊕_; _─⊙_ to _─⊕_) public
-
-infixl 10 _⊆_
-_⊆_ : Ctx → Ctx → Set t
-_⊆_ = _≤_
-
-⊆-refl : ∀ {xs : Ctx} → xs ≤ xs
-⊆-refl  = ≤-refl
-
-⊆-trans : ∀ {xs ys zs : Ctx} → xs ≤ ys → ys ≤ zs → xs ≤ zs
-⊆-trans = ≤-trans
-
-⊆-min : ∀ {xs : Ctx} → [] ≤ xs
-⊆-min = -, ∙-idˡ
-
-⊆-∷ˡ : ∀ {x xs} → xs ⊆ ys → (x ∷ xs) ⊆ (x ∷ ys)
-⊆-∷ˡ σ = -, consˡ (proj₂ σ)
-
-⊆-∷ʳ : ∀ {x xs} → xs ⊆ ys → xs ⊆ (x ∷ ys)
-⊆-∷ʳ σ = -, consʳ (proj₂ σ)
-
-_∈_ : T → Ctx → Set t
-x ∈ xs = [ x ] ⊆ xs
+  renaming (_∙_≣_ to _⊕_≣_; _✴_ to _⊕_; _─✴_ to _─⊕_) public
 
 -- from the stdlib Interleaving properties
 toPermutation : ∀ {l r as} → l ⊕ r ≣ as → as ↭ l ++ r

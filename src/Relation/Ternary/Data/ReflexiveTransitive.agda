@@ -18,10 +18,10 @@ module _
 
   data Star : (a₁ a₂ : A) → Pred C c where
     nil   : ∀ {a}        → ε[ Star a a ]
-    cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ⊙ Star a₂ a₃ ⇒ Star a₁ a₃ ]
+    cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ✴ Star a₂ a₃ ⇒ Star a₁ a₃ ]
 
   data Plus : (a₁ a₂ : A) → Pred C c where
-    cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ⊙ Star a₂ a₃ ⇒ Plus a₁ a₃ ]
+    cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ✴ Star a₂ a₃ ⇒ Plus a₁ a₃ ]
   
 module _
   {A : Set c} {R : A → A → Pred C c}
@@ -36,7 +36,7 @@ module _
 
   pattern _▹⟨_⟩_ r σ rs = cons (r ∙⟨ σ ⟩ rs)
 
-  append : ∀ {a₁ a₂ a₃} → ∀[ Star R a₁ a₂ ⇒ Star R a₂ a₃ ─⊙ Star R a₁ a₃ ]
+  append : ∀ {a₁ a₂ a₃} → ∀[ Star R a₁ a₂ ⇒ Star R a₂ a₃ ─✴ Star R a₁ a₃ ]
   append nil ⟨ σ ⟩ y = coe (∙-id⁻ˡ σ) y
   append (cons (r ∙⟨ σ₁ ⟩ rs)) ⟨ σ₂ ⟩ y = 
     let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in

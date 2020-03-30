@@ -34,9 +34,9 @@ module _ {{r : Rel₃ A}} where
   _≈>_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a ⊔ e)
   P ≈> Q = P ⇒ (𝑸 Q)
 
-  infix 4 _~⊙_
-  _~⊙_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a ⊔ e)
-  P ~⊙ Q = P ─⊙ (𝑸 Q)
+  infix 4 _~✴_
+  _~✴_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a ⊔ e)
+  P ~✴ Q = P ─✴ (𝑸 Q)
 
 module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid _≈_ r u }} where
   open import Data.Unit

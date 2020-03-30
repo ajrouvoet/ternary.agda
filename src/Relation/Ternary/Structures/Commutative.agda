@@ -42,13 +42,13 @@ module CommutativeSemigroupOps
 
   -- pairs commute
   module _ {p q} {P : Pred A p} {Q : Pred A q} where
-    ⊙-swap : ∀[ (P ⊙ Q) ⇒ (Q ⊙ P) ]
-    ⊙-swap (px ∙⟨ σ ⟩ qx) = qx ∙⟨ ∙-comm σ ⟩ px
+    ✴-swap : ∀[ (P ✴ Q) ⇒ (Q ✴ P) ]
+    ✴-swap (px ∙⟨ σ ⟩ qx) = qx ∙⟨ ∙-comm σ ⟩ px
 
   module _ {p q p' q'}
     {P : Pred A p} {Q : Pred A q} {P' : Pred A p'} {Q' : Pred A q'} where
 
-    both : ∀[ (P ─⊙ P') ⊙ (Q ─⊙ Q') ⇒ P ⊙ Q ─⊙ P' ⊙ Q' ]
+    both : ∀[ (P ─✴ P') ✴ (Q ─✴ Q') ⇒ P ✴ Q ─✴ P' ✴ Q' ]
     both (f ∙⟨ σ₁ ⟩ g) ⟨ σ₃ ⟩ (px ∙⟨ σ₂ ⟩ qx) with resplit σ₁ σ₂ σ₃
     ... | _ , _ , σ₄ , σ₅ , σ₆ = (f ⟨ σ₄ ⟩ px) ∙⟨ σ₆ ⟩ (g ⟨ σ₅ ⟩ qx)
 
@@ -63,13 +63,13 @@ module CommutativeSemigroupOps
 
   -- pairs rotate and reassociate
   module _ {p q r} {P : Pred A p} {Q : Pred A q} {R : Pred A r} where
-    ⊙-rotateᵣ : ∀[ P ⊙ Q ⊙ R ⇒ R ⊙ P ⊙ Q ]
-    ⊙-rotateᵣ (p ∙⟨ σ₁ ⟩ (q ∙⟨ σ₂ ⟩ r)) =
+    ✴-rotateᵣ : ∀[ P ✴ Q ✴ R ⇒ R ✴ P ✴ Q ]
+    ✴-rotateᵣ (p ∙⟨ σ₁ ⟩ (q ∙⟨ σ₂ ⟩ r)) =
       let _ , σ₃ , σ₄ = ∙-rotateᵣ σ₁ σ₂ in
       r ∙⟨ σ₃ ⟩ p ∙⟨ σ₄ ⟩ q
 
-    ⊙-rotateₗ : ∀[ P ⊙ (Q ⊙ R) ⇒ Q ⊙ R ⊙ P ]
-    ⊙-rotateₗ (p ∙⟨ σ₁ ⟩ (q ∙⟨ σ₂ ⟩ r)) =
+    ✴-rotateₗ : ∀[ P ✴ (Q ✴ R) ⇒ Q ✴ R ✴ P ]
+    ✴-rotateₗ (p ∙⟨ σ₁ ⟩ (q ∙⟨ σ₂ ⟩ r)) =
       let _ , σ₃ , σ₄ = ∙-rotateₗ σ₁ σ₂ in
       q ∙⟨ σ₃ ⟩ r ∙⟨ σ₄ ⟩ p
 

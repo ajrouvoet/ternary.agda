@@ -21,11 +21,11 @@ open import Relation.Ternary.Structures _≈_
 
 mutual
   Cont : ∀ {Δ} → Cmd Δ → Pred A ℓ → Pred A ℓ
-  Cont c P = δ c ─⊙ Free P
+  Cont c P = δ c ─✴ Free P
 
   data Free : Pt A ℓ where
     pure   : ∀ {P}   → ∀[ P ⇒ Free P ]
-    impure : ∀ {P}   → ∀[ ∃[ Cmd ]⊙ (λ c → Cont c P) ⇒ Free P ]
+    impure : ∀ {P}   → ∀[ ∃[ Cmd ]✴ (λ c → Cont c P) ⇒ Free P ]
 
 module _ {u} {{_ : IsPartialMonoid r u}} where
   instance

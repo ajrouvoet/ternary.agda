@@ -14,5 +14,5 @@ record IsIntuitionistic {c} (Condition : A → Set c) (rel : Rel₃ A) : Set (a 
   field
     ∙-copy    : ∀ {xs : A} {{c : Condition xs}} → xs ∙ xs ≣ xs
 
-  copy : ∀ {p} {P : Pred A p} {xs} → {{_ : Condition xs}} → P xs → (P ⊙ P) xs
+  copy : ∀ {p} {P : Pred A p} {xs} → {{_ : Condition xs}} → P xs → (P ✴ P) xs
   copy px = px ∙⟨ ∙-copy ⟩ px

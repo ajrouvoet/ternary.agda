@@ -19,7 +19,7 @@ open import Relation.Ternary.Monad
 module _ where
   infixr 10 _⇑
   _⇑ : ∀ {ℓ} → PT A A ℓ (a ⊔ ℓ)
-  P ⇑ = P ⊙ U
+  P ⇑ = P ✴ U
 
   -- _⇈_ : ∀ {ℓ} {P : Pred A ℓ} {Φ₁ Φ₂ Φ} → P Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → (P ⇑) Φ
   pattern _⇈_ px σ = px ∙⟨ σ ⟩ tt
@@ -34,14 +34,14 @@ module _ where
     Strong.str ⇑-strong qx ⟨ σ ⟩ px ⇈ wk with _ , σ₃ , σ₄ ← ∙-assocₗ σ wk = (qx ∙⟨ σ₃ ⟩ px) ⇈ σ₄
 
   module _ {ℓ} {P Q : Pred A ℓ} where
-    π₁ : ∀[ P ⊙ Q ⇒ P ⇑ ]
+    π₁ : ∀[ P ✴ Q ⇒ P ⇑ ]
     π₁ (px ∙⟨ σ ⟩ qx) = px ⇈ σ
 
-    π₂ : ∀[ P ⊙ Q ⇒ Q ⇑ ]
+    π₂ : ∀[ P ✴ Q ⇒ Q ⇑ ]
     π₂ (px ∙⟨ σ ⟩ qx) = qx ⇈ (∙-comm σ)
 
   module _ {P Q : Pred A a} where
-    unstar : ∀[ (P ⊙ Q) ⇑ ⇒ ((P ⇑) ∩ (Q ⇑)) ]
+    unstar : ∀[ (P ✴ Q) ⇑ ⇒ ((P ⇑) ∩ (Q ⇑)) ]
     unstar p✴q = (p✴q >>= π₁) , (p✴q >>= π₂)
 
   th : ∀ {ℓ} {P : Pred A ℓ} → Φ₁ ∙ Φ₂ ≣ Φ → (P ⇑) Φ₁ →  (P ⇑) Φ

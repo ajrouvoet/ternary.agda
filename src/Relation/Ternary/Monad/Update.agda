@@ -33,7 +33,7 @@ module _ {{_ : Rel₃ A}} where
 
   infixr 8 _⟾_
   _⟾_ : ∀ {p q} → (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
-  P ⟾ Q = P ─⊙ (⤇ Q)
+  P ⟾ Q = P ─✴ (⤇ Q)
 
 module _
   {{r  : Rel₃ A}}
@@ -42,11 +42,18 @@ module _
   where
 
   instance
-    ⤇-monad : Monad ⊤ (λ _ _ → ⤇ {p = a})
-    Monad.return ⤇-monad px       = local λ σ → -, σ , px
-    Monad.bind ⤇-monad f ⟨ σₚ ⟩ p = local λ fr →
+    ⤇-monad : Monad ⊤ (λ _ _ → ⤇)
+    Monad.return ⤇-monad px  = local λ σ → -, σ , px
+    Monad._=<<_  ⤇-monad f ⤇p = local λ σ →
       let
-        _ , σ₁ , σ₂     = ∙-assocₗ (proj₂ fr) σₚ
-        Δ , σ₃ , px = update p (-, σ₂)
-        _ , σ₄ , σ₅     = ∙-assocᵣ σ₁ (proj₂ σ₃)
-      in update (f ⟨ σ₅ ⟩ px) (-, σ₄) 
+        _ , τ₁ , px = update ⤇p σ
+        _ , τ₂ , qx = update (f px) τ₁
+      in _ , τ₂ , qx
+
+    ⤇-strong : Strong ⊤ (λ _ _ → ⤇)
+    Strong.str ⤇-strong qx ⟨ σ₁ ⟩ ⤇px = local λ (_ , σ₂) →
+      let
+        _ , σ₃ , σ₄      = ∙-assocₗ σ₂ σ₁
+        _ , (_ , τ) , px = update ⤇px (-, σ₄)
+        _ , σ₅ , σ₆      = ∙-assocᵣ σ₃ τ
+      in -, ((-, σ₅) , qx  ∙⟨ σ₆ ⟩ px)

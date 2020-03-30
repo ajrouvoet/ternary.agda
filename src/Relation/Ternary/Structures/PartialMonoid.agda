@@ -58,21 +58,21 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
   ∙-id⁺ʳ eq = coe eq ∙-idʳ
 
   module _ {p} {P : Pred A p} {{_ : Respect _≈_ P}} where
-    ⊙-id⁻ʳ : ∀[ P ⊙ Emp ⇒ P ]
-    ⊙-id⁻ʳ (px ∙⟨ σ ⟩ refl) = coe (∙-id⁻ʳ σ) px
+    ✴-id⁻ʳ : ∀[ P ✴ Emp ⇒ P ]
+    ✴-id⁻ʳ (px ∙⟨ σ ⟩ refl) = coe (∙-id⁻ʳ σ) px
 
-    ⊙-id⁻ˡ : ∀[ Emp ⊙ P ⇒ P ]
-    ⊙-id⁻ˡ (refl ∙⟨ σ ⟩ px) = coe (∙-id⁻ˡ σ) px 
+    ✴-id⁻ˡ : ∀[ Emp ✴ P ⇒ P ]
+    ✴-id⁻ˡ (refl ∙⟨ σ ⟩ px) = coe (∙-id⁻ˡ σ) px 
 
   module _ {p} {P : Pred A p} where
-    ⊙-idʳ : ∀[ P ⇒ P ⊙ Emp ]
-    ⊙-idʳ px = px ∙⟨ ∙-idʳ ⟩ refl
+    ✴-idʳ : ∀[ P ⇒ P ✴ Emp ]
+    ✴-idʳ px = px ∙⟨ ∙-idʳ ⟩ refl
 
-    ⊙-idˡ : ∀[ P ⇒ Emp ⊙ P ]
-    ⊙-idˡ px = refl ∙⟨ ∙-idˡ ⟩ px
+    ✴-idˡ : ∀[ P ⇒ Emp ✴ P ]
+    ✴-idˡ px = refl ∙⟨ ∙-idˡ ⟩ px
   module _ {p q} {P : Pred A p} {Q : Pred A q} {{_ : Respect _≈_ Q}} where
 
-    arrow : ∀[ P ⇒ Q ] → ε[ P ─⊙ Q ]
+    arrow : ∀[ P ⇒ Q ] → ε[ P ─✴ Q ]
     arrow f ⟨ σ ⟩ px = coe (∙-id⁻ˡ σ) (f px)
 
   {- A free preorder -}

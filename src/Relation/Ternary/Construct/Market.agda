@@ -122,11 +122,11 @@ module _ {e} {_≈ₐ_ : A → A → Set e} {u}
   -- matching (offerᵣ σ) = offerᵣ (∙-∙ₗ σ)
 
   -- module _ {p q} {P : Pred A p} {Q : Pred (A × A) q} where
-    -- ○≺●ₗ : ∀[ P ⇒ (● Q ─⊙ ● (Π₂ P ⊙ Q)) ∘ demand ]
+    -- ○≺●ₗ : ∀[ P ⇒ (● Q ─✴ ● (Π₂ P ✴ Q)) ∘ demand ]
     -- ○≺●ₗ px ⟨ offerₗ σ₁ ⟩ lift qx σ₂ with ∙-assocᵣ σ₁ σ₂
     -- ... | _ , σ₃ , σ₄ = lift (snd px ∙⟨ ∙-idˡ , σ₄ ⟩ qx ) σ₃
 
-    -- ○≺●ᵣ : ∀[ ● (Π₂ P ⊙ Q) ⇒ (○ P) ⊙ ● Q ]
+    -- ○≺●ᵣ : ∀[ ● (Π₂ P ✴ Q) ⇒ (○ P) ✴ ● Q ]
     -- ○≺●ᵣ (lift (snd px ∙⟨ σₗ , σᵣ ⟩ qx) σ₂) with ∙-assocₗ σ₂ σᵣ
     -- ... | _ , σ₃ , σ₄ = lift px ∙⟨ offerᵣ (∙-comm σ₃) ⟩ lift qx (coe (≈-sym (∙-id⁻ˡ σₗ)) σ₄)
 

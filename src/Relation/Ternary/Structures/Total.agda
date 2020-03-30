@@ -57,4 +57,7 @@ record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A 
       coe {{∙-respects-≈ˡ}} (identityʳ _)
         (coe {{∙-respects-≈ʳ}} (identityˡ _) z)
 
+    pair : ∀ {p q} {P : Pred A p} {Q : Pred A q} {Φ₁ Φ₂} → P Φ₁ → Q Φ₂ → (P ✴ Q) (Φ₁ ++ Φ₂)
+    pair px qx = px ∙⟨ ∙-∙ ⟩ qx
+
 open IsTotal {{...}} public

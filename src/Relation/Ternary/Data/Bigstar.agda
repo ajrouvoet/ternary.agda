@@ -17,7 +17,7 @@ open import Relation.Ternary.Structures.Syntax
 infixr 10 cons
 data Bigstar {p} (P : Pred A p) : Pred A (a ⊔ p) where
   emp  : ε[ Bigstar P ]
-  cons : ∀[ P ⊙ Bigstar P ⇒ Bigstar P ]
+  cons : ∀[ P ✴ Bigstar P ⇒ Bigstar P ]
 
 instance bigstar-respects : ∀ {p} {P : Pred A p} → Respect _≈_ (Bigstar P)
 Respect.coe bigstar-respects eq emp with ε-unique eq
@@ -29,18 +29,24 @@ pattern _✴⟨_⟩_ px σ qx = cons (px ∙⟨ σ ⟩ qx)
 [_] : ∀ {p} {P : Pred A p} → ∀[ P ⇒ Bigstar P ]
 [ px ] = cons (px ∙⟨ ∙-idʳ ⟩ emp)
 
+module _ {p q} {P : Pred A p} {Q : Pred A q} where
+
+  ⊛-map : ∀[ P ⇒ Q ] → ∀[ Bigstar P ⇒ Bigstar Q ]
+  ⊛-map f emp = emp
+  ⊛-map f (px ✴⟨ σ ⟩ pxs) = f px ✴⟨ σ ⟩ ⊛-map f pxs
+
 module _ {{ _ : IsCommutative r }} where
-  append : ∀ {p} {P : Pred A p} → ∀[ P ⇒ Bigstar P ─⊙ Bigstar P ]
+  append : ∀ {p} {P : Pred A p} → ∀[ P ⇒ Bigstar P ─✴ Bigstar P ]
   append px ⟨ σ ⟩ emp = coe (∙-id⁻ʳ σ) [ px ]
   append px ⟨ σ ⟩ cons (qx ∙⟨ σ₁ ⟩ pxs) =
     let _ , σ₂ , σ₃ = ∙-rotateₗ σ σ₁
         qxs = append px ⟨ ∙-comm σ₃ ⟩ pxs
     in cons (qx ∙⟨ σ₂ ⟩ qxs)
 
-  concat : ∀ {p} {P : Pred A p} → ∀[ Bigstar P ⇒ Bigstar P ─⊙ Bigstar P ]
+  concat : ∀ {p} {P : Pred A p} → ∀[ Bigstar P ⇒ Bigstar P ─✴ Bigstar P ]
   concat emp ⟨ σ ⟩ ys = coe (∙-id⁻ˡ σ ) ys
   concat (cons (x ∙⟨ σ₁ ⟩ xs)) ⟨ σ ⟩ ys with ∙-assocᵣ σ₁ σ
-  ... | _ , σ₂ , σ₃ = cons (x ∙⟨ σ₂ ⟩ (concat xs ⟨ σ₃ ⟩ ys)) 
+  ... | _ , σ₂ , σ₃ = cons (x ∙⟨ σ₂ ⟩ (concat xs ⟨ σ₃ ⟩ ys))
 
 -- open import Relation.Ternary.Separation.Monad.Error
 -- open import Relation.Ternary.Separation.Morphisms

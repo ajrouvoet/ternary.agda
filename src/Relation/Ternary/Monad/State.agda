@@ -28,7 +28,7 @@ private
 module _ where
 
   STATET : (M : Pt Market ℓ) → (l r : Pred C ℓ) → Pt C ℓ
-  STATET M St St' P = (● St ─⊙ M (○ P ⊙ ● St')) ∘ demand
+  STATET M St St' P = (● St ─✴ M (○ P ✴ ● St')) ∘ demand
 
   StateT : (M : Pt Market ℓ) → Pred C ℓ → Pt C ℓ
   StateT M St = STATET M St St

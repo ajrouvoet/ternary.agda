@@ -31,11 +31,11 @@ record IsJoinoid {e₂}
   : Set (a ⊔ e₂) where
 
   open Rel₃ ▹-rel using ()
-    renaming (_∙_≣_ to _▹_≣_; _⊙_ to _▹_) public
+    renaming (_∙_≣_ to _▹_≣_; _✴_ to _▹_) public
   open Rel₃ ∥-rel  using ()
-    renaming (_∙_≣_ to _∥_≣_; _⊙_ to _∥_) public
+    renaming (_∙_≣_ to _∥_≣_; _✴_ to _∥_) public
   open Rel₃ ∣-rel  using ()
-    renaming (_∙_≣_ to _∣_≣_; _⊙_ to _∣_) public
+    renaming (_∙_≣_ to _∣_≣_; _✴_ to _∣_) public
 
   field
     -- overlap {{≤-isPreorder}}          : IsPreorder _≈_ _≤_

@@ -5,7 +5,7 @@ module Relation.Ternary.Construct.List {a} {A : Set a} (division : Rel₃ A) whe
 
 open import Level
 open import Data.Product hiding (swap)
-open import Data.List
+open import Data.List hiding (_∷ʳ_)
 open import Data.List.Extra
 open import Data.List.Properties using (++-isMonoid; ++-identityʳ)
 open import Data.List.Relation.Binary.Equality.Propositional
@@ -20,7 +20,7 @@ open import Relation.Ternary.Structures.Syntax hiding (≤-refl; ≤-trans)
 
 import Data.Nat as Nat
 
-open import Relation.Unary hiding (_∈_; _⊢_)
+open import Relation.Unary hiding (_∈_; _⊢_; _⊆_)
 
 private
   instance sep-instance = division
@@ -239,3 +239,13 @@ module _ where
   ∙-↭ σ (trans ρ₁ ρ₂) with ∙-↭ σ ρ₁
   ... | _ , h₁ , h₂ , σ₂ with ∙-↭ σ₂ ρ₂
   ... | _ , h₃ , h₄ , σ₃ = _ , smart-trans h₃ h₁ , smart-trans h₄ h₂ , σ₃
+
+module _ where
+
+  open import Data.List.Relation.Binary.Sublist.Propositional
+  open import Data.List.Relation.Binary.Sublist.Propositional.Properties
+
+  from-⊆ : ∀ {xs zs} → xs ⊆ zs → ∃ λ ys → Split xs ys zs
+  from-⊆ [] = -, []
+  from-⊆ (y    ∷ʳ i) = -, consʳ (proj₂ (from-⊆ i))
+  from-⊆ (refl ∷ i)  = -, consˡ (proj₂ (from-⊆ i))

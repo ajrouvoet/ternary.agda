@@ -27,7 +27,7 @@ module _ {ℓ} (P : I → Pred C ℓ) where
 
   data Allstar : List I → Pred C (ℓ ⊔ i) where
     nil  :            ε[ Allstar [] ]
-    cons : ∀ {x xs} → ∀[ P x ⊙ Allstar xs ⇒ Allstar (x ∷ xs) ]
+    cons : ∀ {x xs} → ∀[ P x ✴ Allstar xs ⇒ Allstar (x ∷ xs) ]
 
 module _ {ℓ} {P : I → Pred C ℓ} where
   instance allstar-respects-≈ : ∀ {is} → Respect _≈_ (Allstar P is)
@@ -43,7 +43,7 @@ module _ {ℓ} {P : I → Pred C ℓ} {u : C} {{m : IsPartialMonoid _≈_ rel u}
   singleton : ∀ {x} → ∀[ P x ⇒ Allstar P [ x ] ]
   singleton v = v :⟨ ∙-idʳ ⟩: nil
 
-  concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ⊙ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ] 
+  concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ✴ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ] 
   concat (nil ∙⟨ s ⟩ env₂) = coe (∙-id⁻ˡ s) env₂
   concat ((v :⟨ s ⟩: env₁) ∙⟨ s' ⟩ env₂) =
     let
@@ -54,7 +54,7 @@ module _ {ℓ} {P : I → Pred C ℓ} {u : C} {{m : IsPartialMonoid _≈_ rel u}
 module _ {{_ : IsCommutative rel}} where
 
   repartition : ∀ {ℓ} {P : I → Pred C ℓ} {Σ₁ Σ₂ Σ} →
-                Σ₁ ∙ Σ₂ ≣ Σ → ∀[ Allstar P Σ ⇒ Allstar P Σ₁ ⊙ Allstar P Σ₂ ]
+                Σ₁ ∙ Σ₂ ≣ Σ → ∀[ Allstar P Σ ⇒ Allstar P Σ₁ ✴ Allstar P Σ₂ ]
   repartition [] nil   = nil ∙⟨ ∙-idˡ ⟩ nil
   repartition (consˡ σ) (cons (a ∙⟨ σ′ ⟩ qx)) = 
     let

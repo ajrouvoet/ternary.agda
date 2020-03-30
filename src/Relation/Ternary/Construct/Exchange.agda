@@ -48,8 +48,8 @@ private
   variable
     u₁ u₂ u₃ d₁ d₂ d₃ u d : A
 
-open Rel₃ r₁ using () renaming (_∙_≣_ to _∙₁_≣_; _⊙_ to _⊙₁_; _─⊙_ to _─⊙₁_)
-open Rel₃ r₂ using () renaming (_∙_≣_ to _∙₂_≣_; _⊙_ to _⊙₂_; _─⊙_ to _─⊙₂_)
+open Rel₃ r₁ using () renaming (_∙_≣_ to _∙₁_≣_; _✴_ to _✴₁_; _─✴_ to _─✴₁_)
+open Rel₃ r₂ using () renaming (_∙_≣_ to _∙₂_≣_; _✴_ to _✴₂_; _─✴_ to _─✴₂_)
 
 module _ where
 
@@ -271,10 +271,10 @@ module _ where
   liftUp σ = ex ε-sub ε-sub σ ∙-idˡ
 
 module _ {P Q : Pred A ℓ} where
-  zipUp : ∀[ (Up P) ⊙ (Up Q) ⇒ Up (P ⊙₁ Q) ]
+  zipUp : ∀[ (Up P) ✴ (Up Q) ⇒ Up (P ✴₁ Q) ]
   zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx)) 
 
-  zipDown : ∀[ (Down P) ⊙ (Down Q) ⇒ Down (P ⊙₂ Q) ]
+  zipDown : ∀[ (Down P) ✴ (Down Q) ⇒ Down (P ✴₂ Q) ]
   zipDown (↓ p ∙⟨ σ ⟩ ↓ q) = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (p ∙⟨ σ↓ ⟩ q))
 
 module _ {P} where
@@ -284,11 +284,11 @@ module _ {P} where
 
 module _ {P Q : Pred A ℓ} {{_ : Respect _≈ₐ_ Q}} where
 
-  upMap : ∀[ Up (P ─⊙₁ Q) ⇒ (Up P ─⊙ Up Q) ]
+  upMap : ∀[ Up (P ─✴₁ Q) ⇒ (Up P ─✴ Up Q) ]
   upMap (↑ f) ⟨ σ ⟩ ↑ px = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (f ⟨ σ↑ ⟩ px))
 
   _<*>_ : ∀[ Up (P ⇒ Q) ∘ (_⇅ ε) ] → ∀[ Up P ⇒ Up Q ]
   f <*> (↑ upx) = ↑ (case f of λ where (↑ f) → f upx)
 
-  downMap : ∀[ Down (P ─⊙₂ Q) ⇒ (Down P ─⊙ Down Q) ]
+  downMap : ∀[ Down (P ─✴₂ Q) ⇒ (Down P ─✴ Down Q) ]
   downMap (↓ f) ⟨ σ ⟩ ↓ px = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (f ⟨ σ↓ ⟩ px))

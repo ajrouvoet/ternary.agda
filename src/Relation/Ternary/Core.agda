@@ -44,9 +44,10 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
     whole : Φ₁ ◆ Φ₂ → A
     whole = proj₁
 
-  -- buy one, get a preorder for free
-  _≤_ : Rel A _
-  Φ₁ ≤ Φ = ∃ λ Φ₂ → Φ₁ ∙ Φ₂ ≣ Φ
+  module _ where
+    -- buy one, get a preorder for free
+    _≤_ : Rel A _
+    Φ₁ ≤ Φ = ∃ λ Φ₂ → Φ₁ ∙ Φ₂ ≣ Φ
 
  {- Partial products over the relation -}
   module _ where
@@ -62,18 +63,18 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
         sep : Φₗ ∙ Φᵣ ≣ Φ
         qx  : Q px Φᵣ
 
-    infixr 9 ∃[_]⊙_
-    ∃[_]⊙_ = Conj
+    infixr 9 ∃[_]✴_
+    ∃[_]✴_ = Conj
 
-    infixr 9 _⊙_
-    _⊙_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a)
-    P ⊙ Q = ∃[ P ]⊙ const Q
+    infixr 9 _✴_
+    _✴_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a)
+    P ✴ Q = ∃[ P ]✴ const Q
 
   {- Partial exponents over the relation -}
   module _ where
 
-    infixr 8 _─⊙[_]_
-    record _─⊙[_]_ {b p q} {B : Set b}
+    infixr 8 _─✴[_]_
+    record _─✴[_]_ {b p q} {B : Set b}
       (P : Pred B p)
       (j : B → A)
       (Q : Pred A q)
@@ -85,15 +86,15 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
       field
         _⟨_⟩_ : ∀ {Φₚ Φ} → Φᵢ ∙ j Φₚ ≣ Φ → P Φₚ → Q Φ
 
-    open _─⊙[_]_ public
+    open _─✴[_]_ public
 
-    infixr 8 _─⊙_ 
-    _─⊙_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
-    _─⊙_ = _─⊙[ id ]_
+    infixr 8 _─✴_ 
+    _─✴_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
+    _─✴_ = _─✴[ id ]_
 
   module _ {p q} {P : Pred A p} {Q : Pred A q} where
 
-    apply : ∀[ (P ─⊙ Q) ⊙ P ⇒ Q ]
+    apply : ∀[ (P ─✴ Q) ✴ P ⇒ Q ]
     apply (f ∙⟨ σ ⟩ px) = f ⟨ σ ⟩ px
 
 {- Rel morphisms -}

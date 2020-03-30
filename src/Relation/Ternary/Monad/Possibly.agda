@@ -12,7 +12,8 @@ open import Relation.Binary.PropositionalEquality using (_≡_)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Structures.Syntax
-open import Relation.Ternary.Monad hiding (_>>=_)
+open import Relation.Ternary.Monad
+open import Relation.Ternary.Monad.Update
 open import Algebra.Structures
 
 open import Data.Unit
@@ -52,10 +53,10 @@ module Possibly {r g} {G : Set g} (_∼[_]_  : GradedRel A G r) where
     (mono : ∀ {cₙ cₙ₊₁ a b} → cₙ ∼ cₙ₊₁ → a ∙ b ≣ cₙ₊₁ → cₙ ∼ a)
     where
 
-    π₁ : ∀[ ◇ (P ⊙ Q) ⇒ ◇ P ]
+    π₁ : ∀[ ◇ (P ✴ Q) ⇒ ◇ P ]
     π₁ (_ , possibly r (px ∙⟨ σ ⟩ qx)) with _ , r' ← mono (-, r) σ          = -, (possibly r' px)
 
-    π₂ : {{_ : IsCommutative r}} → ∀[ ◇ (P ⊙ Q) ⇒ ◇ Q ]
+    π₂ : {{_ : IsCommutative r}} → ∀[ ◇ (P ✴ Q) ⇒ ◇ Q ]
     π₂ (_ , possibly r (px ∙⟨ σ ⟩ qx)) with _ , r' ← mono (-, r) (∙-comm σ) = -, (possibly r' qx)
 
   module _ {{r  : Rel₃ A}} {e}  {_≈_ : A → A → Set e}
@@ -85,7 +86,7 @@ module Possibly {r g} {G : Set g} (_∼[_]_  : GradedRel A G r) where
     goin : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] (◇[ Δ₂ ] P) ⇒ ◇[ Δ ] P ]
     goin σ (possibly x∼y (possibly y∼z px)) = possibly (∼-trans σ x∼y y∼z) px
 
-    gstr : ∀ {Δ} → ∀[ P ⊙ (◇[ Δ ] Q) ⇒ ◇[ Δ ] (P ⊙ Q) ]
+    gstr : ∀ {Δ} → ∀[ P ✴ (◇[ Δ ] Q) ⇒ ◇[ Δ ] (P ✴ Q) ]
     gstr (px ∙⟨ σ ⟩ possibly rel qx) with ∼-fp rel (-, σ)
     ... | di , rel' = possibly rel' (px ∙⟨ proj₂ di ⟩ qx)
 
@@ -98,7 +99,7 @@ module Possibly {r g} {G : Set g} (_∼[_]_  : GradedRel A G r) where
             → b ∼[ Δ₂ ] b'
             → ∃ λ c' → a' ∙ b' ≣ c' × c ∼[ Δ ] c') where
 
-      ◇-zip : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] P ⊙ ◇[ Δ₂ ] Q ⇒ ◇[ Δ ] (P ⊙ Q) ]
+      ◇-zip : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] P ✴ ◇[ Δ₂ ] Q ⇒ ◇[ Δ ] (P ✴ Q) ]
       ◇-zip δ (possibly r₁ px ∙⟨ σ ⟩ possibly r₂ qx) with ∼-pull δ σ r₁ r₂ 
       ... | _ , σ′ , r′ = possibly r′ (px ∙⟨ σ′ ⟩ qx)
 
@@ -110,7 +111,7 @@ module Possibly {r g} {G : Set g} (_∼[_]_  : GradedRel A G r) where
             → ∃₂ λ a' b'
             → a' ∼[ Δ ] a × b' ∼[ Δ ] b × a' ∙ b' ≣ c') where
 
-      ◇-unzip : ∀[ ◇[ Δ ] (P ⊙ Q) ⇒ ◇[ Δ ] P ⊙ ◇[ Δ ] Q ]
+      ◇-unzip : ∀[ ◇[ Δ ] (P ✴ Q) ⇒ ◇[ Δ ] P ✴ ◇[ Δ ] Q ]
       ◇-unzip (possibly rel (px ∙⟨ σ ⟩ qx)) with _ , _ , r₂ , r₃ , τ ← ∼-push rel σ =
         possibly r₂ px ∙⟨ τ ⟩ possibly r₃ qx
 
@@ -135,5 +136,5 @@ module ◇-Monad
     Strong.str ◇-strong qx ⟨ σ ⟩ (_ , possibly rel px) with fr , rel' ← ∼-fp (-, rel) (-, σ) =
       -, Possibly.possibly (proj₂ rel') (qx ∙⟨ proj₂ fr ⟩ px)
 
-  -- ◇-⤇ : ∀[ ◇ P ⇒ ⤇ P ]
-  -- ◇-⤇ (_ , possibly r px) = local (λ fr → _ , proj₁ (∼-fp (-, r) fr) , px)
+  ◇-⤇ : ∀[ ◇ P ⇒ ⤇ P ]
+  ◇-⤇ (_ , possibly r px) = local (λ fr → _ , proj₁ (∼-fp (-, r) fr) , px)
