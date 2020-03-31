@@ -31,8 +31,6 @@ module _
     private instance _ = rb
 
     field
-      overlap {{eqa}} : IsEquivalence _≈a_
-      overlap {{eqb}} : IsEquivalence _≈b_
       j       : A → B
       jcong   : Congruent _≈a_ _≈b_ j
       j-ε     : j εa ≈b εb
@@ -61,6 +59,9 @@ module _
 
       jmap : ∀ {p q} {P : Pred A p} {Q : Pred A q} → ∀[ (P ─✴ Q) ⇒ⱼ (J P ─✴ J Q) ]
       jmap f ⟨ σ ⟩ (inj px) with _ , τ , refl ← j-∙⁻ σ = inj (f ⟨ τ ⟩ px)
+
+      J⁻ : ∀ {p} (P : Pred B p) → Pred A p
+      J⁻ P Φ = P (j Φ)
 
 {- identity morphism -}
 module _ {a e} {A : Set a} {{r : Rel₃ A}}
