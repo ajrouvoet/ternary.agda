@@ -60,8 +60,8 @@ module _ where
       up   : A
       down : A
 
-    pair : A × A
-    pair = up , down
+    givePair : A × A
+    givePair = up , down
 
   open Account public
 
@@ -69,7 +69,7 @@ module _ where
 
   open import Data.Product.Relation.Binary.Pointwise.NonDependent
   _≈_ : Account → Account → Set _
-  a ≈ b = Pointwise _≈ₐ_ _≈ₐ_ (pair a) (pair b)
+  a ≈ b = Pointwise _≈ₐ_ _≈ₐ_ (givePair a) (givePair b)
 
   instance account-equiv : IsEquivalence _≈_
   IsEquivalence.refl account-equiv  = ≈-refl , ≈-refl
