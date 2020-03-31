@@ -21,6 +21,7 @@ open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Data.Allstar A
 open import Relation.Ternary.Upto.Quotient
 open import Relation.Ternary.Monad
@@ -32,7 +33,7 @@ private
 
 module ReaderTransformer
   (V : A → Pred C a)
-  (M : Pt C a) {{monad : Monad ⊤ (λ _ _ → M)}}
+  (M : Pt C a)
   where
 
   open import Relation.Ternary.Construct.List.Disjoint A
@@ -46,24 +47,24 @@ module ReaderTransformer
     Reader Γ₁ Γ₂ P = (Allstar V Γ₁) ─✴ M (P ✴ Allstar V Γ₂)
 
     instance
-      reader-monad : Monad (List A) Reader
-      Monad.return reader-monad px ⟨ σ ⟩ env = do
-        Monad.return monad (px ∙⟨ σ ⟩ env)
-      Monad.bind reader-monad f ⟨ σ₁ ⟩ mp ⟨ σ₂ ⟩ env =
-        let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in
-        bind
-          (arr λ where
-            σ₅ (env' ∙⟨ σ₆ ⟩ px) → let _ , σ₇ , σ₈ = ∙-assocₗ σ₅ σ₆ in f ⟨ σ₇ ⟩ env' ⟨ σ₈ ⟩ px)
-          ⟨ σ₃ ⟩
-          (mp ⟨ σ₄ ⟩ env)
+      reader-monad : {{monad : Monad ⊤ (λ _ _ → M)}} → Monad (List A) Reader
+      Monad.return reader-monad px ⟨ σ ⟩ env   = return (px ∙⟨ σ ⟩ env)
+      Monad._=<<_ reader-monad f mp ⟨ σ₁ ⟩ env = do
+        px ∙⟨ σ₂ ⟩ env' ← mp ⟨ σ₁ ⟩ env
+        f px ⟨ σ₂ ⟩ env'
 
-  module _ where
+      reader-strong : {{monad : Strong ⊤ (λ _ _ → M)}} → Strong (List A) Reader
+      Strong.str reader-strong {Q = Q} qx ⟨ σ₁ ⟩ mp ⟨ σ₂ ⟩ env = do
+        let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂
+        ✴-assocₗ ⟨$⟩ (mp ⟨ σ₄ ⟩ env &⟨ Q # σ₃ ⟩ qx)
+
+  module _ {{monad : Monad ⊤ (λ _ _ → M)}} where
 
     ask : ε[ Reader Γ [] (Allstar V Γ) ]
     ask ⟨ σ ⟩ env = return (env ∙⟨ ∙-id⁺ʳ (∙-id⁻ˡ σ) ⟩ nil)
 
   module _
-    {{_ : ∀ {P} → Respect _≈_ (M P) }}
+    {{monad : Strong ⊤ (λ _ _ → M)}}
     {{_ : IsCommutative rel}} where
 
     frame : Γ₁ ∙ Γ₃ ≣ Γ₂ → ∀[ Reader Γ₁ [] P ⇒ Reader Γ₂ Γ₃ P ]
@@ -74,8 +75,7 @@ module ReaderTransformer
       return (px ∙⟨ ∙-comm (coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ʳ σ₆)) σ₅) ⟩ E₂ )
 
     liftM : ∀[ M P ⇒ Reader Γ Γ P ]
-    liftM mp ⟨ σ ⟩ env =
-      mapM (mp &⟨ ∙-comm σ ⟩ env) ✴-swap
+    liftM mp ⟨ σ ⟩ env = ✴-swap ⟨$⟩ (mp &⟨ ∙-comm σ ⟩ env)
 
     lookup : ∀ {a} → ε[ Reader [ a ] [] (V a) ]
     lookup =
