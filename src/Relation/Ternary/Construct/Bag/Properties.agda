@@ -4,17 +4,17 @@ module Relation.Ternary.Construct.Bag.Properties {ℓ} {A : Set ℓ} where
 open import Level
 open import Data.Unit using (⊤; tt)
 open import Data.Product hiding (swap)
-open import Data.List
-open import Data.List.Extra
+open import Data.List as List
 open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties
 
 open import Relation.Nullary
 open import Relation.Unary
 open import Relation.Unary.PredicateTransformer using (Pt)
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality as ≡
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
+open import Relation.Ternary.Morphisms
 
 module CrossSplittable
   {{div₁ : Rel₃ A}} {{div₂ : Rel₃ A}}
@@ -40,11 +40,11 @@ module CrossSplittable
   private module X = ListXSplit div₁ div₂ xsplitₐ
   
   xsplit : CrossSplit L.bags R.bags
-  xsplit (hustle ρx ρy ρz σ₁) (hustle ρx₁ ρy₁ ρz₁ σ₂) with I₁.∙-↭ σ₁ (smart-trans ρz (↭-sym ρz₁))
+  xsplit (hustle ρx ρy ρz σ₁) (hustle ρx₁ ρy₁ ρz₁ σ₂) with I₁.∙-↭ σ₁ (↭-trans ρz (↭-sym ρz₁))
   ... | _ , ρₗ , ρᵣ , σ₁′ with X.xsplit σ₁′ σ₂
   ... | _ , σ₃ , σ₄ , σ₅ , σ₆ =
-    -, R.hustle ↭-refl ↭-refl (smart-trans ρₗ ρx) σ₃
-     , R.hustle ↭-refl ↭-refl (smart-trans ρᵣ ρy) σ₄
+    -, R.hustle ↭-refl ↭-refl (↭-trans ρₗ ρx) σ₃
+     , R.hustle ↭-refl ↭-refl (↭-trans ρᵣ ρy) σ₄
      , L.hustle ↭-refl ↭-refl ρx₁ σ₅
      , L.hustle ↭-refl ↭-refl ρy₁ σ₆
 
@@ -53,12 +53,12 @@ module CrossSplittable
     unxcross : Uncross L.bags R.bags
     unxcross (hustle ρx₁ ρy₁ ρz₁ σ₁) (hustle ρx₂ ρy₂ ρz₂ σ₂)
             (hustle ρx₃ ρy₃ ρz₃ σ₃) (hustle ρx₄ ρy₄ ρz₄ σ₄)
-              with ↭-∙ no-div₂ σ₃ (smart-trans ρx₃ (↭-sym ρx₁)) (smart-trans ρy₃ (↭-sym ρx₂))
-                 | ↭-∙ no-div₂ σ₄ (smart-trans ρx₄ (↭-sym ρy₁)) (smart-trans ρy₄ (↭-sym ρy₂))
+              with ↭-∙ no-div₂ σ₃ (↭-trans ρx₃ (↭-sym ρx₁)) (↭-trans ρy₃ (↭-sym ρx₂))
+                 | ↭-∙ no-div₂ σ₄ (↭-trans ρx₄ (↭-sym ρy₁)) (↭-trans ρy₄ (↭-sym ρy₂))
     ... | _ , ρc , σ₃′ | _ , ρd , σ₄′ with X.unxross no-div₂ σ₁ σ₂ σ₃′ σ₄′
     ... | _ , ρa , ρb , ρc' , ρd' , τ₁ , τ₂ =
-      -, R.hustle (smart-trans (↭-sym ρa) ρz₁) (smart-trans (↭-sym ρb) ρz₂) ↭-refl τ₁
-       , L.hustle (smart-trans (smart-trans (↭-sym ρc') ρc) ρz₃) (smart-trans (smart-trans (↭-sym ρd') ρd) ρz₄) ↭-refl τ₂
+      -, R.hustle (↭-trans (↭-sym ρa) ρz₁) (↭-trans (↭-sym ρb) ρz₂) ↭-refl τ₁
+       , L.hustle (↭-trans (↭-trans (↭-sym ρc') ρc) ρz₃) (↭-trans (↭-trans (↭-sym ρd') ρd) ρz₄) ↭-refl τ₂
 
 open import Relation.Ternary.Structures.Syntax
 module _
@@ -88,3 +88,34 @@ module _
         pxs' = All-resp-↭ (↭-sym ρx) pxs
         pys' = All-resp-↭ (↭-sym ρy) pys
       in All-resp-↭ ρz (List.joinAll joinP sep pxs' pys')
+
+-- Every monoid morphism between element divisions, induces a monoid morphism between
+-- bag divisions
+module _ {a b} {A : Set a} {B : Set b}
+  {{div₁ : Rel₃ A}} {{div₂ : Rel₃ B}}
+  {e₁ e₂} {_≈₁_ : A → A → Set e₁} {_≈₂_ : B → B → Set e₂}
+  {u₁ u₂} {{ma : IsPartialMonoid _≈₁_ div₁ u₁}} {{mb : IsPartialMonoid _≈₂_ div₂ u₂}}
+  {{_ : IsCommutative div₁}} {{_ : IsCommutative div₂}}
+  (𝑚 : Morphism ma mb)
+  where
+
+  open import Relation.Ternary.Construct.Bag div₁ tt as L
+  open import Relation.Ternary.Construct.Bag div₂ tt as R
+  open import Relation.Ternary.Construct.List
+  open import Relation.Ternary.Construct.List.Properties
+  module LM = Morphism (ListMorph.listMap 𝑚)
+  open Morphism 𝑚
+
+  private
+    j' = List.map j 
+
+  bagMap : Morphism L.bags-isMonoid R.bags-isMonoid
+  Morphism.j bagMap     = j'
+  Morphism.jcong bagMap = map⁺ j
+  Morphism.j-ε bagMap   = refl
+  Morphism.j-∙ bagMap (hustle ρx ρy ρz sep) = R.hustle (map⁺ j ρx) (map⁺ j ρy) (map⁺ j ρz) (LM.j-∙ sep)
+  Morphism.j-∙⁻ bagMap (hustle ρx ρy ρz sep)
+    with _ , refl , ρx′ ← map⁻ j (↭-sym ρx) | _ , refl , ρy′ ← map⁻ j (↭-sym ρy)
+    with _ , τ , refl   ← LM.j-∙⁻ sep 
+    with _ , refl , ρz′ ← map⁻ j ρz
+    = -, (L.hustle (↭-sym ρx′) (↭-sym ρy′) ρz′ τ , refl)

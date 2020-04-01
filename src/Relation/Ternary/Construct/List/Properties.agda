@@ -4,8 +4,7 @@ module Relation.Ternary.Construct.List.Properties {ℓ} {A : Set ℓ} where
 open import Level
 open import Data.Unit using (⊤)
 open import Data.Product hiding (swap)
-open import Data.List hiding (_∷ʳ_)
-open import Data.List.Extra
+open import Data.List as List hiding (_∷ʳ_)
 open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties
 
@@ -16,6 +15,7 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Structures.Syntax
+open import Relation.Ternary.Morphisms
 
 module _
   {e} {_≈_ : A → A → Set e}
@@ -164,3 +164,42 @@ module _ {{div : Rel₃ A}} {p} {P : Pred A p} (joinP : ∀ {a b c} → a ∙ b 
   joinAll (consˡ σ) (px ∷ pxs) pys           = px ∷ joinAll σ pxs pys
   joinAll (consʳ σ) pxs (py ∷ pys)           = py ∷ joinAll σ pxs pys
   
+
+-- Every monoid morphism between element divisions, induces a monoid morphism between
+-- list divisions
+module ListMorph {b} {B : Set b}
+  {div₁ : Rel₃ A} {div₂ : Rel₃ B}
+  {e₁ e₂} {_≈₁_ : A → A → Set e₁} {_≈₂_ : B → B → Set e₂}
+  {u₁ u₂} {{ma : IsPartialMonoid _≈₁_ div₁ u₁}} {{mb : IsPartialMonoid _≈₂_ div₂ u₂}}
+  (𝑚 : Morphism ma mb)
+  where
+
+  import Relation.Ternary.Construct.List div₁ as L
+  import Relation.Ternary.Construct.List div₂ as R
+  open Morphism 𝑚
+  open L
+
+  private
+    j' = List.map j 
+
+  listMap : Morphism L.list-isMonoid R.list-isMonoid
+  Morphism.j listMap    = j'
+  Morphism.jcong listMap = cong (List.map j)
+  Morphism.j-ε listMap  = refl
+  Morphism.j-∙ listMap  = lem
+    where
+      lem : ∀ {xs ys zs} → L.Split xs ys zs → R.Split (j' xs) (j' ys) (j' zs)
+      lem (divide x σ) = R.divide (j-∙ x) (lem σ )
+      lem (consˡ σ)    = R.consˡ (lem σ)
+      lem (consʳ σ)    = R.consʳ (lem σ)
+      lem []           = R.[]
+  Morphism.j-∙⁻ listMap = lem
+    where
+      lem : ∀ {xs ys zs} → (R.Split (j' xs) (j' ys) zs) → ∃ λ zs' → L.Split xs ys zs' × zs ≡ j' zs'
+      lem {[]} {[]} {[]} [] = -, [] , refl
+      lem {[]} {x₁ ∷ ys} {._ ∷ zs} (consʳ σ)         with _ , τ , refl ← lem σ = -, consʳ τ , refl
+      lem {x₁ ∷ xs} {[]} {._ ∷ zs} (consˡ σ)         with _ , τ , refl ← lem σ = -, consˡ τ , refl
+      lem {x₁ ∷ xs} {x₂ ∷ ys} {x ∷ zs} (divide x₃ σ) with _ , τ , refl ← lem σ | _ , x' , refl ← j-∙⁻ x₃ =
+        -, divide x' τ , refl
+      lem {x₁ ∷ xs} {x₂ ∷ ys} {._ ∷ zs} (consˡ σ)    with _ , τ , refl ← lem σ = -, consˡ τ , refl
+      lem {x₁ ∷ xs} {x₂ ∷ ys} {._ ∷ zs} (consʳ σ)    with _ , τ , refl ← lem σ = -, consʳ τ , refl

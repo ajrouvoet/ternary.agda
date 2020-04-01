@@ -13,7 +13,6 @@ open import Level
 import Data.Nat as Nat
 open import Data.Product hiding (swap)
 open import Data.List
-open import Data.List.Extra
 open import Data.List.Relation.Binary.Permutation.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties as Pm
 open import Data.Nat.Properties
@@ -62,31 +61,31 @@ module _ where
 
   bags-isSemigroupˡ : IsPartialSemigroupˡ _↭_ bags
 
-  IsPartialSemigroupˡ.≈-equivalence bags-isSemigroupˡ = ↭-smart-equivalence
+  IsPartialSemigroupˡ.≈-equivalence bags-isSemigroupˡ = ↭-isEquivalence
 
   Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ bags-isSemigroupˡ) ρs (hustle bxs bys bzs sep) =
-    hustle (smart-trans bxs ρs) bys bzs sep
+    hustle (↭-trans bxs ρs) bys bzs sep
 
   Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ bags-isSemigroupˡ) ρzs (hustle bxs bys bzs sep) =
-    hustle bxs bys (smart-trans bzs ρzs) sep
+    hustle bxs bys (↭-trans bzs ρzs) sep
 
   -- Associativity holds because we can collect the permutations on the list ab
   -- and push them through σ₁, so that we can make use of the associativity of the underlying separation of lists
   -- to finish the proof.
-  IsPartialSemigroupˡ.assocᵣ bags-isSemigroupˡ (hustle ρa ρb ρab σ₁) (hustle ρab' ρc ρabc σ₂) with ∙-↭ σ₁ (smart-trans ρab (↭-sym ρab'))
+  IsPartialSemigroupˡ.assocᵣ bags-isSemigroupˡ (hustle ρa ρb ρab σ₁) (hustle ρab' ρc ρabc σ₂) with ∙-↭ σ₁ (↭-trans ρab (↭-sym ρab'))
   ... | _ , ρ₁ , ρ₂ , σ₅ with ∙-assocᵣ σ₅ σ₂
-  ... | _ , σ₃ , σ₄ = -, hustle (smart-trans ρ₁ ρa) ↭-refl ρabc σ₃ , hustle (smart-trans ρ₂ ρb) ρc ↭-refl σ₄
+  ... | _ , σ₃ , σ₄ = -, hustle (↭-trans ρ₁ ρa) ↭-refl ρabc σ₃ , hustle (↭-trans ρ₂ ρb) ρc ↭-refl σ₄
 
   instance bags-isSemigroup : IsPartialSemigroup _↭_ bags
   bags-isSemigroup = IsPartialSemigroupˡ.semigroupˡ bags-isSemigroupˡ
 
   -- The identities follow almost immediately from the identity laws of list separation
   bags-isMonoidˡ : IsPartialMonoidˡ _↭_ bags []
-  IsPartialMonoidˡ.ε-uniq bags-isMonoidˡ ρ = sym (↭-[] (↭-sym ρ))
+  IsPartialMonoidˡ.ε-uniq bags-isMonoidˡ ρ = sym (↭-[]-inv (↭-sym ρ))
   IsPartialMonoidˡ.identityˡ bags-isMonoidˡ = hustle ↭-refl ↭-refl ↭-refl ∙-idˡ
-  IsPartialMonoidˡ.identity⁻ˡ bags-isMonoidˡ (hustle ρx ρy ρz σ) with ↭-[] ρx
+  IsPartialMonoidˡ.identity⁻ˡ bags-isMonoidˡ (hustle ρx ρy ρz σ) with ↭-[]-inv ρx
   ... | refl with ∙-id⁻ˡ σ
-  ... | refl = smart-trans (↭-sym ρy) ρz
+  ... | refl = ↭-trans (↭-sym ρy) ρz
 
   instance bags-isMonoid : IsPartialMonoid _↭_ bags []
   bags-isMonoid = IsPartialMonoidˡ.partialMonoidˡ bags-isMonoidˡ
@@ -102,7 +101,7 @@ module _ where
   IsPositive.is-empty bags-isPositive []      = yes refl
   IsPositive.is-empty bags-isPositive (x ∷ σ) = no ¬∷↭[]
 
-  IsPositive.orderₐ bags-isPositive = size-pre ↭-smart-equivalence ↭-length
+  IsPositive.orderₐ bags-isPositive = size-pre ↭-isEquivalence ↭-length
 
   IsPositive.positiveˡ bags-isPositive (hustle ρx ρy ρz sep)
     rewrite sym (↭-length ρx) | sym (↭-length ρz) = positiveˡ sep

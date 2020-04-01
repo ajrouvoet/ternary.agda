@@ -19,7 +19,7 @@ module _
   {A : Set a} {B : Set b}
   {_≈a_ : A → A → Set e₁}
   {_≈b_ : B → B → Set e₂}
-  {{ra : Rel₃ A}} {{rb : Rel₃ B}}
+  {ra : Rel₃ A} {rb : Rel₃ B}
   {εa εb}
   where
 

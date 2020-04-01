@@ -6,7 +6,6 @@ module Relation.Ternary.Construct.List {a} {A : Set a} (division : Rel₃ A) whe
 open import Level
 open import Data.Product hiding (swap)
 open import Data.List hiding (_∷ʳ_)
-open import Data.List.Extra
 open import Data.List.Properties using (++-isMonoid; ++-identityʳ)
 open import Data.List.Relation.Binary.Equality.Propositional
 open import Data.List.Relation.Binary.Permutation.Propositional
@@ -238,7 +237,7 @@ module _ where
   -- trans
   ∙-↭ σ (trans ρ₁ ρ₂) with ∙-↭ σ ρ₁
   ... | _ , h₁ , h₂ , σ₂ with ∙-↭ σ₂ ρ₂
-  ... | _ , h₃ , h₄ , σ₃ = _ , smart-trans h₃ h₁ , smart-trans h₄ h₂ , σ₃
+  ... | _ , h₃ , h₄ , σ₃ = _ , ↭-trans h₃ h₁ , ↭-trans h₄ h₂ , σ₃
 
 module _ where
 
