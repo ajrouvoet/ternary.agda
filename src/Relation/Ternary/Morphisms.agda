@@ -20,20 +20,18 @@ module _
   {_≈a_ : A → A → Set e₁}
   {_≈b_ : B → B → Set e₂}
   {ra : Rel₃ A} {rb : Rel₃ B}
-  {εa εb}
   where
 
-  record Morphism
-    (m₁ : IsPartialMonoid _≈a_ ra εa)
-    (m₂ : IsPartialMonoid _≈b_ rb εb): Set (a ⊔ b ⊔ suc (e₁ ⊔ e₂)) where
+  private instance _ = ra
+  private instance _ = rb
 
-    private instance _ = ra
-    private instance _ = rb
+  record SemigroupMorphism
+    (m₁ : IsPartialSemigroup _≈a_ ra)
+    (m₂ : IsPartialSemigroup _≈b_ rb): Set (a ⊔ b ⊔ suc (e₁ ⊔ e₂)) where
 
     field
       j       : A → B
       jcong   : Congruent _≈a_ _≈b_ j
-      j-ε     : j εa ≈b εb
       j-∙     : ∀ {Φ₁ Φ₂ Φ} → Φ₁ ∙ Φ₂ ≣ Φ     → j Φ₁ ∙ j Φ₂ ≣ j Φ
       j-∙⁻    : ∀ {Φ₁ Φ₂ Φ} → j Φ₁ ∙ j Φ₂ ≣ Φ → ∃ λ Φ′ → Φ₁ ∙ Φ₂ ≣ Φ′ × Φ ≡ j Φ′
 
@@ -63,17 +61,33 @@ module _
       J⁻ : ∀ {p} (P : Pred B p) → Pred A p
       J⁻ P Φ = P (j Φ)
 
+  record MonoidMorphism {εa εb}
+    (m₁ : IsPartialMonoid _≈a_ ra εa)
+    (m₂ : IsPartialMonoid _≈b_ rb εb): Set (a ⊔ b ⊔ suc (e₁ ⊔ e₂)) where
+
+    private module M₁ = IsPartialMonoid m₁
+    private module M₂ = IsPartialMonoid m₂
+
+    field
+      semigroupMorphism : SemigroupMorphism M₁.isSemigroup M₂.isSemigroup
+
+    open SemigroupMorphism semigroupMorphism public
+
+    field
+      j-ε : j εa ≈b εb
+
 {- identity morphism -}
 module _ {a e} {A : Set a} {{r : Rel₃ A}}
   {_≈_ : A → A → Set e} {u} {{m : IsPartialMonoid _≈_ r u}} where
 
   open import Function
 
-  instance id-morph : Morphism m m
+  instance id-morph : MonoidMorphism m m
   id-morph = record 
-    { j      = id
-    ; jcong  = id
-    ; j-ε    = ≈-refl
-    ; j-∙    = id 
-    ; j-∙⁻   = λ x → -, x , P.refl
+    { semigroupMorphism = record
+      { j      = id
+      ; jcong  = id
+      ; j-∙    = id 
+      ; j-∙⁻   = λ x → -, x , P.refl }
+      ; j-ε    = ≈-refl
     }

@@ -81,9 +81,9 @@ module _ where
 
   -- The identities follow almost immediately from the identity laws of list separation
   bags-isMonoidˡ : IsPartialMonoidˡ _↭_ bags []
-  IsPartialMonoidˡ.ε-uniq bags-isMonoidˡ ρ = sym (↭-[]-inv (↭-sym ρ))
+  IsPartialMonoidˡ.ε-uniq bags-isMonoidˡ ρ = sym (↭-empty-inv (↭-sym ρ))
   IsPartialMonoidˡ.identityˡ bags-isMonoidˡ = hustle ↭-refl ↭-refl ↭-refl ∙-idˡ
-  IsPartialMonoidˡ.identity⁻ˡ bags-isMonoidˡ (hustle ρx ρy ρz σ) with ↭-[]-inv ρx
+  IsPartialMonoidˡ.identity⁻ˡ bags-isMonoidˡ (hustle ρx ρy ρz σ) with ↭-empty-inv ρx
   ... | refl with ∙-id⁻ˡ σ
   ... | refl = ↭-trans (↭-sym ρy) ρz
 
@@ -99,7 +99,7 @@ module _ where
   IsPositive._≤ₐ_ bags-isPositive = SizeOf._≤ₐ_
 
   IsPositive.is-empty bags-isPositive []      = yes refl
-  IsPositive.is-empty bags-isPositive (x ∷ σ) = no ¬∷↭[]
+  IsPositive.is-empty bags-isPositive (x ∷ σ) = no ¬x∷xs↭[]
 
   IsPositive.orderₐ bags-isPositive = size-pre ↭-isEquivalence ↭-length
 

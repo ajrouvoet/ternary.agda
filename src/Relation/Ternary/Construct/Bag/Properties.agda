@@ -89,33 +89,36 @@ module _
         pys' = All-resp-↭ (↭-sym ρy) pys
       in All-resp-↭ ρz (List.joinAll joinP sep pxs' pys')
 
--- Every monoid morphism between element divisions, induces a monoid morphism between
--- bag divisions
-module _ {a b} {A : Set a} {B : Set b}
+-- Every semigroup morphism between element divisions,
+-- induces a monoid morphism between bag divisions
+module _ {b} {B : Set b}
   {{div₁ : Rel₃ A}} {{div₂ : Rel₃ B}}
   {e₁ e₂} {_≈₁_ : A → A → Set e₁} {_≈₂_ : B → B → Set e₂}
-  {u₁ u₂} {{ma : IsPartialMonoid _≈₁_ div₁ u₁}} {{mb : IsPartialMonoid _≈₂_ div₂ u₂}}
-  {{_ : IsCommutative div₁}} {{_ : IsCommutative div₂}}
-  (𝑚 : Morphism ma mb)
+  {{ma : IsPartialSemigroup _≈₁_ div₁}} {{mb : IsPartialSemigroup _≈₂_ div₂}}
+  {{_  : IsCommutative div₁}} {{_ : IsCommutative div₂}}
+  (𝑚 : SemigroupMorphism ma mb)
   where
 
   open import Relation.Ternary.Construct.Bag div₁ tt as L
   open import Relation.Ternary.Construct.Bag div₂ tt as R
   open import Relation.Ternary.Construct.List
   open import Relation.Ternary.Construct.List.Properties
-  module LM = Morphism (ListMorph.listMap 𝑚)
-  open Morphism 𝑚
+  module LM = MonoidMorphism (listMap 𝑚)
+  open SemigroupMorphism 𝑚
 
   private
     j' = List.map j 
 
-  bagMap : Morphism L.bags-isMonoid R.bags-isMonoid
-  Morphism.j bagMap     = j'
-  Morphism.jcong bagMap = map⁺ j
-  Morphism.j-ε bagMap   = refl
-  Morphism.j-∙ bagMap (hustle ρx ρy ρz sep) = R.hustle (map⁺ j ρx) (map⁺ j ρy) (map⁺ j ρz) (LM.j-∙ sep)
-  Morphism.j-∙⁻ bagMap (hustle ρx ρy ρz sep)
-    with _ , refl , ρx′ ← map⁻ j (↭-sym ρx) | _ , refl , ρy′ ← map⁻ j (↭-sym ρy)
+  open MonoidMorphism hiding (j)
+
+  bagMap : MonoidMorphism L.bags-isMonoid R.bags-isMonoid
+  SemigroupMorphism.j (semigroupMorphism bagMap)     = j'
+  SemigroupMorphism.jcong (semigroupMorphism bagMap) = map⁺ j
+  SemigroupMorphism.j-∙ (semigroupMorphism bagMap) (hustle ρx ρy ρz sep) =
+    R.hustle (map⁺ j ρx) (map⁺ j ρy) (map⁺ j ρz) (LM.j-∙ sep)
+  SemigroupMorphism.j-∙⁻ (semigroupMorphism bagMap) (hustle ρx ρy ρz sep)
+    with _ , refl , ρx′ ← map-inv j (↭-sym ρx) | _ , refl , ρy′ ← map-inv j (↭-sym ρy)
     with _ , τ , refl   ← LM.j-∙⁻ sep 
-    with _ , refl , ρz′ ← map⁻ j ρz
+    with _ , refl , ρz′ ← map-inv j ρz
     = -, (L.hustle (↭-sym ρx′) (↭-sym ρy′) ρz′ τ , refl)
+  j-ε bagMap               = refl
