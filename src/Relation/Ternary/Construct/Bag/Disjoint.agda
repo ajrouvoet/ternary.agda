@@ -44,9 +44,9 @@ module _ {a} {A : Set a} (f : T → A) where
   map-inv : ∀ {xs ys : List A} {zs : List T} → xs R.⊕ ys ≣ map f zs →
             Σ[ frags ∈ List T × List T ]
               let xs' , ys' = frags in xs' L.⊕ ys' ≣ zs × xs ≡ map f xs' × ys ≡ map f ys'
-  map-inv (R.hustle ρx ρy ρz sep) with ↭.map-inv f (↭-sym ρz)
+  map-inv (R.hustle ρx ρy ρz sep) with ↭.↭-map-inv f (↭-sym ρz)
   ... | _ , refl , ρ' with LD.map-inv _ f sep
-  ... | _ , sep' , refl , refl with ↭.map-inv f ρx | ↭.map-inv f ρy
+  ... | _ , sep' , refl , refl with ↭.↭-map-inv f ρx | ↭.↭-map-inv f ρy
   ... | _ , refl , ρx′ | _ , refl , ρy′ = -, L.hustle ρx′ ρy′ (↭-sym ρ') sep' , refl , refl
 
 open Model T public

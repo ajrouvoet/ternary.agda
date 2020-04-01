@@ -6,7 +6,7 @@ open import Data.Unit using (⊤)
 open import Data.Product hiding (swap; map)
 open import Data.List
 open import Data.List.Relation.Binary.Permutation.Propositional
-open import Data.List.Relation.Binary.Permutation.Propositional.Properties as PPP hiding (map-inv)
+open import Data.List.Relation.Binary.Permutation.Propositional.Properties
 
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality

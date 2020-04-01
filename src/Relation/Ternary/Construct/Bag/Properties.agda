@@ -99,10 +99,12 @@ module _ {b} {B : Set b}
   (𝑚 : SemigroupMorphism ma mb)
   where
 
-  open import Relation.Ternary.Construct.Bag div₁ tt as L
-  open import Relation.Ternary.Construct.Bag div₂ tt as R
   open import Relation.Ternary.Construct.List
   open import Relation.Ternary.Construct.List.Properties
+
+  open import Relation.Ternary.Construct.Bag div₁ tt as L
+  open import Relation.Ternary.Construct.Bag div₂ tt as R
+
   module LM = MonoidMorphism (listMap 𝑚)
   open SemigroupMorphism 𝑚
 
@@ -117,8 +119,8 @@ module _ {b} {B : Set b}
   SemigroupMorphism.j-∙ (semigroupMorphism bagMap) (hustle ρx ρy ρz sep) =
     R.hustle (map⁺ j ρx) (map⁺ j ρy) (map⁺ j ρz) (LM.j-∙ sep)
   SemigroupMorphism.j-∙⁻ (semigroupMorphism bagMap) (hustle ρx ρy ρz sep)
-    with _ , refl , ρx′ ← map-inv j (↭-sym ρx) | _ , refl , ρy′ ← map-inv j (↭-sym ρy)
+    with _ , refl , ρx′ ← ↭-map-inv j (↭-sym ρx) | _ , refl , ρy′ ← ↭-map-inv j (↭-sym ρy)
     with _ , τ , refl   ← LM.j-∙⁻ sep 
-    with _ , refl , ρz′ ← map-inv j ρz
+    with _ , refl , ρz′ ← ↭-map-inv j ρz
     = -, (L.hustle (↭-sym ρx′) (↭-sym ρy′) ρz′ τ , refl)
   j-ε bagMap               = refl
