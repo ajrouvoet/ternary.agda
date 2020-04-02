@@ -24,14 +24,14 @@ module _ (r₁ r₂ : Rel₃ A) where
     in ac ∙₂ ad ≣ a × bc ∙₂ bd ≣ b × ac ∙₁ bc ≣ c × ad ∙₁ bd ≣ d
 
   Uncross : Set a
-  Uncross = ∀ {a b c d ac ad bc bd}
-    → ac ∙₁ ad ≣ a
-    → bc ∙₁ bd ≣ b
-    → ac ∙₂ bc ≣ c
-    → ad ∙₂ bd ≣ d
-    → Σ[ z ∈ A ]
-      a ∙₂ b ≣ z
-      × c ∙₁ d ≣ z
+  Uncross = ∀ {a b c d ab cd ac bd}
+    → a ∙₁ b ≣ ab
+    → c ∙₁ d ≣ cd
+    → a ∙₂ c ≣ ac
+    → b ∙₂ d ≣ bd
+    → Σ[ abcd ∈ A ]
+      ab ∙₂ cd ≣ abcd
+      × ac ∙₁ bd ≣ abcd
 
 module _ {r₁ r₂ : Rel₃ A} where
 
