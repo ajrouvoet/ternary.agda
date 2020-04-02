@@ -14,6 +14,7 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Morphisms
+open import Relation.Ternary.Construct.Add.Unit.Properties
 
 module CrossSplittable {k v} {K : Set k} {V : K → Set v}
   {{div₁ : ∀ {k} → Rel₃ (V k)}} {{div₂ : ∀ {k} → Rel₃ (V k)}}
@@ -31,16 +32,11 @@ module CrossSplittable {k v} {K : Set k} {V : K → Set v}
 
     xsplit : (∀ {k} → CrossSplit (div₁ {k}) div₂) → CrossSplit (L.maps div₁) (R.maps div₂)
     xsplit xsplitₐ {a} {b} {c} {d} (union σs₁) (union σs₂) = 
-      -, R.union (λ k → case a k of λ where
-                 nothing → {!R.nothing!}
-                 (just x) → {!!}
-        ) -- (λ k → let _ , τ , _ = xsplitₐ (σs₁ k) (σs₂ k) in τ)
-       , R.union {!!} -- (λ k → let _ , _ , τ , _ = xsplitₐ (σs₁ k) (σs₂ k) in τ)
-       , R.union {!!} -- (λ k → let _ , _ , _ , τ , _ = xsplitₐ (σs₁ k) (σs₂ k) in τ)
-       , R.union {!!} -- (λ k → let _ , _ , _ , _ , τ = xsplitₐ (σs₁ k) (σs₂ k) in τ)
+      let xsp = λ {k} → maybe-cross (xsplitₐ {k}) in
+      -, R.union (λ k → let _ , τ , _ = xsp (σs₁ k) (σs₂ k) in τ)
+       , R.union (λ k → let _ , _ , τ , _ = xsp (σs₁ k) (σs₂ k) in τ)
+       , R.union (λ k → let _ , _ , _ , τ , _ = xsp (σs₁ k) (σs₂ k) in τ)
+       , R.union (λ k → let _ , _ , _ , _ , τ = xsp (σs₁ k) (σs₂ k) in τ)
 
-    unxcross : (∀ {k} → Uncross (div₁ {k}) (div₂ {k})) → Uncross (L.maps div₁) (R.maps div₂)
-    unxcross unxcrossₐ (union σs₁) (union σs₂) (union σs₃) (union σs₄) = {!!}
-      -- -, R.union (λ k → let _ , u , _ = unxcrossₐ (σs₁ k) (σs₂ k) (σs₃ k) (σs₄ k) in u)
-      --  , R.union (λ k → let _ , _ , u = unxcrossₐ (σs₁ k) (σs₂ k) (σs₃ k) (σs₄ k) in u)
+    -- Maps don't have uncross
 
