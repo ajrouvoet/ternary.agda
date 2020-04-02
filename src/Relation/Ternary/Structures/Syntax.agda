@@ -16,6 +16,7 @@ open Emptiness          {{...}} public
 open IsPartialSemigroup {{...}} public
 open IsPartialMonoid    {{...}} public
 open IsPositive         {{...}} public
+open IsPositiveWithZero {{...}} public
 open IsCommutative      {{...}} public
 open IsCrosssplittable  {{...}} public
 open IsIntuitionistic   {{...}} public

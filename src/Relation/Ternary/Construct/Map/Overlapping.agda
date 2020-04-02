@@ -8,11 +8,15 @@ open import Relation.Ternary.Structures.Syntax
 private
   module _ {k} where
     open import Relation.Ternary.Construct.Duplicate (V k) public
+    open import Relation.Ternary.Construct.Add.Unit duplicate public
 
 open import Relation.Ternary.Construct.Map K V
 
-overmap-isSemigroup : IsPartialSemigroup _ (maps {{duplicate}})
+overmap-isSemigroup : IsPartialSemigroup _ (maps {{maybes}})
 overmap-isSemigroup = map-isSemigroup
 
-overmap-isMonoid : IsPartialMonoid _ (maps {{duplicate}}) _
-overmap-isMonoid = {!map-isMonoid!}
+overmap-isMonoid : IsPartialMonoid _ (maps {{maybes}}) _ 
+overmap-isMonoid = map-isMonoid
+
+-- overmap-isTotal : IsTotal _ (maps {{maybes}}) _ 
+-- overmap-isTotal = map-isTotal
