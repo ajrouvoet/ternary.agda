@@ -25,7 +25,7 @@ record IsPositive {e} s (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (a �
 
   field
     {_≤ₐ_}   : A → A → Set s
-    orderₐ   : IsPreorder _≈_ _≤ₐ_
+    orderₐ   : IsPreorder _≈_ _≤ₐ_ -- todo perhaps a partial order is more suitable?
 
     positiveˡ : ∀ {Φ₁ Φ₂ Φ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ≤ₐ Φ
     positiveʳ : ∀ {Φ₁ Φ₂ Φ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₂ ≤ₐ Φ

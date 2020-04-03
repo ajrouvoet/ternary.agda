@@ -16,8 +16,8 @@ module Relation.Ternary.Construct.Exchange {ℓ e s}
   {A : Set ℓ} {εₐ} {r₁ r₂} {_≈ₐ_ : A → A → Set e}
   {{r₁-monoid  : IsPartialMonoid _≈ₐ_ r₁ εₐ}}
   {{r₂-monoid  : IsPartialMonoid _≈ₐ_ r₂ εₐ}}
-  {{r₁-positive  : IsPositive s _≈ₐ_ r₁ εₐ}}
-  {{r₂-positive  : IsPositive s _≈ₐ_ r₂ εₐ}}
+  {{r₁-positive  : IsPositiveWithZero s _≈ₐ_ r₁ εₐ}}
+  {{r₂-positive  : IsPositiveWithZero s _≈ₐ_ r₂ εₐ}}
   {{r₁-comm : IsCommutative r₁}}
   {{r₂-comm : IsCommutative r₂}}
   {{r₂-intuitive : IsIntuitionistic U r₂}}

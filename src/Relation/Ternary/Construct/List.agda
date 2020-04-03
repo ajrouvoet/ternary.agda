@@ -108,11 +108,8 @@ module _ where
   open import Data.Nat.Properties
   open import Data.List.Relation.Binary.Equality.DecPropositional
 
-  instance list-positive : IsPositive _ _≡_ splits []
+  instance list-positive : IsPositive _ _≡_ splits
   IsPositive._≤ₐ_ list-positive = SizeOf._≤ₐ_
-
-  IsPositive.is-empty list-positive []       = yes refl
-  IsPositive.is-empty list-positive (x ∷ xs) = no (λ ())
 
   IsPositive.orderₐ list-positive = size-pre isEquivalence (λ where refl → refl)
 
@@ -132,7 +129,10 @@ module _ where
       posʳ (consʳ σ)    = Nat.s≤s (posʳ σ)
       posʳ []           = ≤-refl
 
-  IsPositive.ε-least list-positive {[]} Nat.z≤n = refl
+  instance list-positive-w/0 : IsPositiveWithZero _ _≡_ splits []
+  IsPositiveWithZero.isPositive list-positive-w/0 = list-positive
+  IsPositiveWithZero.ε-least list-positive-w/0    = Nat.z≤n
+  IsPositiveWithZero.ε-split list-positive-w/0 [] = refl
 
 module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division}} where
 

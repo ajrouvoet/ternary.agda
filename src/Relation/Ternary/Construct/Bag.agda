@@ -94,12 +94,9 @@ module _ where
   
   -- Positivity follows by the positivity of list separation together 
   -- with the fact that permutations are length preserving
-  instance bags-isPositive : IsPositive _ _↭_ bags []
+  instance bags-isPositive : IsPositive _ _↭_ bags
 
   IsPositive._≤ₐ_ bags-isPositive = SizeOf._≤ₐ_
-
-  IsPositive.is-empty bags-isPositive []      = yes refl
-  IsPositive.is-empty bags-isPositive (x ∷ σ) = no ¬x∷xs↭[]
 
   IsPositive.orderₐ bags-isPositive = size-pre ↭-isEquivalence ↭-length
 
@@ -108,7 +105,12 @@ module _ where
   IsPositive.positiveʳ bags-isPositive (hustle ρx ρy ρz sep)
     rewrite sym (↭-length ρy) | sym (↭-length ρz) = positiveʳ sep
 
-  IsPositive.ε-least bags-isPositive {[]} Nat.z≤n = ↭-refl
+  instance bags-isPositive-w/0 : IsPositiveWithZero _ _↭_ bags []
+  IsPositiveWithZero.isPositive bags-isPositive-w/0 = bags-isPositive
+  IsPositiveWithZero.ε-least bags-isPositive-w/0 = Nat.z≤n
+  IsPositiveWithZero.ε-split bags-isPositive-w/0 (hustle ρx ρy ρz σ) with _ , ρx' , ρy' , σ′ ← ∙-↭ σ ρz with ε-split σ′
+  ... | refl with refl ← ↭-empty-inv (↭-sym (↭-trans ρx' ρx))
+                | refl ← ↭-empty-inv (↭-sym (↭-trans ρy' ρy)) = refl
 
   instance bags-isTotal : IsTotal _↭_ bags _++_
   IsTotal.∙-parallel bags-isTotal (hustle ρ₁ ρ₂ ρ₃ l) (hustle ρ₄ ρ₅ ρ₆ r) =

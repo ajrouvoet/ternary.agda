@@ -98,28 +98,33 @@ module _
 module _ 
   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
   {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
-  {u₁ u₂}
-  {{p₁ : IsPositive e₁ _≈₁_ R₁ u₁}}
-  {{p₂ : IsPositive e₂ _≈₂_ R₂ u₂}}
+  {{p₁ : IsPositive e₁ _≈₁_ R₁}}
+  {{p₂ : IsPositive e₂ _≈₂_ R₂}}
   where
 
   open import Relation.Nullary
 
-  instance ×-isPositive : IsPositive _ (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂)
+  instance ×-isPositive : IsPositive _ (Pointwise _≈₁_ _≈₂_) ×-rel
 
   IsPositive._≤ₐ_      ×-isPositive = Pointwise (IsPositive._≤ₐ_ p₁) (IsPositive._≤ₐ_ p₂)
-
-  IsPositive.is-empty ×-isPositive (x , y) with is-empty x | is-empty y
-  ... | yes p | yes q = yes (p , q)
-  ... | yes p | no ¬q = no λ where (p , q) → ¬q q
-  ... | no ¬p | _     = no λ where (p , q) → ¬p p
 
   IsPositive.orderₐ    ×-isPositive = ×-isPreorder orderₐ orderₐ
 
   IsPositive.positiveˡ ×-isPositive (σ₁ , σ₂) = positiveˡ σ₁ , positiveˡ σ₂
   IsPositive.positiveʳ ×-isPositive (σ₁ , σ₂) = positiveʳ σ₁ , positiveʳ σ₂ 
 
-  IsPositive.ε-least   ×-isPositive (σ₁ , σ₂) = ε-least σ₁ , ε-least σ₂
+module _ 
+  {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
+  {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂} 
+  {u₁ u₂}
+  {{p₁ : IsPositiveWithZero e₁ _≈₁_ R₁ u₁}}
+  {{p₂ : IsPositiveWithZero e₂ _≈₂_ R₂ u₂}}
+  where
+
+  instance ×-isPositive-w/0 : IsPositiveWithZero _ (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂)
+  IsPositiveWithZero.isPositive ×-isPositive-w/0 = ×-isPositive
+  IsPositiveWithZero.ε-least ×-isPositive-w/0 = ε-least , ε-least
+  IsPositiveWithZero.ε-split ×-isPositive-w/0 (σ₁ , σ₂) with refl ← ε-split σ₁ | refl ← ε-split σ₂ = refl
 
 module _
   {{∥₁ ∣₁ ▹₁ : Rel₃ C₁}} {{∥₂ ∣₂ ▹₂ : Rel₃ C₂}}

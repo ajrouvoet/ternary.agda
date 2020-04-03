@@ -21,7 +21,7 @@ private
     xs xs′ ys ys′ zs xsˡ xsʳ : Ctx
 
 {- Redeclare instances to severe the dependency on Duplicate instances -}
-module Model {t} (T : Set t) where
+module _ where
   open import Relation.Ternary.Construct.Duplicate T as D
   open import Relation.Ternary.Construct.List duplicate as Overlapping
   open Overlapping using ([]; consˡ; consʳ; list-monoid; list-emptiness; from-⊆) public
@@ -32,8 +32,8 @@ module Model {t} (T : Set t) where
   instance overlap-rel : Rel₃ (List T)
   overlap-rel = splits
 
-  instance overlap-positive : IsPositive _ _≡_ overlap-rel []
-  overlap-positive = list-positive
+  instance overlap-positive : IsPositiveWithZero _ _≡_ overlap-rel []
+  overlap-positive = list-positive-w/0
 
   instance overlap-semigroup : IsPartialSemigroup _≡_ overlap-rel
   overlap-semigroup = list-isSemigroup
@@ -54,7 +54,6 @@ module Model {t} (T : Set t) where
 
 {- The relations betweens non-overlapping list sep and sublists -}
 module _ where
-  open Model T
   open import Data.List.Relation.Binary.Sublist.Propositional
 
   ⊆-⊗ : xs′ ⊆ xs → ys′ ⊆ ys → xs ⊗ ys ≣ zs → ∃ λ zs′ → xs′ ⊗ ys′ ≣ zs′ × zs′ ⊆ zs
@@ -72,7 +71,6 @@ module _ where
   ⊆-⊗ [] [] [] = -, [] , []
 
 module _ where
-  open Model T
   open import Data.List.Membership.Propositional
   open import Data.List.Relation.Unary.Any using (index; module Any); open Any
   open import Data.Fin
@@ -98,19 +96,17 @@ module _ where
   threeway (consʳ σ₁) (overlaps σ₂) = -, overlaps (proj₂ (threeway σ₁ σ₂))
   threeway (consʳ σ₁) (consˡ σ₂)    = -, overlaps (proj₂ (threeway σ₁ σ₂))
 
-module _ {a} {A : Set a} (f : T → A) where
+-- module _ {a} {A : Set a} (f : T → A) where
 
-  module L = Model T
-  module R = Model A
+--   module L = Model T
+--   module R = Model A
 
-  map-inv : ∀ {xs ys : List A} {zs : List T} → xs R.⊗ ys ≣ map f zs →
-            Σ[ frags ∈ List T × List T ]
-              let xs' , ys' = frags in xs' L.⊗ ys' ≣ zs × xs ≡ map f xs' × ys ≡ map f ys'
-  map-inv {[]} {[]} {[]} R.[] = -, L.[] , refl , refl
-  map-inv {[]   } {_ ∷ _} {_ ∷ _} (R.consʳ σ) with _ , τ , eq , refl ← map-inv σ = -, L.consʳ τ , eq  , refl
-  map-inv {_ ∷ _} {[]   } {_ ∷ _} (R.consˡ σ) with _ , τ , refl , eq ← map-inv σ = -, L.consˡ τ , refl , eq
-  map-inv {_ ∷ _} {_ ∷ _} {_ ∷ _} (R.consˡ σ) with _ , τ , refl , eq ← map-inv σ  = -, L.consˡ τ , refl , eq
-  map-inv {_ ∷ _} {_ ∷ _} {_ ∷ _} (R.consʳ σ) with _ , τ , eq , refl ← map-inv σ = -, L.consʳ τ , eq  , refl
-  map-inv {_ ∷ _} {_ ∷ _} {_ ∷ _} (R.overlaps σ) with _ , τ , eq , refl ← map-inv σ = -, L.overlaps τ , cong (_ ∷_) eq , refl
-
-open Model T public
+--   map-inv : ∀ {xs ys : List A} {zs : List T} → xs R.⊗ ys ≣ map f zs →
+--             Σ[ frags ∈ List T × List T ]
+--               let xs' , ys' = frags in xs' L.⊗ ys' ≣ zs × xs ≡ map f xs' × ys ≡ map f ys'
+--   map-inv {[]} {[]} {[]} R.[] = -, L.[] , refl , refl
+--   map-inv {[]   } {_ ∷ _} {_ ∷ _} (R.consʳ σ) with _ , τ , eq , refl ← map-inv σ = -, L.consʳ τ , eq  , refl
+--   map-inv {_ ∷ _} {[]   } {_ ∷ _} (R.consˡ σ) with _ , τ , refl , eq ← map-inv σ = -, L.consˡ τ , refl , eq
+--   map-inv {_ ∷ _} {_ ∷ _} {_ ∷ _} (R.consˡ σ) with _ , τ , refl , eq ← map-inv σ  = -, L.consˡ τ , refl , eq
+--   map-inv {_ ∷ _} {_ ∷ _} {_ ∷ _} (R.consʳ σ) with _ , τ , eq , refl ← map-inv σ = -, L.consʳ τ , eq  , refl
+--   map-inv {_ ∷ _} {_ ∷ _} {_ ∷ _} (R.overlaps σ) with _ , τ , eq , refl ← map-inv σ = -, L.overlaps τ , cong (_ ∷_) eq , refl
