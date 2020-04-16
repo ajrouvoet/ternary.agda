@@ -19,8 +19,6 @@ open import Relation.Ternary.Construct.Add.Unit.Properties
 module CrossSplittable {k v} {K : Set k} {V : K → Set v}
   {{div₁ : ∀ {k} → Rel₃ (V k)}} {{div₂ : ∀ {k} → Rel₃ (V k)}}
   {e} {_≈₁_ : ∀ {k} → V k → V k → Set e} {_≈₂_ : ∀ {k} → V k → V k → Set e}
-  {{_ : ∀ {k} → IsCommutative (div₁ {k})}} {{_ : ∀ {k} → IsPartialSemigroup _≈₁_ (div₁ {k})}}
-  {{_ : ∀ {k} → IsCommutative (div₂ {k})}} {{_ : ∀ {k} → IsPartialSemigroup _≈₂_ (div₂ {k})}}
   where
 
   module _ {k} where

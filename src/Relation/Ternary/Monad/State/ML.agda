@@ -4,16 +4,12 @@ open import Data.Unit
 open import Relation.Unary hiding (_∈_)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
-open import Relation.Ternary.Construct.Market
+open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
 
 module Relation.Ternary.Monad.State.ML
   {ℓ}
-
-  -- value types
   {T : Set ℓ}
-
-  -- stored values
   (V : T → Pred (List T) ℓ)
   where
 
@@ -25,55 +21,50 @@ open import Relation.Ternary.Monad
 open import Relation.Ternary.Construct.Product
 open import Relation.Ternary.Data.Allstar T
 
-open import Relation.Ternary.Construct.Duplicate T
-open import Relation.Ternary.Construct.List duplicate
-
-instance splits-intuitive : Intuitionistic {A = List T} splits
-Intuitionistic.Condition splits-intuitive _ = ⊤
-Intuitionistic.∙-copy splits-intuitive {[]} = ∙-idˡ
-Intuitionistic.∙-copy splits-intuitive {x ∷ xs} = divide dup ∙-copy
+open import Relation.Ternary.Construct.List.Overlapping T
 
 open import Data.Product
+open import Relation.Ternary.Construct.Market overlap-rel
 
 module HeapOps
   -- inner monad
-  (M : Pt (Market (List T)) ℓ)
+  (M : Pt Market ℓ)
   {{monad : Monad ⊤ (λ _ _ → M)}}
   where
 
-  Cells : Pred (List T × List T) ℓ
-  Cells (Σ , Φ) = Allstar V Σ Φ
+  Cells : List T → List T → Set ℓ
+  Cells Σ Φ = Allstar V Σ Φ
+  
+  Heap : List T → Set ℓ
+  Heap = LeftOver Cells
 
-  open import Relation.Ternary.Monad.State
+  open import Relation.Ternary.Monad.State overlap-rel
   open StateTransformer M public
 
   -- Creating a reference to a new cell, filled with a given value.
-  -- Note that in the market monoid this is pure!
+  -- Note that in the market monoid, resources are preserved (supply and demand balance)!
   -- Because we get a reference that consumes the freshly created resource.
-  mkref : ∀ {a} → ∀[ V a ⇒ StateT M Cells (Just a) ]
-  mkref v ⟨ offerᵣ σ₂ ⟩ (lift st σ₁) =
-    let _ , τ₁ , τ₂ = ∙-assocᵣ (∙-comm σ₂) σ₁
-    in return (
-      lift refl
-        ∙⟨ offerᵣ ∙-∙ ⟩
-      lift (cons (v ∙⟨ τ₂ ⟩ st)) (∙-∙ₗₗ τ₁))
+  mkref : ∀ {a} → ∀[ V a ⇒ StateT M Heap (Just a) ]
+  mkref v ⟨ offerᵣ σ₂ ⟩ (lift (subtract μ σ₁)) =
+    let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂
+    in return (lift refl ∙⟨ offerᵣ ∙-∙ ⟩ lift (subtract (cons (v ∙⟨ (∙-comm τ₁) ⟩ μ)) (∙-∙ᵣₗ τ₂)))
 
-  read : ∀ {a} → ∀[ Just a ⇒ StateT M Cells (V a) ]
+  read : ∀ {a} → ∀[ Just a ⇒ StateT M Heap  (V a) ]
 
   -- A read that drops a cell if it is no longer referenced
-  read refl ⟨ offerᵣ σ₂ ⟩ lift st σ₁ with ∙-assocᵣ σ₂ σ₁
-  ... | _ , σ₃ , σ₄ with read' σ₃ st
+  read refl ⟨ offerᵣ σ₂ ⟩ lift (subtract st σ₁) with ∙-assocₗ σ₁ (∙-comm σ₂)
+  ... | _ , σ₃ , σ₄ with read' (∙-comm σ₄) st
     where
 
       read' : ∀ {a} {as xs : List T} → [ a ] ∙ as ≣ xs → ∀[ Allstar V xs ⇒ V a ✴ Allstar V as ]
-      read' (divide dup ptr) (cons (v ∙⟨ σ ⟩ vs)) with ✴-assocᵣ ((v ∙⟨ ∙-copy ⟩ v) ∙⟨ σ ⟩ vs)
+      read' (overlaps ptr) (cons (v ∙⟨ σ ⟩ vs)) with ✴-assocᵣ ((v ∙⟨ ∙-copy ⟩ v) ∙⟨ σ ⟩ vs)
       ... | c ∙⟨ σ' ⟩ vs' = c ∙⟨ σ' ⟩ subst (λ zs → Allstar _ (_ ∷ zs) _) (sym (∙-id⁻ˡ ptr)) (cons vs')
       read' (consˡ ptr) (cons (v ∙⟨ σ ⟩ vs)) rewrite ∙-id⁻ˡ ptr = v ∙⟨ σ ⟩ vs
       read' (consʳ ptr) (cons (w ∙⟨ σ ⟩ vs)) with ✴-rotateₗ (w ∙⟨ σ ⟩ (read' ptr vs))
       ... | (v ∙⟨ σ' ⟩ vs∙w) = v ∙⟨ σ' ⟩ cons (✴-swap vs∙w)
 
-  ... | v ∙⟨ σ₅ ⟩ st' with ∙-assocₗ σ₄ σ₅
-  ... | _ , σ₆ , σ₇ = return (lift v ∙⟨ offerᵣ (∙-comm σ₆) ⟩ (lift st' σ₇))
+  ... | v ∙⟨ σ₅ ⟩ st' with ∙-assocₗ (∙-comm σ₃) σ₅
+  ... | _ , σ₆ , σ₇ = return (lift v ∙⟨ offerᵣ (∙-comm σ₆) ⟩ (lift (subtract st' (∙-comm σ₇))))
 
   -- -- Writing into a cell, returning the current contents
   -- write : ∀ {a b} → ∀[ Just b ✴ (V a) ⇒ StateT M Cells (Just a ✴ V b) ]

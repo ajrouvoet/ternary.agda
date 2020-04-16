@@ -49,7 +49,7 @@ module _
     assoc (demand σ₁) (demand σ₂) =
       let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in -, demand σ₃ , demand σ₄
 
-  instance ≈-equiv : IsEquivalence _≈_ 
+  instance ≈-equiv : IsEquivalence _≈_
   IsEquivalence.refl ≈-equiv {offer l}                = offers ≈-refl
   IsEquivalence.refl ≈-equiv {demand r}               = demands ≈-refl
   IsEquivalence.sym ≈-equiv (offers x)                = offers (≈-sym x)
@@ -103,13 +103,21 @@ module _
   ●-map : ∀ {p} {P Q : Pred A p} → ∀[ P ⇒ Q ] → ∀[ ● P ⇒ ● Q ]
   ●-map f (lift px) = lift (f px)
 
+  record LeftOver {p} (P : A → A → Set p) rem : Set (ℓ ⊔ p) where
+    constructor subtract
+    field
+      {sup dem} : A
+      px  : P sup dem
+      sub : dem ∙ rem ≣ sup
+
+
 module _ {e} {_≈ₐ_ : A → A → Set e} {u}
   {{m    : IsPartialMonoid _≈ₐ_ rel u}}
   {{comm : IsCommutative rel}} where
 
   instance market-isMonoid : IsPartialMonoid _≈_ market-rel (demand ε)
   market-isMonoid = IsPartialMonoidˡ.partialMonoidˡ record
-    { ε-uniq     = λ where (demands z) → cong demand (ε-unique z) 
+    { ε-uniq     = λ where (demands z) → cong demand (ε-unique z)
     ; identityˡ  = λ where
         {offer l}  → offerᵣ (IsPartialMonoid.∙-idˡ m)
         {demand r} → demand (IsPartialMonoid.∙-idˡ m)
