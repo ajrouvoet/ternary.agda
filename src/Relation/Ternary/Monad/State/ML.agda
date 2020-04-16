@@ -45,14 +45,14 @@ module HeapOps
   -- Note that in the market monoid, resources are preserved (supply and demand balance)!
   -- Because we get a reference that consumes the freshly created resource.
   mkref : ∀ {a} → ∀[ V a ⇒ StateT M Heap (Just a) ]
-  mkref v ⟨ offerᵣ σ₂ ⟩ (lift (subtract μ σ₁)) =
+  mkref v ⟨ supplyᵣ σ₂ ⟩ (lift (subtract μ σ₁)) =
     let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂
-    in return (lift refl ∙⟨ offerᵣ ∙-∙ ⟩ lift (subtract (cons (v ∙⟨ (∙-comm τ₁) ⟩ μ)) (∙-∙ᵣₗ τ₂)))
+    in return (lift refl ∙⟨ supplyᵣ ∙-∙ ⟩ lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ μ)) (∙-∙ᵣₗ τ₂)))
 
   read : ∀ {a} → ∀[ Just a ⇒ StateT M Heap  (V a) ]
 
   -- A read that drops a cell if it is no longer referenced
-  read refl ⟨ offerᵣ σ₂ ⟩ lift (subtract st σ₁) with ∙-assocₗ σ₁ (∙-comm σ₂)
+  read refl ⟨ supplyᵣ σ₂ ⟩ lift (subtract st σ₁) with ∙-assocₗ σ₁ (∙-comm σ₂)
   ... | _ , σ₃ , σ₄ with read' (∙-comm σ₄) st
     where
 
@@ -64,11 +64,11 @@ module HeapOps
       ... | (v ∙⟨ σ' ⟩ vs∙w) = v ∙⟨ σ' ⟩ cons (✴-swap vs∙w)
 
   ... | v ∙⟨ σ₅ ⟩ st' with ∙-assocₗ (∙-comm σ₃) σ₅
-  ... | _ , σ₆ , σ₇ = return (lift v ∙⟨ offerᵣ (∙-comm σ₆) ⟩ (lift (subtract st' (∙-comm σ₇))))
+  ... | _ , σ₆ , σ₇ = return (lift v ∙⟨ supplyᵣ (∙-comm σ₆) ⟩ (lift (subtract st' (∙-comm σ₇))))
 
   -- -- Writing into a cell, returning the current contents
   -- write : ∀ {a b} → ∀[ Just b ✴ (V a) ⇒ StateT M Cells (Just a ✴ V b) ]
-  -- write (refl ∙⟨ σ₁ ⟩ v) ⟨ offerᵣ σ₃ ⟩ (lift st σ₂) with ∙-assocᵣ (∙-comm σ₁) σ₃
+  -- write (refl ∙⟨ σ₁ ⟩ v) ⟨ supplyᵣ σ₃ ⟩ (lift st σ₂) with ∙-assocᵣ (∙-comm σ₁) σ₃
   -- -- first we reassociate the arguments in the order that we want to piece it back together
   -- ... | _ , τ₁ , τ₂ with ∙-assocᵣ (∙-comm τ₁) σ₂
   -- ... | _ , τ₃ , τ₄ with ∙-assocᵣ τ₂ τ₃
@@ -81,7 +81,7 @@ module HeapOps
   --     _ , κ₃ , κ₄ = ∙-assocᵣ κ₂ (∙-comm τ₆)
   --   in return (
   --     lift (refl ∙⟨ ? ⟩ vb)
-  --       ∙⟨ offerᵣ ? ⟩
+  --       ∙⟨ supplyᵣ ? ⟩
   --     lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-∙ₗ (∙-comm κ₃)))
 
   -- -- A linear (strong) update on the store

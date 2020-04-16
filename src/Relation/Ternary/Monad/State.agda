@@ -56,14 +56,14 @@ module StateTransformer
     state-strong : Strong ⊤ (λ _ _ → StateT M St)
     Strong.str state-strong {Q = Q} qx ⟨ σ₁ ⟩ mpx ⟨ σ₂ ⟩ st = do
       let _ , σ₃ , σ₄  = ∙-assocᵣ (demand σ₁) σ₂
-      lift qx ∙⟨ offerᵣ σ₅ ⟩ lift px ∙⟨ offerᵣ σ₆ ⟩ st ← mpx ⟨ σ₄ ⟩ st &⟨ ○ Q # σ₃ ⟩ lift qx
+      lift qx ∙⟨ supplyᵣ σ₅ ⟩ lift px ∙⟨ supplyᵣ σ₆ ⟩ st ← mpx ⟨ σ₄ ⟩ st &⟨ ○ Q # σ₃ ⟩ lift qx
       let _ , σ₇ , σ₈  = ∙-assocₗ σ₆ σ₅
-      return ((lift (qx ∙⟨ ∙-comm σ₇ ⟩ px)) ∙⟨ offerᵣ σ₈ ⟩ st)
+      return ((lift (qx ∙⟨ ∙-comm σ₇ ⟩ px)) ∙⟨ supplyᵣ σ₈ ⟩ st)
 
   {- Lift an M computation into a transformed state operation -}
   liftM : ∀ {Φ P} → M P (demand Φ) → StateT M St (P ∘ demand) Φ
-  liftM mp ⟨ (offerᵣ σ) ⟩ (lift μ) =
-    mapM′ (arr λ where σ@(offerₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ) ⟨ offerₗ (∙-comm σ) ⟩ mp
+  liftM mp ⟨ (supplyᵣ σ) ⟩ (lift μ) =
+    mapM′ (arr λ where σ@(supplyₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ) ⟨ supplyₗ (∙-comm σ) ⟩ mp
 
   {- Lift a state computation into a transformed state operation -}
   liftState : ∀ {P} → ∀[ State St P ⇒ StateT M St P ]
