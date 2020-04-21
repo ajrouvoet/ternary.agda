@@ -33,7 +33,7 @@ module WriterTransformer
 
   private
     variable 
-      i j : I
+      i j k : I
 
   {- Insert "writer?! I hardly know her?" joke here. -}
   record WriterT (i j : I) (P : Pred C ℓ) Φ : Set ℓ where
@@ -60,6 +60,17 @@ module WriterTransformer
   -- Output a single, unlabeled instruction
   tell : ∀[ W i j ⇒ WriterT i j Emp ] 
   tell cs = writer (return (cs ∙⟨ ∙-idʳ ⟩ refl))
+
+  -- Linear listen, stealing the output from a computation and returning it as a value instead
+  listen : ∀ {P} → ∀[ WriterT i j P ⇒ WriterT k k (P ✴ W i j) ]
+  listen (writer mpx) = writer do
+    w✴px ← mpx
+    return (mempty ∙⟨ ∙-idˡ ⟩ ✴-swap w✴px)
+
+  pass : ∀ {P} → ∀[ WriterT i j (P ✴ (W i j ─✴ W i j)) ⇒ WriterT i j P ]
+  pass (writer mpx) = writer do
+    (f ∙⟨ σ₁ ⟩ w) ∙⟨ σ₂ ⟩ px ← ✴-assocₗ ⟨$⟩ (✴-rotateᵣ ⟨$⟩ mpx)
+    return ((f ⟨ σ₁ ⟩ w) ∙⟨ σ₂ ⟩ px)
 
 module WriterMonad
   {ℓi} {I : Set ℓi}
