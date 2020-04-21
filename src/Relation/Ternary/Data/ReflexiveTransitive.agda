@@ -11,6 +11,7 @@ open import Data.Product
 open import Relation.Unary
 open import Relation.Binary.PropositionalEquality using (refl)
 open import Relation.Ternary.Structures.Syntax
+open import Relation.Ternary.Data.IndexedMonoid
 
 module _
   {A : Set c} (R : A → A → Pred C c) {u}
@@ -39,8 +40,13 @@ module _
   ... | refl = nil
   Respect.coe star-respects eq (cons x) = cons (coe eq x)
 
-  append : ∀ {a₁ a₂ a₃} → ∀[ Star R a₁ a₂ ⇒ Star R a₂ a₃ ─✴ Star R a₁ a₃ ]
-  append nil ⟨ σ ⟩ y = coe (∙-id⁻ˡ σ) y
-  append (cons (r ∙⟨ σ₁ ⟩ rs)) ⟨ σ₂ ⟩ y = 
-    let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in
-    r ▹⟨ σ₃ ⟩ (append rs ⟨ σ₄ ⟩ y)
+  private
+    append : ∀ {a₁ a₂ a₃} → ∀[ Star R a₁ a₂ ⇒ Star R a₂ a₃ ─✴ Star R a₁ a₃ ]
+    append nil ⟨ σ ⟩ y = coe (∙-id⁻ˡ σ) y
+    append (cons (r ∙⟨ σ₁ ⟩ rs)) ⟨ σ₂ ⟩ y = 
+      let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in
+      r ▹⟨ σ₃ ⟩ (append rs ⟨ σ₄ ⟩ y)
+
+  instance starMonoid : IsIndexedMonoid (Star R)
+  IsIndexedMonoid.mempty starMonoid  = nil
+  IsIndexedMonoid.mappend starMonoid = append

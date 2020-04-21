@@ -18,18 +18,14 @@ open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality using (refl)
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
-
-record IsIndexedMonoid {i w} {I : Set i} (W : I → I → Pred C w) : Set (i ⊔ w ⊔ suc ℓ) where
-  field
-    mempty  : ∀ {i} → W i i ε
-    mappend : ∀ {i₁ i₂ i₃} → ∀[ W i₁ i₂ ⇒ W i₂ i₃ ─✴ W i₁ i₃ ]
-
-open IsIndexedMonoid {{...}}
+open import Relation.Ternary.Data.IndexedMonoid
 
 module WriterTransformer
   {ℓi} {I : Set ℓi}
   (M : Pt C ℓ) {{strong : Strong ⊤ (λ _ _ → M)}}
-  (W : I → I → Pred C ℓ) {{ wm : IsIndexedMonoid W }} where
+  {W : I → I → Pred C ℓ} (wm : IsIndexedMonoid W) where
+
+  open IsIndexedMonoid wm
 
   private
     variable 
@@ -67,17 +63,20 @@ module WriterTransformer
     w✴px ← mpx
     return (mempty ∙⟨ ∙-idˡ ⟩ ✴-swap w✴px)
 
-  pass : ∀ {P} → ∀[ WriterT i j (P ✴ (W i j ─✴ W i j)) ⇒ WriterT i j P ]
+  pass : ∀ {P} → ∀[ WriterT i j ((W i j ─✴ W i j) ✴ P) ⇒ WriterT i j P ]
   pass (writer mpx) = writer do
-    (f ∙⟨ σ₁ ⟩ w) ∙⟨ σ₂ ⟩ px ← ✴-assocₗ ⟨$⟩ (✴-rotateᵣ ⟨$⟩ mpx)
-    return ((f ⟨ σ₁ ⟩ w) ∙⟨ σ₂ ⟩ px)
+    (w ∙⟨ σ₁ ⟩ f) ∙⟨ σ₂ ⟩ px ← ✴-assocₗ ⟨$⟩ mpx
+    return ((f ⟨ ∙-comm σ₁ ⟩ w) ∙⟨ σ₂ ⟩ px)
 
 module WriterMonad
   {ℓi} {I : Set ℓi}
-  (W : I → I → Pred C ℓ) {{ wm : IsIndexedMonoid W }} where
+  {W : I → I → Pred C ℓ} (wm : IsIndexedMonoid W) where
 
   open import Relation.Ternary.Monad.Identity
-  open WriterTransformer {I = I} Id W public renaming (WriterT to Writer)
+  open WriterTransformer {I = I} Id wm public renaming (WriterT to Writer)
+
+  instance writer-respect : ∀ {i j P} → Respect _≈_ (Writer i j P)
+  Respect.coe writer-respect eq (writer mp) = writer (coe eq mp)
 
   execWriter : ∀ {i j} {{_ : Respect _≈_ (W i j)}} → ∀[ Writer i j Emp ⇒ W i j ]
   execWriter (writer (bc ∙⟨ σ ⟩ refl)) = coe (∙-id⁻ʳ σ) bc
