@@ -185,11 +185,11 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
 module _ {{_ : IsIntuitionistic U division}} where
 
   instance list-isIntuitionistic : IsIntuitionistic U splits
-  IsIntuitionistic.∙-copy list-isIntuitionistic {xs} = copies xs
+  IsIntuitionistic.∙-copy list-isIntuitionistic {xs} tt = copies xs
     where
       copies : ∀ (xs : List A) → xs ∙ xs ≣ xs
       copies [] = []
-      copies (x ∷ xs) = divide ∙-copy (copies xs)
+      copies (x ∷ xs) = divide (∙-copy _) (copies xs)
 
 {- We need this instance to be around for the isTotal operations -}
 instance list-monoid : ∀ {a} {A : Set a} → IsMonoid {A = List A} _≡_ _++_ []

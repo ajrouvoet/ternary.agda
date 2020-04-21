@@ -8,7 +8,7 @@ open import Relation.Binary.Structures
 open import Function using (_∘_)
 open import Data.Product
 
-open import Relation.Ternary.Core using (Rel₃; Respect; coe; Exactly; Commutative)
+open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
 

@@ -11,7 +11,7 @@ open import Relation.Unary hiding (Empty)
 open import Relation.Binary hiding (_⇒_)
 
 open import Relation.Unary
-  using () renaming (｛_｝ to Exactly) public
+  using () renaming (｛_｝ to Own) public
 
 module _ {a} {A : Set a} where
   record Respect {e p} (_≈_ : A → A → Set e) (P : Pred A p) : Set (a ⊔ e ⊔ p) where
@@ -216,5 +216,6 @@ module _ {a} {A : Set a} where
 
   open import Data.List
 
-  Just : A → Pred (List A) _
-  Just t = Exactly [ t ]
+  One : A → Pred (List A) _
+  One t = Own [ t ]
+

@@ -11,10 +11,11 @@ open import Data.Product
 open import Function using (_∘_; id)
 
 open import Relation.Unary
-open import Relation.Unary.PredicateTransformer using (PT)
+open import Relation.Unary.PredicateTransformer using (PT; Pt)
 open import Relation.Binary.Structures
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.Syntax
+open import Category.Monad.Predicate
 
 {- strong indexed monads on predicates over PRSAs -}
 RawMonad : ∀ {i} (I : Set i) → (ℓ₁ ℓ₂ : Level) → Set _
@@ -100,6 +101,25 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
     mp & q = mp &⟨ ∙-idʳ ⟩ q
 
 open Strong {{...}} public
+
+-- module _ {i} {I : Set i} {M : RawMonad I a a} {{m : Strong I M}} where
+
+--   StackM : I → I → Pred A a → Pt A a
+--   StackM i₁ i₂ Ctx₁ Ctx₂ = Ctx₁ ─✴ M i₁ i₂ Ctx₂
+  
+--   private 
+--     variable
+--       i₁ i₂ i₃ : I
+--       P Γ Γ₁ Γ₂ Γ₃ : Pred A a
+      
+--   push : ∀[ P ⇒ StackM i₁ i₁ Γ (P ✴ Γ) ]
+--   push = {!!}
+
+--   chain : ∀[ StackM i₁ i₂ Γ₁ Γ₂ ⇒ StackM i₂ i₃ Γ₂ Γ₃ ─✴ StackM i₁ i₃ Γ₁ Γ₃ ]
+--   chain = {!!}
+
+  -- ch : ∀[ StackM Γ₁ Γ₂ ⇒ M i₂ i₃ P ─✴ M i₁ i₃ (P ✴ Γ) ]
+  -- ch sm ⟨ σ ⟩ m = {!!}
 
 -- {- Monad laws -}
 -- module Laws

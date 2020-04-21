@@ -9,7 +9,7 @@ open import Relation.Binary.Structures
 open import Relation.Binary.Bundles
 open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core using
-  (Rel₃; Exactly; Respect; coe; LeftIdentity; RightIdentity; LeftIdentity⁻; RightIdentity⁻)
+  (Rel₃; Own; Respect; coe; LeftIdentity; RightIdentity; LeftIdentity⁻; RightIdentity⁻)
 open import Relation.Ternary.Structures.PartialSemigroup
 
 open import Data.Product
@@ -21,7 +21,7 @@ record Emptiness (unit : A) : Set where
   ε = unit
 
   Emp : Pred A a
-  Emp = Exactly ε
+  Emp = Own ε
 
   infix 10 ε[_]
   ε[_] : ∀ {ℓ} → Pred A ℓ → Set ℓ

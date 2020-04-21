@@ -9,7 +9,7 @@ module Relation.Ternary.Data.ReflexiveTransitive
 open import Level
 open import Data.Product
 open import Relation.Unary
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality using (refl)
 open import Relation.Ternary.Structures.Syntax
 
 module _
@@ -20,6 +20,8 @@ module _
     nil   : ∀ {a}        → ε[ Star a a ]
     cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ✴ Star a₂ a₃ ⇒ Star a₁ a₃ ]
 
+  pattern _▹⟨_⟩_ r σ rs = cons (r ∙⟨ σ ⟩ rs)
+
   data Plus : (a₁ a₂ : A) → Pred C c where
     cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ✴ Star a₂ a₃ ⇒ Plus a₁ a₃ ]
   
@@ -29,12 +31,13 @@ module _
   {{monoid : IsPartialMonoid _≈_ rc u}}
   where
 
+  [_] : ∀ {a₁ a₂ : A} → ∀[ R a₁ a₂ ⇒ Star R a₁ a₂ ]
+  [ rx ] = rx ▹⟨ ∙-idʳ ⟩ nil
+
   instance star-respects : ∀ {a₁ a₂ : A} → Respect _≈_ (Star R a₁ a₂)
   Respect.coe star-respects eq nil with ε-unique eq
   ... | refl = nil
   Respect.coe star-respects eq (cons x) = cons (coe eq x)
-
-  pattern _▹⟨_⟩_ r σ rs = cons (r ∙⟨ σ ⟩ rs)
 
   append : ∀ {a₁ a₂ a₃} → ∀[ Star R a₁ a₂ ⇒ Star R a₂ a₃ ─✴ Star R a₁ a₃ ]
   append nil ⟨ σ ⟩ y = coe (∙-id⁻ˡ σ) y

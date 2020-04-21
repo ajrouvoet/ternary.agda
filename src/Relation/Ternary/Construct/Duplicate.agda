@@ -31,7 +31,7 @@ instance dup-isIdempotent : IsIdempotent duplicate
 IsIdempotent.∙-idem dup-isIdempotent = dup
 
 instance dup-isIntuitive : IsIntuitionistic U duplicate
-IsIntuitionistic.∙-copy dup-isIntuitive = dup
+IsIntuitionistic.∙-copy dup-isIntuitive tt = dup
 
 module _ {e} {_≈_ : A → A → Set e} {{equiv : IsEquivalence _≈_}} where
   instance dup-isFunctional : IsFunctional _≈_ duplicate

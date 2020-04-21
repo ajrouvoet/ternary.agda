@@ -20,7 +20,6 @@ module Relation.Ternary.Construct.Exchange {ℓ e s}
   {{r₂-positive  : IsPositiveWithZero s _≈ₐ_ r₂ εₐ}}
   {{r₁-comm : IsCommutative r₁}}
   {{r₂-comm : IsCommutative r₂}}
-  {{r₂-intuitive : IsIntuitionistic U r₂}}
   {_∙_}
   {{_ : IsTotal _≈ₐ_ r₁ _∙_}}
   {{_ : IsTotal _≈ₐ_ r₂ _∙_}}
@@ -219,11 +218,6 @@ module _ where
   instance exchange-isMonoid : IsPartialMonoid _≈_ exchange-rel (εₐ ⇅ εₐ)
   exchange-isMonoid = IsPartialMonoidˡ.partialMonoidˡ exchange-isMonoidˡ
 
-module _ where
-
-  instance exchange-intuitive-down : IsIntuitionistic (λ where (u ⇅ d) → u ≡ εₐ) exchange-rel
-  IsIntuitionistic.∙-copy exchange-intuitive-down {{PEq.refl}} = ex sub-ε sub-ε ∙-idˡ ∙-copy
-
 module _ (P : Pred A ℓ) where
 
   Liftₓ : Pred (A × A) ℓ → Pred Account ℓ
@@ -234,6 +228,16 @@ module _ (P : Pred A ℓ) where
 
   data Up : Pred Account ℓ where
     ↑ : ∀ {x} → P x → Up (x ⇅ εₐ)
+
+module DownIntuitive {{r₂-intuitive : IsIntuitionistic U r₂}} where
+
+  instance exchange-intuitive-down : ∀ {P} → IsIntuitionistic (Down P) exchange-rel
+  IsIntuitionistic.∙-copy exchange-intuitive-down (↓ _) = ex sub-ε sub-ε ∙-idˡ (∙-copy tt)
+
+module _ where
+
+  balance : ∀ {r} → ε[ Up (Own r) ✴ Down (Own r) ]
+  balance = ↑ PEq.refl ∙⟨ ex xs-xs≡ε xs-xs≡ε ∙-idˡ ∙-idˡ ⟩ ↓ PEq.refl
 
 module _ where
 

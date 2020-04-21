@@ -8,7 +8,7 @@ open import Relation.Binary.Structures
 open import Function using (_∘_)
 open import Data.Product
 
-open import Relation.Ternary.Core using (Rel₃; Respect; coe; Exactly; Commutative)
+open import Relation.Ternary.Core using (Rel₃; Respect; coe; Own; Commutative)
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
 
@@ -117,7 +117,7 @@ module _  where
       {{isSemigroup}}   : IsPartialSemigroup _≈_ rel
       {{isCommutative}} : IsCommutative rel
       {{emptiness}}     : Emptiness unit
-      ε-uniq     : ∀[ _≈_ unit ⇒ Exactly unit ]
+      ε-uniq     : ∀[ _≈_ unit ⇒ Own unit ]
       identityˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ
       identity⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ]
 
@@ -134,7 +134,7 @@ module _  where
   --       {_≈_ : A → A → Set e}
   --       {{psg : IsPartialSemigroup _≈_ rel}}
   --       {{cm  : IsCommutative rel}}
-  --       → (ε-unique : ∀[ _≈_ unit ⇒ Exactly unit ])
+  --       → (ε-unique : ∀[ _≈_ unit ⇒ Own unit ])
   --       → (idˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ)
   --       → (id⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ])
   --       → IsPartialMonoid _≈_ rel unit

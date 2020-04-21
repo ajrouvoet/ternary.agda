@@ -11,6 +11,7 @@ open import Level
 open import Data.Bool
 open import Data.Product
 open import Relation.Unary
+open import Relation.Unary.PredicateTransformer using (PT)
 open import Relation.Binary.PropositionalEquality using (refl)
 open import Relation.Ternary.Structures.Syntax
 
@@ -26,8 +27,9 @@ Respect.coe bigstar-respects eq (cons x) = cons (coe eq x)
 
 pattern _✴⟨_⟩_ px σ qx = cons (px ∙⟨ σ ⟩ qx)
 
-[_] : ∀ {p} {P : Pred A p} → ∀[ P ⇒ Bigstar P ]
-[ px ] = cons (px ∙⟨ ∙-idʳ ⟩ emp)
+module _ where
+  [_] : ∀ {p} {P : Pred A p} → ∀[ P ⇒ Bigstar P ]
+  [ px ] = cons (px ∙⟨ ∙-idʳ ⟩ emp)
 
 module _ {p q} {P : Pred A p} {Q : Pred A q} where
 

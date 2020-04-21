@@ -56,12 +56,13 @@ module HeapOps
       in return (
         lift refl
           ∙⟨ supplyᵣ ∙-∙ ⟩
-        lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ st) ) (∙-∙ᵣₗ τ₂)))
+        lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ st)) (∙-∙ᵣₗ τ₂)))
 
     -- A linear read on a store: you lose the reference.
     -- Resources balance, because with the reference being lost, the cell is destroyed: no resources leak.
     read : ∀ {a} → ∀[ Just a ⇒ StateT M Heap (V a) ]
-    (read refl) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) with _ , σ₃ , σ₄ ← ∙-assocₗ σ₁ (∙-comm σ₂) with repartition (∙-comm σ₄) st
+    read refl ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) 
+      with _ , σ₃ , σ₄ ← ∙-assocₗ σ₁ (∙-comm σ₂) with repartition (∙-comm σ₄) st
     ... | cons (v ∙⟨ σ₅ ⟩ nil) ∙⟨ σ₆ ⟩ st' with refl ← ∙-id⁻ʳ σ₅ with ∙-assocᵣ (∙-comm σ₆) σ₃
     ... | _ , τ₁ , τ₂ = return (lift v ∙⟨ supplyᵣ τ₂ ⟩ lift (subtract st' τ₁))
 

@@ -119,4 +119,4 @@ module _ where
 module _ {{_ : IsIntuitionistic U div}} where
 
   instance bags-isIntuitionistic : IsIntuitionistic U bags
-  IsIntuitionistic.∙-copy bags-isIntuitionistic {xs} = hustle ↭-refl ↭-refl ↭-refl ∙-copy
+  IsIntuitionistic.∙-copy bags-isIntuitionistic {xs} tt = hustle ↭-refl ↭-refl ↭-refl (∙-copy tt)
