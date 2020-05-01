@@ -22,7 +22,7 @@ open import Relation.Nullary
 open import Relation.Unary hiding (_∈_)
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.Structures
-open import Relation.Binary.PropositionalEquality hiding ([_])
+open import Relation.Binary.PropositionalEquality as PEq hiding ([_])
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.Syntax
 
@@ -75,6 +75,12 @@ module _ where
   IsPartialSemigroupˡ.assocᵣ bags-isSemigroupˡ (hustle ρa ρb ρab σ₁) (hustle ρab' ρc ρabc σ₂) with ∙-↭ σ₁ (↭-trans ρab (↭-sym ρab'))
   ... | _ , ρ₁ , ρ₂ , σ₅ with ∙-assocᵣ σ₅ σ₂
   ... | _ , σ₃ , σ₄ = -, hustle (↭-trans ρ₁ ρa) ↭-refl ρabc σ₃ , hustle (↭-trans ρ₂ ρb) ρc ↭-refl σ₄
+
+  instance empty-unique : IsUnique {A = List A} _↭_ []
+  IsUnique.unique empty-unique eq rewrite ↭-empty-inv (↭-sym eq) = refl
+
+  instance singleton-unique : ∀ {a} → IsUnique {A = List A} _↭_ [ a ]
+  IsUnique.unique singleton-unique eq rewrite ↭-singleton-inv (↭-sym eq) = refl
 
   instance bags-isSemigroup : IsPartialSemigroup _↭_ bags
   bags-isSemigroup = IsPartialSemigroupˡ.semigroupˡ bags-isSemigroupˡ

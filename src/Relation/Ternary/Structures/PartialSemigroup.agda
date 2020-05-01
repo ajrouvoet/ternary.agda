@@ -4,7 +4,8 @@ module Relation.Ternary.Structures.PartialSemigroup {a} {A : Set a} where
 open import Level
 open import Relation.Unary
 open import Relation.Binary.Structures
-open import Relation.Ternary.Core using (Rel₃; Respect; coe; RightAssoc; LeftAssoc)
+open import Relation.Binary.PropositionalEquality
+open import Relation.Ternary.Core
 
 open import Function using (_∘_)
 open import Data.Product

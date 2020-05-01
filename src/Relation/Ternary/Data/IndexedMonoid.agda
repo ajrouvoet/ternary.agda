@@ -17,3 +17,5 @@ record IsIndexedMonoid {i w} {I : Set i} (W : I → I → Pred C w) : Set (i ⊔
   field
     mempty  : ∀ {i} → W i i ε
     mappend : ∀ {i₁ i₂ i₃} → ∀[ W i₁ i₂ ⇒ W i₂ i₃ ─✴ W i₁ i₃ ]
+
+open IsIndexedMonoid {{...}} public

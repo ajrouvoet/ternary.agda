@@ -9,6 +9,7 @@ open import Data.Product
 
 open import Relation.Unary hiding (Empty)
 open import Relation.Binary hiding (_⇒_)
+open import Relation.Binary.PropositionalEquality hiding ([_])
 
 open import Relation.Unary
   using () renaming (｛_｝ to Own) public
@@ -18,7 +19,15 @@ module _ {a} {A : Set a} where
     field
       coe : P Respects _≈_
 
+  record IsUnique {e} (_≈_ : A → A → Set e) (el : A) : Set (a ⊔ e) where
+    field
+      unique : ∀ {a} → el ≈ a → el ≡ a
+      
+    unique-respects : {{_ : IsEquivalence _≈_}} → Respect _≈_ (Own el)
+    Respect.coe (unique-respects {{equiv}}) eq refl rewrite unique eq = refl
+
   open Respect {{...}} public
+  open IsUnique {{...}} public
 
 record Rel₃ {a} (A : Set a) : Set (suc a) where
 

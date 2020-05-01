@@ -137,7 +137,6 @@ module _ where
 module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division}} where
 
   instance list-isMonoid : IsPartialMonoid _≡_ splits []
-  IsPartialMonoid.ε-unique list-isMonoid refl = refl
   IsPartialMonoid.∙-idˡ list-isMonoid {Φ}     = idˡ Φ
     where
       idˡ : ∀ Φ → Split [] Φ Φ

@@ -18,7 +18,7 @@ open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Binary.PropositionalEquality using (refl)
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
-open import Relation.Ternary.Data.IndexedMonoid
+open import Relation.Ternary.Data.IndexedMonoid using (IsIndexedMonoid)
 
 module WriterTransformer
   {ℓi} {I : Set ℓi}

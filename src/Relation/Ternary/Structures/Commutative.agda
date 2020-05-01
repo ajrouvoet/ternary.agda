@@ -18,6 +18,11 @@ record IsCommutative (rel : Rel₃ A) : Set (a) where
   field
     ∙-comm            : Commutative rel
 
+  -- pairs commute
+  module _ {p q} {P : Pred A p} {Q : Pred A q} where
+    ✴-swap : ∀[ (P ✴ Q) ⇒ (Q ✴ P) ]
+    ✴-swap (px ∙⟨ σ ⟩ qx) = qx ∙⟨ ∙-comm σ ⟩ px
+
 open IsPartialSemigroup {{...}}
 open IsCommutative      {{...}}
      
@@ -39,11 +44,6 @@ module CommutativeSemigroupOps
     ... | bd  , σ₅ , σ₆ with ∙-assocₗ σ₃ σ₆
     ... | abd , σ₇ , σ₈ with ∙-assocₗ (∙-comm σ₈) σ₇
     ... | ac  , τ  , τ' = -, -, ∙-comm τ , σ₅ , τ'
-
-  -- pairs commute
-  module _ {p q} {P : Pred A p} {Q : Pred A q} where
-    ✴-swap : ∀[ (P ✴ Q) ⇒ (Q ✴ P) ]
-    ✴-swap (px ∙⟨ σ ⟩ qx) = qx ∙⟨ ∙-comm σ ⟩ px
 
   module _ {p q p' q'}
     {P : Pred A p} {Q : Pred A q} {P' : Pred A p'} {Q' : Pred A q'} where
@@ -123,7 +123,6 @@ module _  where
 
   
     partialMonoidˡ : IsPartialMonoid _≈_ rel unit
-    IsPartialMonoid.ε-unique partialMonoidˡ = ε-uniq
     IsPartialMonoid.∙-idˡ partialMonoidˡ = identityˡ
     IsPartialMonoid.∙-idʳ partialMonoidˡ = ∙-comm identityˡ
     IsPartialMonoid.∙-id⁻ˡ partialMonoidˡ = identity⁻ˡ

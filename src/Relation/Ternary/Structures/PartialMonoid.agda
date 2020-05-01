@@ -38,18 +38,20 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
     overlap {{ isSemigroup }} : IsPartialSemigroup _≈_ rel
 
   open Rel₃ rel
+  open IsPartialSemigroup isSemigroup
+  module Eq = IsEquivalence ≈-equivalence
 
   field
-    ε-unique : ∀[ _≈_ ε ⇒ Emp ]
-
     ∙-idˡ    : LeftIdentity rel ε
     ∙-idʳ    : RightIdentity rel ε
 
     ∙-id⁻ˡ   : LeftIdentity⁻ _≈_ rel ε
     ∙-id⁻ʳ   : RightIdentity⁻ _≈_ rel ε
+    
+  Emp′ = λ x → x ≈ ε
 
-  ε∙ε : ∀[ ε ∙ ε ⇒ Emp ]
-  ε∙ε p = ε-unique (∙-id⁻ˡ p)
+  ε∙ε : ∀[ ε ∙ ε ⇒ Emp′ ]
+  ε∙ε p = Eq.sym (∙-id⁻ˡ p)
 
   ∙-id⁺ˡ : ∀[ _≈_ Φ ⇒ ε ∙ Φ ]
   ∙-id⁺ˡ eq = coe eq ∙-idˡ
@@ -77,8 +79,6 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
 
   {- A free preorder -}
   module _ where
-
-    open IsPartialSemigroup isSemigroup
 
     ≤-reflexive : Φ₁ ≡ Φ₂ → Φ₁ ≤ Φ₂
     ≤-reflexive refl = ε , ∙-idʳ
