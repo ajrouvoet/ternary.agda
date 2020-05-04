@@ -117,39 +117,11 @@ module _  where
       {{isSemigroup}}   : IsPartialSemigroup _≈_ rel
       {{isCommutative}} : IsCommutative rel
       {{emptiness}}     : Emptiness unit
-      ε-uniq     : ∀[ _≈_ unit ⇒ Own unit ]
       identityˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ
       identity⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ]
-
   
     partialMonoidˡ : IsPartialMonoid _≈_ rel unit
     IsPartialMonoid.∙-idˡ partialMonoidˡ = identityˡ
     IsPartialMonoid.∙-idʳ partialMonoidˡ = ∙-comm identityˡ
     IsPartialMonoid.∙-id⁻ˡ partialMonoidˡ = identity⁻ˡ
     IsPartialMonoid.∙-id⁻ʳ partialMonoidˡ = identity⁻ˡ ∘ ∙-comm
-
-  -- partialMonoidˡ : ∀ {e} {rel : Rel₃ A} {unit : A} →
-  --       let open Rel₃ rel in
-  --       {_≈_ : A → A → Set e}
-  --       {{psg : IsPartialSemigroup _≈_ rel}}
-  --       {{cm  : IsCommutative rel}}
-  --       → (ε-unique : ∀[ _≈_ unit ⇒ Own unit ])
-  --       → (idˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ)
-  --       → (id⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ])
-  --       → IsPartialMonoid _≈_ rel unit
-  -- partialMonoidˡ {rel = rel} {unit} {_≈_} {{pcsg}} ε-unique idˡ id⁻ˡ = isPartialMonoid′
-  --   where
-  --     open Rel₃ rel
-
-  --     idʳ : ∀ {Φ} → Φ ∙ unit ≣ Φ
-  --     idʳ = ∙-comm idˡ
-
-  --     id⁻ʳ   : ∀ {Φ} → ∀[ Φ ∙ unit ⇒ _≈_ Φ ]
-  --     id⁻ʳ = id⁻ˡ ∘ ∙-comm
-
-  --     isPartialMonoid′ : IsPartialMonoid _≈_ rel unit
-  --     IsPartialMonoid.ε-unique isPartialMonoid′ = ε-unique
-  --     IsPartialMonoid.∙-idˡ isPartialMonoid′ = idˡ
-  --     IsPartialMonoid.∙-idʳ isPartialMonoid′ = idʳ
-  --     IsPartialMonoid.∙-id⁻ˡ isPartialMonoid′ = id⁻ˡ
-  --     IsPartialMonoid.∙-id⁻ʳ isPartialMonoid′ = id⁻ʳ
