@@ -13,6 +13,7 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Monad
+open import Relation.Ternary.Functor
 open import Relation.Ternary.Monad.Update
 open import Algebra.Structures
 
@@ -80,15 +81,15 @@ module Possibly {r g} {G : Set g} (_∼[_]_  : GradedRel A G r) where
     (∼-fp : ∀ {Δ fr Φ₁ Φ₂} → Φ₁ ∼[ Δ ] Φ₂ → (di₁ : fr ◆ Φ₁) → ∃ λ (di₂ : fr ◆ Φ₂) → whole di₁ ∼[ Δ ] whole di₂)
     where
 
-    greturn : ∀[ P ⇒ ◇[ ε ] P ]
-    greturn px = possibly ∼-refl px
+    -- greturn : ∀[ P ⇒ ◇[ ε ] P ]
+    -- greturn px = possibly ∼-refl px
 
-    goin : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] (◇[ Δ₂ ] P) ⇒ ◇[ Δ ] P ]
-    goin σ (possibly x∼y (possibly y∼z px)) = possibly (∼-trans σ x∼y y∼z) px
+    -- goin : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] (◇[ Δ₂ ] P) ⇒ ◇[ Δ ] P ]
+    -- goin σ (possibly x∼y (possibly y∼z px)) = possibly (∼-trans σ x∼y y∼z) px
 
-    gstr : ∀ {Δ} → ∀[ P ✴ (◇[ Δ ] Q) ⇒ ◇[ Δ ] (P ✴ Q) ]
-    gstr (px ∙⟨ σ ⟩ possibly rel qx) with ∼-fp rel (-, σ)
-    ... | di , rel' = possibly rel' (px ∙⟨ proj₂ di ⟩ qx)
+    -- gstr : ∀ {Δ} → ∀[ P ✴ (◇[ Δ ] Q) ⇒ ◇[ Δ ] (P ✴ Q) ]
+    -- gstr (px ∙⟨ σ ⟩ possibly rel qx) with ∼-fp rel (-, σ)
+    -- ... | di , rel' = possibly rel' (px ∙⟨ proj₂ di ⟩ qx)
 
   module ◇-Zip
     {{r  : Rel₃ A}} {{g : Rel₃ G}}
@@ -126,6 +127,9 @@ module ◇-Monad
   open IsPreorder ∼-isPreorder
 
   instance
+    ◇-functor : Functor ◇
+    Functor.fmap ◇-functor f (g , possibly rel px) = -, possibly rel (f px)
+
     ◇-monad : Monad ⊤ (λ _ _ → ◇)
     Monad.return ◇-monad px =
       -, possibly (proj₂ refl) px

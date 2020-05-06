@@ -9,6 +9,7 @@ open import Relation.Binary using (IsPreorder)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Structures.Syntax
+open import Relation.Ternary.Functor
 open import Relation.Ternary.Monad
 
 open import Data.Unit
@@ -42,6 +43,9 @@ module _
   where
 
   instance
+    ⤇-functor : Functor ⤇
+    update (Functor.fmap ⤇-functor f x) fr with _ , σ , px ← update x fr = -, σ , f px
+
     ⤇-monad : Monad ⊤ (λ _ _ → ⤇)
     Monad.return ⤇-monad px  = local λ σ → -, σ , px
     Monad._=<<_  ⤇-monad f ⤇p = local λ σ →

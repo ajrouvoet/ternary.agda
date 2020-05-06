@@ -292,8 +292,31 @@ IsIntuitionistic.∙-copy ⊔-intuitive _ = union
   id id (λ x → these x x)
   (λ x → refl) (λ x → refl) (λ c → refl , refl)
 
+open import Algebra.Structures
+
+-- ⊎-magma : IsMagma _↔_ _⊎_
+-- IsMagma.isEquivalence ⊎-magma = ≈-equivalence
+-- IsMagma.∙-cong ⊎-magma {A} {B} {C} {D} e₁ e₂ = prf
+--   where
+--     prf : (A ⊎ C) ↔ (B ⊎ D)
+--     Inverse.f prf (inj₁ x) = {!!}
+--     Inverse.f prf (inj₂ y) = {!!}
+--     Inverse.f⁻¹ prf (inj₁ x) = {!!}
+--     Inverse.f⁻¹ prf (inj₂ y) = {!!}
+--     Inverse.cong₁ prf = {!!}
+--     Inverse.cong₂ prf = {!!}
+--     Inverse.inverse prf = {!!}
+
+-- ⊎-semigroup : IsSemigroup _↔_ _⊎_
+-- IsSemigroup.isMagma ⊎-semigroup = {!!}
+-- IsSemigroup.assoc ⊎-semigroup = {!!}
+
+postulate ⊎-monoid : IsMonoid _↔_ _⊎_ ⊥
+-- IsMonoid.isSemigroup ⊎-monoid = {!!}
+-- IsMonoid.identity ⊎-monoid = {!!}
+
 -- Disjoint Set union gives you at least one way to compose two arbitrary types.
-⊔-total : IsTotal _↔_ ⊔-rel _⊎_
+instance ⊔-total : IsTotal _↔_ ⊔-rel _⊎_
 Union.inja (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ a) = inj₁ $ Union.inja σ₁ a
 Union.inja (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ c) = inj₂ $ Union.inja σ₂ c
 Union.injb (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ b) = inj₁ $ Union.injb σ₁ b
@@ -330,3 +353,30 @@ Union.from-inv (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ cd) with Uni
 ... | From.this a i refl rewrite i = refl
 ... | From.that b i refl rewrite i = refl
 ... | From.these a b i (refl , snd) rewrite i | snd = refl , refl
+
+inclˡ : ∀ {A B C} → Union A B C → Union C A C
+inclˡ {A} {B} {C} σ = u
+  where
+    open Union σ
+
+    u : Union C A C
+    Union.inja u = id
+    Union.injb u = inja
+    Union.from u c with from c
+    ... | this a = these c a
+    ... | that b = this c
+    ... | these a b = these c a
+    Union.a-inv u c with from c
+    ... | this a = refl
+    ... | that b = refl
+    ... | these a b = refl
+    Union.b-inv u a with a-inv' a
+    ... | From.this .a i refl rewrite i = refl
+    ... | From.these .a b i refl rewrite i = refl
+    Union.from-inv u c with from-inv' c
+    ... | From.this a i refl rewrite i = refl , refl
+    ... | From.that b i refl rewrite i = refl
+    ... | From.these a b i (refl , snd) rewrite i = refl , refl
+
+inclʳ : ∀ {A B C} → Union A B C → Union C B C
+inclʳ = inclˡ ∘ ∙-comm

@@ -15,6 +15,7 @@ open import Relation.Unary.PredicateTransformer using (PT; Pt)
 open import Relation.Binary.Structures
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.Syntax
+open import Relation.Ternary.Functor public
 open import Category.Monad.Predicate
 
 {- strong indexed monads on predicates over PRSAs -}
@@ -24,6 +25,7 @@ RawMonad I ℓ₁ ℓ₂ = (i j : I) → PT A A ℓ₁ ℓ₂
 -- regular indexed monad on indexed sets
 record Monad {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   field
+    {{functor}} : ∀ {i₁ i₂} → Functor (M i₁ i₂)
     return : ∀ {P i₁}         → ∀[ P ⇒ M i₁ i₁ P ]
     _=<<_  : ∀ {i₁ i₂ i₃ P Q} → ∀[ P ⇒ M i₂ i₃ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₃ Q ]
 
@@ -34,9 +36,6 @@ record Monad {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   mapM : ∀ {i₁ i₂ P Q} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
   mapM f mp = mp >>= (return ∘ f)
 
-  _⟨$⟩_ : ∀ {i₁ i₂ P Q} → ∀[ P ⇒ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₂ Q ]
-  f ⟨$⟩ mp = mapM f mp
-
   join : ∀ {i₁ i₂ i₃ P} → ∀[ M i₁ i₂ (M i₂ i₃ P) ⇒ M i₁ i₃ P ]
   join mmp = mmp >>= id
 
@@ -45,7 +44,7 @@ open Monad {{...}} public
 record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   field
     {{monad}} : Monad I M
-    str       : ∀ {i₁ i₂} {P Q : Pred A a} → ∀[ Q ⇒ M i₁ i₂ P ─✴ M i₁ i₂ (Q ✴ P) ]
+    str       : ∀ {i₁ i₂} → Strength (M i₁ i₂)
 
   module _ {i₁ i₂ i₃} {P Q} where
     bind : ∀[ (P ─✴ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─✴ M i₁ i₃ Q) ]
@@ -100,26 +99,39 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
     _&_ : ∀ {i₁ i₂ P Q} → M i₁ i₂ P ε → ∀[ Q ⇒ M i₁ i₂ (Q ✴ P) ]
     mp & q = mp &⟨ ∙-idʳ ⟩ q
 
+  module _ {{_ : IsCommutative ra }} where
+
+    mzip : ∀ {P Q i₁ i₂ i₃} → ∀[ M i₁ i₂ P ⇒ M i₂ i₃ Q ─✴ M i₁ i₃ (P ✴ Q) ]
+    mzip {P} {Q} mp ⟨ σ ⟩ mq = do
+      mq ∙⟨ σ ⟩ px ← mp &⟨ M _ _ _ # ∙-comm σ ⟩ mq
+      mq &⟨ P # ∙-comm σ ⟩ px
+
 open Strong {{...}} public
 
--- module _ {i} {I : Set i} {M : RawMonad I a a} {{m : Strong I M}} where
+module _ {g} {G : Set g}
+  {{gr : Rel₃ G}}
+  {e} {_≈_ : G → G → Set e} {ug} {{gm : IsPartialMonoid _≈_ gr ug}}
+  where
 
---   StackM : I → I → Pred A a → Pt A a
---   StackM i₁ i₂ Ctx₁ Ctx₂ = Ctx₁ ─✴ M i₁ i₂ Ctx₂
-  
---   private 
---     variable
---       i₁ i₂ i₃ : I
---       P Γ Γ₁ Γ₂ Γ₃ : Pred A a
-      
---   push : ∀[ P ⇒ StackM i₁ i₁ Γ (P ✴ Γ) ]
---   push = {!!}
+  private
+    variable
+      Δ₁ Δ₂ Δ₃ Δ : G
 
---   chain : ∀[ StackM i₁ i₂ Γ₁ Γ₂ ⇒ StackM i₂ i₃ Γ₂ Γ₃ ─✴ StackM i₁ i₃ Γ₁ Γ₃ ]
---   chain = {!!}
+  record GradedMonad (M[_] : G → Pt A a) : Set (suc (a ⊔ g)) where
+    field
+      {{functor}} : Functor M[ Δ ]
+      unit     : ∀ {P} → ∀[ P ⇒ M[ ε ] P ]
+      multiply : ∀ {P} → Δ₁ ∙ Δ₂ ≣ Δ → ∀[ M[ Δ₁ ] (M[ Δ₂ ] P) ⇒ M[ Δ ] P ]
+      gstr     : ∀ {Δ} → Strength M[ Δ ]
 
-  -- ch : ∀[ StackM Γ₁ Γ₂ ⇒ M i₂ i₃ P ─✴ M i₁ i₃ (P ✴ Γ) ]
-  -- ch sm ⟨ σ ⟩ m = {!!}
+    gbind : ∀ {P Q} → Δ₁ ∙ Δ₂ ≣ Δ → ∀[ P ⇒ M[ Δ₂ ] Q ] → ∀[ M[ Δ₁ ] P ⇒ M[ Δ ] Q ]
+    gbind δ f mpx = multiply δ (fmap f mpx) 
+
+    gbind-syntax : ∀ {P Q} → Δ₁ ∙ Δ₂ ≣ Δ → M[ Δ₁ ] P Φ → ∀[ P ⇒ M[ Δ₂ ] Q ] → M[ Δ ] Q Φ
+    gbind-syntax δ px f = gbind δ f px 
+    syntax gbind-syntax δ px f = px >>=⟨ δ ⟩ f
+
+  open GradedMonad {{...}} public
 
 -- {- Monad laws -}
 -- module Laws
