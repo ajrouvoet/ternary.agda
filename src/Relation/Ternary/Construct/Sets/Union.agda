@@ -195,3 +195,8 @@ record Union (A B C : Set) : Set₁ where
     ¬B≺inja {a} {b} eq with a-inv' a
     ... | this _ i qx     = ¬this&that i eq
     ... | these _ b₁ i rx = ¬that&these eq i
+
+
+FromL : ∀ {A B C} → Union A B C → C → Set
+FromL σ = {!!}
+  where open Union σ

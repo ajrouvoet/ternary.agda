@@ -25,7 +25,7 @@ record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A 
   field
     ∙-parallel  : ∀ {a b c d ab cd} → a ∙ b ≣ ab → c ∙ d ≣ cd → (a ++ c) ∙ (b ++ d) ≣ (ab ++ cd)
 
-  module _ {unit} {{_ : IsMonoid _≈_ _++_ unit}} {{_ : IsPartialMonoid _≈_ rel unit}} where
+  module _ {unit} {{m : IsMonoid _≈_ _++_ unit}} {{p : IsPartialMonoid _≈_ rel unit}} where
 
     open IsMonoid {{...}}
     ∙-∙ₗₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → (Φₑ ++ Φ₁) ∙ Φ₂ ≣ (Φₑ ++ Φ)
