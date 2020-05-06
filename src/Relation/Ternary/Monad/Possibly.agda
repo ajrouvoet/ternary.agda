@@ -119,7 +119,7 @@ module ◇-Monad
   {G : Set ℓa} (_∼[_]_  : GradedRel A G ℓa)
   {{r  : Rel₃ A}}
   (open Possibly _∼[_]_)
-  (∼-isPreorder : IsPreorder _≡_ _∼_)
+  {e} {_≈_ : A → A → Set e} (∼-isPreorder : IsPreorder _≈_ _∼_)
   (∼-fp : ∀ {fr Φ₁ Φ₂} → Φ₁ ∼ Φ₂ → (di₁ : fr ◆ Φ₁) → ∃ λ (di₂ : fr ◆ Φ₂) → whole di₁ ∼ whole di₂)
   where
 

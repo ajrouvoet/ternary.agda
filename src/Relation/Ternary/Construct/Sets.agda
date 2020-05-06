@@ -292,14 +292,41 @@ IsIntuitionistic.∙-copy ⊔-intuitive _ = union
   id id (λ x → these x x)
   (λ x → refl) (λ x → refl) (λ c → refl , refl)
 
--- Disjoint Set union is an instance of Union
-disjoint-union : ∀ {A B : Set} → Union A B (A ⊎ B)
-Union.inja disjoint-union = inj₁
-Union.injb disjoint-union = inj₂
-Union.from disjoint-union (inj₁ x) = this x
-Union.from disjoint-union (inj₂ y) = that y
+-- Disjoint Set union gives you at least one way to compose two arbitrary types.
+⊔-total : IsTotal _↔_ ⊔-rel _⊎_
+Union.inja (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ a) = inj₁ $ Union.inja σ₁ a
+Union.inja (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ c) = inj₂ $ Union.inja σ₂ c
+Union.injb (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ b) = inj₁ $ Union.injb σ₁ b
+Union.injb (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ d) = inj₂ $ Union.injb σ₂ d
 
-Union.a-inv disjoint-union a = refl
-Union.b-inv disjoint-union b = refl
-Union.from-inv disjoint-union (inj₁ x) = refl
-Union.from-inv disjoint-union (inj₂ y) = refl
+Union.from (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ ab) with Union.from σ₁ ab
+... | this a = this (inj₁ a)
+... | that b = that (inj₁ b)
+... | these a b = these (inj₁ a) (inj₁ b)
+Union.from (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ cd) with Union.from σ₂ cd
+... | this c = this (inj₂ c)
+... | that d = that (inj₂ d)
+... | these c d = these (inj₂ c) (inj₂ d)
+
+Union.a-inv (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ a) with Union.a-inv' σ₁ a
+... | From.this .a i refl rewrite i    = refl
+... | From.these .a b i refl rewrite i = refl
+Union.a-inv (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ c) with Union.a-inv' σ₂ c
+... | From.this .c i refl rewrite i    = refl
+... | From.these .c b i refl rewrite i = refl
+
+Union.b-inv    (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ b) with Union.b-inv' σ₁ b
+... | From.that .b i refl rewrite i = refl
+... | From.these a .b i refl rewrite i = refl
+Union.b-inv    (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ d) with Union.b-inv' σ₂ d
+... | From.that .d i refl rewrite i = refl
+... | From.these a .d i refl rewrite i = refl
+
+Union.from-inv (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ ab) with Union.from-inv' σ₁ ab
+... | From.this a i refl rewrite i = refl
+... | From.that b i refl rewrite i = refl
+... | From.these a b i (refl , snd) rewrite i | snd = refl , refl
+Union.from-inv (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ cd) with Union.from-inv' σ₂ cd
+... | From.this a i refl rewrite i = refl
+... | From.that b i refl rewrite i = refl
+... | From.these a b i (refl , snd) rewrite i | snd = refl , refl
