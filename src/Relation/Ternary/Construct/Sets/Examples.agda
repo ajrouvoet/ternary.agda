@@ -85,14 +85,6 @@ module _ where
   instance open-strong-comonad : StrongComonad Open
   StrongComonad.co-str open-strong-comonad = ✴-strength
 
-  -- The empty open type at any index
-  Bot : ∀[ Open Data ]
-  future (closer Bot) ext D = ∅
-
-  -- The unit type at any index
-  Top : ∀[ Open Data ]
-  future (closer Top) ext D = U
-
 module _ where
   unions : ∀[ Open Data ⇒ Open Data ─✴ Open Data ]
   unions D₁ ⟨ σ ⟩ D₂ = (λ (X , Y) R → X R ∪ Y R) ⟨$⟩ (∩-zip D₁ ⟨ σ ⟩ D₂)
@@ -125,6 +117,14 @@ module _ where
   future (closer (ask i′)) ext R i = R (E.injb (lower i′))
     where module E = Union ext
 
+  -- The empty open type at any index
+  Bot : ∀[ Open Data ]
+  future (closer Bot) ext D = ∅
+
+  -- The unit type at any index
+  Top : ∀[ Open Data ]
+  future (closer Top) ext D = U
+
 -- Some concrete examples
 module _ where
 
@@ -141,7 +141,19 @@ module _ where
       ∪⟨ ∙-∙      ⟩ (κ Bool λ b → say (lift bool)))
       ∪⟨ ∙-copy _ ⟩ (κ N|B  λ t → ask (lift bool) ∩⟨ subᵣ _ ⟩ ask (lift t) ∩⟨ ∙-copy _ ⟩ ask (lift t))
 
-  NBExp = co-return Exp
+  {-# NO_POSITIVITY_CHECK #-}
+  data MU {I} (D : Data I) : ISet I where
+    fix : ∀ {i} → D (MU D) i → MU D i
 
-  nb-true : NBExp U (inj₂ bool)
-  nb-true = inj₂ (inj₁ nat , _ , _ , _)
+  μ : ∀[ Open Data ⇒ ISet ]
+  μ D = MU (co-return D)
+
+  iftrue : μ Exp (inj₂ bool)
+  iftrue =
+    fix (
+      inj₂ ( inj₁ nat -- type of the branches
+        , fix (inj₁ (inj₂ (true , refl))) -- condition
+        , fix (inj₁ (inj₁ (42 , refl)))   -- then
+        , fix (inj₁ (inj₁ (18 , refl)))   -- else
+      )
+    )
