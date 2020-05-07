@@ -9,9 +9,9 @@ This enables programming with linear state, and we get nice types for their oper
 For a linear session-typed language we implement for example: 
 
 ```
-  newChan : ε[ State? Channels (Endptr α ✴ Endptr (α ⁻¹)) ]
+  newChan  : ε[ State? Channels (Endptr α ✴ Endptr (α ⁻¹)) ]
   receive? : ∀[ Endptr (a ¿ β) ⇒ State? Channels (Val a ✴ Endptr β) ]
-  send! : ∀[ Endptr (a ! β) ⇒ Val a ─✴ State? Channels (Endptr β) ]
+  send!    : ∀[ Endptr (a ! β) ⇒ Val a ─✴ State? Channels (Endptr β) ]
 ```
 
 ## Publications
