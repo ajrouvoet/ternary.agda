@@ -147,7 +147,7 @@ module _ where
 
 --   Exp : Open Data N|B
 --   Exp = (           (κ ℕ    λ n → say (lift nat))
---       ∪⟨ ∙-∙      ⟩ (κ Bool λ b → say (lift bool)))
+--       ∪⟨ ∙-disjoint      ⟩ (κ Bool λ b → say (lift bool)))
 --       ∪⟨ ∙-copy _ ⟩ (κ N|B  λ t → ask (lift bool) ∩⟨ subᵣ _ ⟩ ask (lift t) ∩⟨ ∙-copy _ ⟩ ask (lift t))
 
 --   {-# NO_POSITIVITY_CHECK #-}

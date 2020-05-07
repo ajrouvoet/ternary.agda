@@ -127,7 +127,7 @@ module _ {e} {_≈ₐ_ : A → A → Set e} {u}
     }
 
   -- matching : ∀ {a b : A} {c d} → (demand a) ∙ (supply b) ≣ c → (demand (d ∙ a)) ∙ (supply (d ∙ b)) ≣ c
-  -- matching (supplyᵣ σ) = supplyᵣ (∙-∙ₗ σ)
+  -- matching (supplyᵣ σ) = supplyᵣ (∙-disjointₗ σ)
 
   -- module _ {p q} {P : Pred A p} {Q : Pred (A × A) q} where
     -- ○≺●ₗ : ∀[ P ⇒ (● Q ─✴ ● (Π₂ P ✴ Q)) ∘ demand ]

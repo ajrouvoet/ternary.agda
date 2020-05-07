@@ -67,7 +67,6 @@ module _ {{_ : IsPartialSemigroup _≡_ div}} where
 
   instance maybe-monoid : IsPartialMonoid _≡_ maybes nothing
   IsPartialMonoid.emptiness maybe-monoid            = record {}
-  IsPartialMonoid.ε-unique maybe-monoid ≡.refl      = ≡.refl
   IsPartialMonoid.∙-idˡ maybe-monoid {nothing}      = nothing
   IsPartialMonoid.∙-idˡ maybe-monoid {just x}       = right
   IsPartialMonoid.∙-idʳ maybe-monoid {nothing}      = nothing
@@ -137,13 +136,13 @@ module _ {_++_}
   IsTotal.∙-parallel maybe-total nothing (split x) = split x
   IsTotal.∙-parallel maybe-total right nothing = right
   IsTotal.∙-parallel maybe-total right right = right
-  IsTotal.∙-parallel maybe-total right left = split (∙-comm ∙-∙)
-  IsTotal.∙-parallel maybe-total right (split x) = split (∙-∙ᵣₗ x)
+  IsTotal.∙-parallel maybe-total right left = split (∙-comm ∙-disjoint)
+  IsTotal.∙-parallel maybe-total right (split x) = split (∙-disjointᵣₗ x)
   IsTotal.∙-parallel maybe-total left nothing = left
-  IsTotal.∙-parallel maybe-total left right = split ∙-∙
+  IsTotal.∙-parallel maybe-total left right = split ∙-disjoint
   IsTotal.∙-parallel maybe-total left left = left
-  IsTotal.∙-parallel maybe-total left (split x) = split (∙-∙ₗₗ x)
+  IsTotal.∙-parallel maybe-total left (split x) = split (∙-disjointₗₗ x)
   IsTotal.∙-parallel maybe-total (split x) nothing = split x
-  IsTotal.∙-parallel maybe-total (split x) right = split (∙-∙ᵣᵣ x)
-  IsTotal.∙-parallel maybe-total (split x) left = split (∙-∙ₗᵣ x)
+  IsTotal.∙-parallel maybe-total (split x) right = split (∙-disjointᵣᵣ x)
+  IsTotal.∙-parallel maybe-total (split x) left = split (∙-disjointₗᵣ x)
   IsTotal.∙-parallel maybe-total (split x) (split x₁) = split (∙-parallel x x₁)
