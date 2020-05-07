@@ -33,7 +33,7 @@ open Union
 
 -- A graded relation for expressing the lowerbound on a future world
 _~[_]_ : Set → Set → Set → Set₁
-A ~[ lb ] B = Union A lb B
+A ~[ lb ] B = Union lb A B
 
 open Necessary {A = Set} _~[_]_ 
 
@@ -57,30 +57,32 @@ module _ where
 
   open Open public
 
-  open-mono : ∀ {P I J} → Open P I → I ≤ J → Open P J
+  open-mono : ∀ {P I J K} → Open P I → Union I J K → Open P K
   future (closer (open-mono D σ₁)) σ₂
-    with _ , τ , κ ← ∙-assocₗ σ₂ (∙-comm (proj₂ σ₁))
-    = future (closer D) κ
+    with _ , τ , κ ← ∙-assocᵣ σ₁ σ₂
+    = future (closer D) τ
 
-  mono′ : ∀ {P Q : Set → Set₁} → ∀[ Open P ⇒ Q ─✴ Open P ]
-  mono′ D ⟨ σ ⟩ _ = open-mono D (-, σ)
+  syntax open-mono px σ = px ▿ σ
+
+  mono : ∀ {P} → ∀[ Open P ⇒ U ─✴ Open P ]
+  mono P ⟨ σ ⟩ _  = open-mono P σ
 
   instance open-functor : Functor Open
   future (closer (Functor.fmap open-functor f D)) r = f (future (closer D) r)
 
   instance open-comonad : Comonad Open
-  Comonad.co-return open-comonad D = future (closer D) (∙-copy _) 
-  future (closer ((open-comonad Comonad.<<= f) D)) r = f (open-mono D (-, ∙-comm r))
+  Comonad.extract open-comonad D = future (closer D) (∙-copy _) 
+  future (closer (Comonad.extend open-comonad f D)) r = f (open-mono D r)
 
   ∩-zip : ∀ {P Q : Set → Set₁} → ∀[ Open Q ⇒ Open P ─✴ Open (Q ∩ P) ]
   future (closer (∩-zip Q ⟨ σ ⟩ P)) r
-    with _ , σ₂ , σ₃ ← ∙-assocₗ r (∙-comm σ)
-       | _ , σ₄ , σ₅ ← ∙-assocₗ r σ
-    = co-return (open-mono Q (-, ∙-comm σ₃)) , co-return (open-mono P (-, ∙-comm σ₅))
+    with _ , σ₂ , σ₃ ← ∙-assocᵣ σ r 
+       | _ , σ₄ , σ₅ ← ∙-assocᵣ (∙-comm σ) r
+    = extract (open-mono Q σ₂) , extract (open-mono P σ₄)
 
   private ✴-strength : ∀ {P Q : Set → Set₁} → ∀[ Q ⇒ Open P ─✴ Open (Q ✴ P) ]
-  future (closer (✴-strength Q ⟨ σ ⟩ P)) r with _ , σ₂ , σ₃ ← ∙-assocₗ r (∙-comm σ)
-    = Q ∙⟨ ∙-comm σ₃ ⟩ future (closer P) σ₂
+  future (closer (✴-strength Q ⟨ σ ⟩ P)) r with _ , σ₂ , σ₃ ← ∙-assocᵣ σ r
+    = Q ∙⟨ σ₂ ⟩ future (closer P) σ₃
 
   instance open-strong-comonad : StrongComonad Open
   StrongComonad.co-str open-strong-comonad = ✴-strength
@@ -107,14 +109,14 @@ module _ where
   El X = Lift _ X
 
   say : ∀[ El ⇒ Open Data ]
-  future (closer (say x)) ext D i = i ≡ E.injb (lower x)
+  future (closer (say x)) ext D i = i ≡ E.inja (lower x)
     where module E = Union ext
 
   κ : (X : Set) → ∀[ (λ i → X → Open Data i) ⇒ Open Data ]
-  future (closer (κ X D₁)) ext R i = Σ[ x ∈ X ] future (closer (D₁ x)) ext R i 
+  future (closer (κ X D₁)) ext R i = Σ[ x ∈ X ] extract ((D₁ x) ▿ ext) R i
 
   ask : ∀[ El ⇒ Open Data ]
-  future (closer (ask i′)) ext R i = R (E.injb (lower i′))
+  future (closer (ask i′)) ext R i = R (E.inja (lower i′))
     where module E = Union ext
 
   -- The empty open type at any index
@@ -125,35 +127,42 @@ module _ where
   Top : ∀[ Open Data ]
   future (closer Top) ext D = U
 
--- Some concrete examples
-module _ where
+-- module _ where
 
-  data Nats : Set where
-    nat  : Nats
+--   OwFun : ∀[ Open Data ⇒ Open Data ⇒ Open ISet ]
+--   OwFun E V = {!E !}
 
-  data Bools : Set where
-    bool : Bools
+  -- future (closer (OwFun E V)) ext i = {!closer (E ) !}
 
-  N|B = Nats ⊎ Bools
+-- -- Some concrete examples
+-- module _ where
 
-  Exp : Open Data N|B
-  Exp = (           (κ ℕ    λ n → say (lift nat))
-      ∪⟨ ∙-∙      ⟩ (κ Bool λ b → say (lift bool)))
-      ∪⟨ ∙-copy _ ⟩ (κ N|B  λ t → ask (lift bool) ∩⟨ subᵣ _ ⟩ ask (lift t) ∩⟨ ∙-copy _ ⟩ ask (lift t))
+--   data Nats : Set where
+--     nat  : Nats
 
-  {-# NO_POSITIVITY_CHECK #-}
-  data MU {I} (D : Data I) : ISet I where
-    fix : ∀ {i} → D (MU D) i → MU D i
+--   data Bools : Set where
+--     bool : Bools
 
-  μ : ∀[ Open Data ⇒ ISet ]
-  μ D = MU (co-return D)
+--   N|B = Nats ⊎ Bools
 
-  iftrue : μ Exp (inj₂ bool)
-  iftrue =
-    fix (
-      inj₂ ( inj₁ nat -- type of the branches
-        , fix (inj₁ (inj₂ (true , refl))) -- condition
-        , fix (inj₁ (inj₁ (42 , refl)))   -- then
-        , fix (inj₁ (inj₁ (18 , refl)))   -- else
-      )
-    )
+--   Exp : Open Data N|B
+--   Exp = (           (κ ℕ    λ n → say (lift nat))
+--       ∪⟨ ∙-∙      ⟩ (κ Bool λ b → say (lift bool)))
+--       ∪⟨ ∙-copy _ ⟩ (κ N|B  λ t → ask (lift bool) ∩⟨ subᵣ _ ⟩ ask (lift t) ∩⟨ ∙-copy _ ⟩ ask (lift t))
+
+--   {-# NO_POSITIVITY_CHECK #-}
+--   data MU {I} (D : Data I) : ISet I where
+--     fix : ∀ {i} → D (MU D) i → MU D i
+
+--   μ : ∀[ Open Data ⇒ ISet ]
+--   μ D = MU (extract D)
+
+--   iftrue : μ Exp (inj₂ bool)
+--   iftrue =
+--     fix (
+--       inj₂ ( inj₁ nat -- type of the branches
+--         , fix (inj₁ (inj₂ (true , refl))) -- condition
+--         , fix (inj₁ (inj₁ (42 , refl)))   -- then
+--         , fix (inj₁ (inj₁ (18 , refl)))   -- else
+--       )
+--     )
