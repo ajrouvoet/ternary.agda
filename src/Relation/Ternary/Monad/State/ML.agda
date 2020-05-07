@@ -47,7 +47,7 @@ module HeapOps
   mkref : ∀ {a} → ∀[ V a ⇒ StateT M Heap (Just a) ]
   mkref v ⟨ supplyᵣ σ₂ ⟩ (lift (subtract μ σ₁)) =
     let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂
-    in return (lift refl ∙⟨ supplyᵣ ∙-∙ ⟩ lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ μ)) (∙-∙ᵣₗ τ₂)))
+    in return (lift refl ∙⟨ supplyᵣ ∙-disjoint ⟩ lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ μ)) (∙-disjointᵣₗ τ₂)))
 
   read : ∀ {a} → ∀[ Just a ⇒ StateT M Heap  (V a) ]
 
@@ -82,7 +82,7 @@ module HeapOps
   --   in return (
   --     lift (refl ∙⟨ ? ⟩ vb)
   --       ∙⟨ supplyᵣ ? ⟩
-  --     lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-∙ₗ (∙-comm κ₃)))
+  --     lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-disjointₗ (∙-comm κ₃)))
 
   -- -- A linear (strong) update on the store
   -- update! : ∀ {a b} → ∀[ Just a ⇒ (V a ─✴ StateT M Cells (V b)) ─✴ StateT M Cells (Just b) ]

@@ -55,8 +55,8 @@ module HeapOps
       let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂
       in return (
         lift refl
-          ∙⟨ supplyᵣ ∙-∙ ⟩
-        lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ st)) (∙-∙ᵣₗ τ₂)))
+          ∙⟨ supplyᵣ ∙-disjoint ⟩
+        lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ st)) (∙-disjointᵣₗ τ₂)))
 
     -- A linear read on a store: you lose the reference.
     -- Resources balance, because with the reference being lost, the cell is destroyed: no resources leak.
@@ -82,7 +82,7 @@ module HeapOps
     --   in return (
     --     lift (refl ∙⟨ consˡ ∙-idˡ ⟩ vb)
     --       ∙⟨ supplyᵣ (consˡ κ₄) ⟩
-    --     lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-∙ₗₗ (∙-comm κ₃)))
+    --     lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-disjointₗₗ (∙-comm κ₃)))
 
   module _ {{_ : Strong ⊤ (λ _ _ → M)}} where
     -- A linear (strong) update on the store
