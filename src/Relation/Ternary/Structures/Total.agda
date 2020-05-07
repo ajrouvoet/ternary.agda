@@ -1,9 +1,8 @@
 {-# OPTIONS --safe --without-K #-}
-module Relation.Ternary.Structures.Total {a} {A : Set a} where
+module Relation.Ternary.Structures.Total {ℓ} {A : Set ℓ} where
 
 open import Level
 open import Function using (_∘_)
-open import Data.Product
 open import Algebra
 
 open import Relation.Unary hiding (Empty)
@@ -11,56 +10,64 @@ open import Relation.Binary.Structures
 open import Relation.Binary.Bundles
 open import Relation.Binary.PropositionalEquality
 
-open import Relation.Ternary.Core using (Rel₃; coe)
+open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
 open import Relation.Ternary.Structures.Intuitionistic
 
 open IsPartialMonoid    {{...}}
 open IsPartialSemigroup {{...}}
-open IsIntuitionistic {{...}}
-open Emptiness {{...}}
+open IsIntuitionistic   {{...}}
+open Emptiness          {{...}}
 
-record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A → A) : Set (suc a ⊔ e) where
+-- Being a total proof-relevant relation means that there is always at least one way
+-- to put two arbitrary elements together.
+record IsTotal {ℓe} (_≈_ : A → A → Set ℓe) (rel : Rel₃ A) (_++_ : A → A → A) : Set (suc ℓ ⊔ ℓe) where
   open Rel₃ rel
 
   field
-    ∙-parallel  : ∀ {a b c d ab cd} → a ∙ b ≣ ab → c ∙ d ≣ cd → (a ++ c) ∙ (b ++ d) ≣ (ab ++ cd)
+    ∙-parallel  : ∀ {a b c d ab cd}
+                → a ∙ b ≣ ab
+                → c ∙ d ≣ cd
+                → (a ++ c) ∙ (b ++ d) ≣ (ab ++ cd)
 
+  -- If the relation is monoidal, we get some useful biased variations.
   module _ {unit} {{m : IsMonoid _≈_ _++_ unit}} {{p : IsPartialMonoid _≈_ rel unit}} where
 
+    private
+      variable
+        a b c d e : A
+
     open IsMonoid {{...}}
-    ∙-∙ₗₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → (Φₑ ++ Φ₁) ∙ Φ₂ ≣ (Φₑ ++ Φ)
-    ∙-∙ₗₗ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {a = Φₑ} {b = unit} {c = Φ₁} ∙-idʳ σ
-    ... | z = coe (identityˡ _) z
 
-    ∙-∙ₗᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → (Φ₁ ++ Φₑ) ∙ Φ₂ ≣ (Φ ++ Φₑ)
-    ∙-∙ₗᵣ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {a = Φ₁} {b = Φ₂} {c = Φₑ} σ ∙-idʳ
-    ... | z = coe (identityʳ _) z 
+    ∙-∙ₗₗ : a ∙ b ≣ Φ → (e ++ a) ∙ b ≣ (e ++ Φ)
+    ∙-∙ₗₗ σ with z ← ∙-parallel ∙-idʳ σ = coe (identityˡ _) z
 
-    ∙-∙ᵣₗ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ (Φₑ ++ Φ₂) ≣ (Φₑ ++ Φ)
-    ∙-∙ᵣₗ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {a = unit} {b = Φₑ} ∙-idˡ σ
-    ... | z = coe (identityˡ _) z
+    ∙-∙ₗᵣ : a ∙ b ≣ Φ → (a ++ e) ∙ b ≣ (Φ ++ e)
+    ∙-∙ₗᵣ σ with z ← ∙-parallel σ ∙-idʳ = coe (identityʳ _) z 
 
-    ∙-∙ᵣᵣ : ∀ {Φ₁ Φ₂ Φ Φₑ} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∙ (Φ₂ ++ Φₑ) ≣ (Φ ++ Φₑ)
-    ∙-∙ᵣᵣ {Φ₁} {Φ₂} {Φ} {Φₑ} σ with ∙-parallel {d = Φₑ} σ ∙-idˡ
-    ... | z = coe (identityʳ _) z
+    ∙-∙ᵣₗ : a ∙ b ≣ c → a ∙ (e ++ b) ≣ (e ++ c)
+    ∙-∙ᵣₗ σ with z ← ∙-parallel ∙-idˡ σ = coe (identityˡ _) z
 
-    ∙-∙ : ∀ {Φₗ Φᵣ : A} → Φₗ ∙ Φᵣ ≣ (Φₗ ++ Φᵣ)
-    ∙-∙ {Φₗ} {Φᵣ} with ∙-parallel {a = Φₗ} {b = ε} {c = ε} {d = Φᵣ} ∙-idʳ ∙-idˡ
-    ... | z =
-      coe {{∙-respects-≈ˡ}} (identityʳ _)
-        (coe {{∙-respects-≈ʳ}} (identityˡ _) z)
+    ∙-∙ᵣᵣ : a ∙ b ≣ c → a ∙ (b ++ e) ≣ (c ++ e)
+    ∙-∙ᵣᵣ σ with z ← ∙-parallel σ ∙-idˡ = coe (identityʳ _) z
 
-    pair : ∀ {p q} {P : Pred A p} {Q : Pred A q} {Φ₁ Φ₂} → P Φ₁ → Q Φ₂ → (P ✴ Q) (Φ₁ ++ Φ₂)
+    ∙-∙ : a ∙ b ≣ (a ++ b)
+    ∙-∙ with z ← ∙-parallel ∙-idʳ ∙-idˡ =
+      coe (identityʳ _) (coe {{∙-respects-≈ʳ}} (identityˡ _) z)
+
+    pair : ∀ {p q} {P : Pred A p} {Q : Pred A q} {a b} → P a → Q b → (P ✴ Q) (a ++ b)
     pair px qx = px ∙⟨ ∙-∙ ⟩ qx
 
+
+    -- If in addition (!) the relation is contractible,
+    -- we can add a part with a whole and get the whole again.
     module _ {c} {C : Pred A c} {{i : IsIntuitionistic C rel}} where
 
-      subₗ : (_ : C Φ₁) → Φ₁ ∙ (Φ₁ ++ Φ₂) ≣ (Φ₁ ++ Φ₂)
+      subₗ : (_ : C a) → a ∙ (a ++ b) ≣ (a ++ b)
       subₗ c = ∙-∙ᵣᵣ (∙-copy c)
 
-      subᵣ : ∀ {Φ₁ Φ₂} (_ : C Φ₂) → Φ₂ ∙ (Φ₁ ++ Φ₂) ≣ (Φ₁ ++ Φ₂)
-      subᵣ {Φ₁} {Φ₂} c with z ← ∙-parallel (∙-idˡ {Φ = Φ₁}) (∙-copy c) = coe (identityˡ _) z
+      subᵣ : (_ : C b) → b ∙ (a ++ b) ≣ (a ++ b)
+      subᵣ c with z ← ∙-parallel ∙-idˡ (∙-copy c) = coe (identityˡ _) z
 
 open IsTotal {{...}} public
