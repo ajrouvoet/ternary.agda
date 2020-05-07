@@ -8,7 +8,7 @@ open import Data.Unit.Polymorphic using (⊤)
 open import Data.Sum
 
 open import Relation.Nullary hiding (Irrelevant)
-open import Relation.Unary
+open import Relation.Unary hiding (⌊_⌋)
 open import Relation.Unary.PredicateTransformer using (Pt)
 open import Relation.Ternary.Core
 open import Relation.Ternary.Respect.Propositional
@@ -62,6 +62,9 @@ module _ where
     with _ , τ , κ ← ∙-assocₗ σ₂ (∙-comm (proj₂ σ₁))
     = future (closer D) κ
 
+  mono′ : ∀ {P Q : Set → Set₁} → ∀[ Open P ⇒ Q ─✴ Open P ]
+  mono′ D ⟨ σ ⟩ _ = open-mono D (-, σ)
+
   instance open-functor : Functor Open
   future (closer (Functor.fmap open-functor f D)) r = f (future (closer D) r)
 
@@ -69,23 +72,58 @@ module _ where
   Comonad.co-return open-comonad D = future (closer D) (∙-copy _) 
   future (closer ((open-comonad Comonad.<<= f) D)) r = f (open-mono D (-, ∙-comm r))
 
-  private strength : ∀ {P Q : Set → Set₁} → ∀[ Q ⇒ Open P ─✴ Open (Q ✴ P) ]
-  future (closer (strength Q ⟨ σ ⟩ P)) r with _ , σ₂ , σ₃ ← ∙-assocₗ r (∙-comm σ)
+  ∩-zip : ∀ {P Q : Set → Set₁} → ∀[ Open Q ⇒ Open P ─✴ Open (Q ∩ P) ]
+  future (closer (∩-zip Q ⟨ σ ⟩ P)) r
+    with _ , σ₂ , σ₃ ← ∙-assocₗ r (∙-comm σ)
+       | _ , σ₄ , σ₅ ← ∙-assocₗ r σ
+    = co-return (open-mono Q (-, ∙-comm σ₃)) , co-return (open-mono P (-, ∙-comm σ₅))
+
+  private ✴-strength : ∀ {P Q : Set → Set₁} → ∀[ Q ⇒ Open P ─✴ Open (Q ✴ P) ]
+  future (closer (✴-strength Q ⟨ σ ⟩ P)) r with _ , σ₂ , σ₃ ← ∙-assocₗ r (∙-comm σ)
     = Q ∙⟨ ∙-comm σ₃ ⟩ future (closer P) σ₂
 
   instance open-strong-comonad : StrongComonad Open
-  StrongComonad.co-str open-strong-comonad = strength
+  StrongComonad.co-str open-strong-comonad = ✴-strength
 
   -- The empty open type at any index
   Bot : ∀[ Open Data ]
   future (closer Bot) ext D = ∅
 
-closed-onions : ∀[ Data ⇒ Data ─✴ Data ]
-closed-onions D₁ ⟨ σ ⟩ D₂ = λ R i → {!!}
-  where
+  -- The unit type at any index
+  Top : ∀[ Open Data ]
+  future (closer Top) ext D = U
 
-onions : ∀[ Open Data ⇒ Open Data ─✴ Open Data ]
-onions D₁ ⟨ σ ⟩ D₂ = (λ (X ∙⟨ σ ⟩ Y) → closed-onions X ⟨ σ ⟩ Y) ⟨$⟩ (co-mzip D₁ ⟨ σ ⟩ D₂)
+module _ where
+  unions : ∀[ Open Data ⇒ Open Data ─✴ Open Data ]
+  unions D₁ ⟨ σ ⟩ D₂ = (λ (X , Y) R → X R ∪ Y R) ⟨$⟩ (∩-zip D₁ ⟨ σ ⟩ D₂)
+
+  prods : ∀[ Open Data ⇒ Open Data ─✴ Open Data ]
+  prods D₁ ⟨ σ ⟩ D₂ = (λ (X , Y) R → X R ∩ Y R) ⟨$⟩ (∩-zip D₁ ⟨ σ ⟩ D₂)
+
+  -- syntax definitions
+  infixr 10 unions-syntax
+  unions-syntax : ∀ {I J K} → Open Data I → Union I J K → Open Data J → Open Data K
+  unions-syntax D σ E = unions D  ⟨ σ ⟩ E
+  syntax unions-syntax D σ E = D ∪⟨ σ ⟩ E
+
+  infixr 10 prods-syntax
+  prods-syntax : ∀ {I J K} → Open Data I → Union I J K → Open Data J → Open Data K
+  prods-syntax D σ E = prods D ⟨ σ ⟩ E
+  syntax prods-syntax D σ E = D ∩⟨ σ ⟩ E
+
+  El : Set → Set₁
+  El X = Lift _ X
+
+  say : ∀[ El ⇒ Open Data ]
+  future (closer (say x)) ext D i = i ≡ E.injb (lower x)
+    where module E = Union ext
+
+  κ : (X : Set) → ∀[ (λ i → X → Open Data i) ⇒ Open Data ]
+  future (closer (κ X D₁)) ext R i = Σ[ x ∈ X ] future (closer (D₁ x)) ext R i 
+
+  ask : ∀[ El ⇒ Open Data ]
+  future (closer (ask i′)) ext R i = R (E.injb (lower i′))
+    where module E = Union ext
 
 -- Some concrete examples
 module _ where
@@ -96,44 +134,14 @@ module _ where
   data Bools : Set where
     bool : Bools
 
-  -- Manually
-  data Exp₁ {T' : Set} (σ : Bools ≤ T') (E : T' → Set) : (T' → Set) where
-    bool       : Bool → Exp₁ σ E (inja (proj₂ σ) bool)
-    ifthenelse : ∀ {t : T'} → E (inja (proj₂ σ) bool) → E t → E t → Exp₁ σ E t
+  N|B = Nats ⊎ Bools
 
-  -- Using wand in somwhat strange way? 
-  Exp₂ : ∀[ Own Bools ─✴ (ISet ⇒ ISet) ]
-  (Exp₂ ⟨ σ ⟩ refl) E =
-    (λ t → Bool × t ≡ (injb σ bool))
-    ∪
-    λ t → E (injb σ bool) × E t × E t
+  Exp : Open Data N|B
+  Exp = (           (κ ℕ    λ n → say (lift nat))
+      ∪⟨ ∙-∙      ⟩ (κ Bool λ b → say (lift bool)))
+      ∪⟨ ∙-copy _ ⟩ (κ N|B  λ t → ask (lift bool) ∩⟨ subᵣ _ ⟩ ask (lift t) ∩⟨ ∙-copy _ ⟩ ask (lift t))
 
-  -- Using necessity comonad
-  Exp₃ : ∀[ □[ Bools ] (ISet ⇒ ISet) ]
-  Necessary.future Exp₃ ext E = -- ∀ T . Bools ≤ T . (E : T → Set) . T → Set
-      (λ t → Bool × t ≡ injb ext bool)      -- true | false
-    ∪ (λ t → E (injb ext bool) × E t × E t) -- if c then d else e
+  NBExp = co-return Exp
 
-  -- not quite right
-  -- Exp₄ : ∀[ Own Bools ⇒ ISet ─✴ ISet ]
-  -- Exp₄ refl ⟨ σ ⟩ E = (λ t → Bool × t ≡ (inja σ bool)) ∪ λ t → E {!inja σ bool!} × E {!!} × E {!!}
-
-  data NatsAndBools : Set where
-    nat  : NatsAndBools
-    bool : NatsAndBools
-
-  -- Using necessity comonad
-  Exp₅ : ∀[ □[ NatsAndBools ] (ISet ⇒ ISet) ]
-  Necessary.future Exp₅ ext E =
-      (λ t → ℕ                                   × t ≡ injb ext nat)  -- 0, 1, ...
-    ∪ (λ t → E (injb ext nat) × E (injb ext nat) × t ≡ injb ext bool) -- e ≥ f
-
-  postulate Arith : ∀[ □[ Nats ] (ISet ⇒ ISet) ]
-  -- Arith = {!!}
-
-  postulate n≤n&b : Union Nats NatsAndBools NatsAndBools
-
-  -- El : ∀[ Open ⇒ ISet ⇒ ISet ]
-  -- El {I} D R i = close D R i 
-
-  -- El : ∀[ Open ⇒ El ]
+  nb-true : NBExp U (inj₂ bool)
+  nb-true = inj₂ (inj₁ nat , _ , _ , _)

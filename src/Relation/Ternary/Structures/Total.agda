@@ -14,9 +14,11 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core using (Rel₃; coe)
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
+open import Relation.Ternary.Structures.Intuitionistic
 
 open IsPartialMonoid    {{...}}
 open IsPartialSemigroup {{...}}
+open IsIntuitionistic {{...}}
 open Emptiness {{...}}
 
 record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A → A) : Set (suc a ⊔ e) where
@@ -52,5 +54,13 @@ record IsTotal {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (_++_ : A → A 
 
     pair : ∀ {p q} {P : Pred A p} {Q : Pred A q} {Φ₁ Φ₂} → P Φ₁ → Q Φ₂ → (P ✴ Q) (Φ₁ ++ Φ₂)
     pair px qx = px ∙⟨ ∙-∙ ⟩ qx
+
+    module _ {c} {C : Pred A c} {{i : IsIntuitionistic C rel}} where
+
+      subₗ : (_ : C Φ₁) → Φ₁ ∙ (Φ₁ ++ Φ₂) ≣ (Φ₁ ++ Φ₂)
+      subₗ c = ∙-∙ᵣᵣ (∙-copy c)
+
+      subᵣ : ∀ {Φ₁ Φ₂} (_ : C Φ₂) → Φ₂ ∙ (Φ₁ ++ Φ₂) ≣ (Φ₁ ++ Φ₂)
+      subᵣ {Φ₁} {Φ₂} c with z ← ∙-parallel (∙-idˡ {Φ = Φ₁}) (∙-copy c) = coe (identityˡ _) z
 
 open IsTotal {{...}} public
