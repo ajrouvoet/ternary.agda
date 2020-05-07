@@ -100,8 +100,8 @@ module Necessary {G : Set ℓa} (_∼[_]_  : GradedRel A G ℓa) where
     where
 
     instance □-comonad : GradedComonad □[_]
-    GradedComonad.co-unit □-comonad mpx = future mpx ∼-refl
-    future (future (GradedComonad.co-multiply □-comonad δ mpx) r) s = future mpx (∼-trans δ r s)
-    future (GradedComonad.gstr □-comonad qx ⟨ σ ⟩ mpx) r with ∼-cofp r σ
+    GradedComonad.g-extract □-comonad mpx = future mpx ∼-refl
+    future (future (GradedComonad.g-duplicate □-comonad δ mpx) r) s = future mpx (∼-trans δ r s)
+    future (GradedComonad.g-str □-comonad qx ⟨ σ ⟩ mpx) r with ∼-cofp r σ
     ... | _ , δ , τ = qx ∙⟨ τ ⟩ future mpx δ
 
