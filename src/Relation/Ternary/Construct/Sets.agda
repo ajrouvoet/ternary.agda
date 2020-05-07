@@ -2,7 +2,8 @@
 module Relation.Ternary.Construct.Sets where
 
 open import Data.Product as Pr
-open import Data.Sum
+open import Data.Sum as Sum
+open import Data.Sum.Properties
 open import Data.Unit
 open import Data.Empty
 open import Data.These as These
@@ -293,27 +294,71 @@ IsIntuitionistic.∙-copy ⊔-intuitive _ = union
   (λ x → refl) (λ x → refl) (λ c → refl , refl)
 
 open import Algebra.Structures
+import Algebra.Definitions as Algebra
 
--- ⊎-magma : IsMagma _↔_ _⊎_
--- IsMagma.isEquivalence ⊎-magma = ≈-equivalence
--- IsMagma.∙-cong ⊎-magma {A} {B} {C} {D} e₁ e₂ = prf
---   where
---     prf : (A ⊎ C) ↔ (B ⊎ D)
---     Inverse.f prf (inj₁ x) = {!!}
---     Inverse.f prf (inj₂ y) = {!!}
---     Inverse.f⁻¹ prf (inj₁ x) = {!!}
---     Inverse.f⁻¹ prf (inj₂ y) = {!!}
---     Inverse.cong₁ prf = {!!}
---     Inverse.cong₂ prf = {!!}
---     Inverse.inverse prf = {!!}
+⊎-magma : IsMagma _↔_ _⊎_
+IsMagma.isEquivalence ⊎-magma = ≈-equivalence
+IsMagma.∙-cong ⊎-magma {A} {B} {C} {D} e₁ e₂ = prf
+  where
+    module E₁ = Inverse e₁
+    module E₂ = Inverse e₂
 
--- ⊎-semigroup : IsSemigroup _↔_ _⊎_
--- IsSemigroup.isMagma ⊎-semigroup = {!!}
--- IsSemigroup.assoc ⊎-semigroup = {!!}
+    prf : (A ⊎ C) ↔ (B ⊎ D)
+    Inverse.f prf (inj₁ x) = inj₁ (E₁.f x)
+    Inverse.f prf (inj₂ y) = inj₂ (E₂.f y)
+    Inverse.f⁻¹ prf (inj₁ x) = inj₁ (E₁.f⁻¹ x)
+    Inverse.f⁻¹ prf (inj₂ y) = inj₂ (E₂.f⁻¹ y)
+    Inverse.cong₁ prf refl = refl
+    Inverse.cong₂ prf refl = refl
+    proj₁ (Inverse.inverse prf) (inj₁ x) = P.cong inj₁ (E₁.inverseˡ x)
+    proj₁ (Inverse.inverse prf) (inj₂ y) = P.cong inj₂ (E₂.inverseˡ y)
+    proj₂ (Inverse.inverse prf) (inj₁ x) = P.cong inj₁ (E₁.inverseʳ x)
+    proj₂ (Inverse.inverse prf) (inj₂ y) = P.cong inj₂ (E₂.inverseʳ y)
 
-postulate ⊎-monoid : IsMonoid _↔_ _⊎_ ⊥
--- IsMonoid.isSemigroup ⊎-monoid = {!!}
--- IsMonoid.identity ⊎-monoid = {!!}
+⊎-semigroup : IsSemigroup _↔_ _⊎_
+IsSemigroup.isMagma ⊎-semigroup = ⊎-magma
+IsSemigroup.assoc ⊎-semigroup A B C = prf
+  where
+    prf : ((A ⊎ B) ⊎ C) ↔ (A ⊎ (B ⊎ C))
+    Inverse.f prf (inj₁ (inj₁ x)) = inj₁ x
+    Inverse.f prf (inj₁ (inj₂ y)) = inj₂ (inj₁ y)
+    Inverse.f prf (inj₂ y) = inj₂ (inj₂ y)
+    Inverse.f⁻¹ prf (inj₁ x) = inj₁ (inj₁ x)
+    Inverse.f⁻¹ prf (inj₂ (inj₁ x)) = inj₁ (inj₂ x)
+    Inverse.f⁻¹ prf (inj₂ (inj₂ y)) = inj₂ y
+    Inverse.cong₁ prf refl = refl
+    Inverse.cong₂ prf refl = refl
+    proj₁ (Inverse.inverse prf) (inj₁ x) = refl
+    proj₁ (Inverse.inverse prf) (inj₂ (inj₁ x)) = refl
+    proj₁ (Inverse.inverse prf) (inj₂ (inj₂ y)) = refl
+    proj₂ (Inverse.inverse prf) (inj₁ (inj₁ x)) = refl
+    proj₂ (Inverse.inverse prf) (inj₁ (inj₂ y)) = refl
+    proj₂ (Inverse.inverse prf) (inj₂ y) = refl
+
+⊎-commutative : ∀ {ℓ} → Algebra.Commutative {A = Set ℓ} _↔_ _⊎_
+Inverse.f (⊎-commutative X Y)   = Sum.swap
+Inverse.f⁻¹ (⊎-commutative X Y) = Sum.swap
+Inverse.cong₁ (⊎-commutative X Y) refl = refl
+Inverse.cong₂ (⊎-commutative X Y) refl = refl
+proj₁ (Inverse.inverse (⊎-commutative X Y)) z = swap-involutive z
+proj₂ (Inverse.inverse (⊎-commutative X Y)) z = swap-involutive z
+
+instance ⊎-monoid : IsMonoid _↔_ _⊎_ ⊥
+
+IsMonoid.isSemigroup ⊎-monoid = ⊎-semigroup
+Inverse.f (proj₁ (IsMonoid.identity ⊎-monoid) z) (inj₂ y)               = y
+Inverse.f⁻¹ (proj₁ (IsMonoid.identity ⊎-monoid) z) x                    = inj₂ x
+Inverse.cong₁ (proj₁ (IsMonoid.identity ⊎-monoid) z) refl               = refl
+Inverse.cong₂ (proj₁ (IsMonoid.identity ⊎-monoid) z) refl               = refl
+proj₁ (Inverse.inverse (proj₁ (IsMonoid.identity ⊎-monoid) z)) x        = refl
+proj₂ (Inverse.inverse (proj₁ (IsMonoid.identity ⊎-monoid) z)) (inj₂ y) = refl
+
+Inverse.f (proj₂ (IsMonoid.identity ⊎-monoid) z) (inj₁ y)               = y
+Inverse.f⁻¹ (proj₂ (IsMonoid.identity ⊎-monoid) z) x                    = inj₁ x
+Inverse.cong₁ (proj₂ (IsMonoid.identity ⊎-monoid) z) refl               = refl
+Inverse.cong₂ (proj₂ (IsMonoid.identity ⊎-monoid) z) refl               = refl
+proj₁ (Inverse.inverse (proj₂ (IsMonoid.identity ⊎-monoid) z)) x        = refl
+proj₂ (Inverse.inverse (proj₂ (IsMonoid.identity ⊎-monoid) z)) (inj₁ y) = refl
 
 -- Disjoint Set union gives you at least one way to compose two arbitrary types.
 instance ⊔-total : IsTotal _↔_ ⊔-rel _⊎_
