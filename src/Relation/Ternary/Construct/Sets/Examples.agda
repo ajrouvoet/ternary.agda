@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Relation.Ternary.Construct.Sets.Examples where
 
 open import Level
