@@ -12,7 +12,7 @@ open import Relation.Ternary.Structures.Syntax
 private
   F = A → B
 
-→-rel : Rel₃ F
+instance →-rel : Rel₃ F
 Rel₃._∙_≣_ →-rel f g h = ∀ a → f a ∙ g a ≣ h a
 
 module _ {e} {_≈_ : B → B → Set e} {{sgb : IsPartialSemigroup _≈_ rb}} where
