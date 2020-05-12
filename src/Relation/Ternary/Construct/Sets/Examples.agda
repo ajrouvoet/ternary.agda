@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Relation.Ternary.Construct.Sets.Examples where
 
 open import Level
@@ -39,9 +37,6 @@ open Union
 -- A graded relation for expressing the lowerbound on a future world
 _~[_]_ : Set → Set → Set → Set₁
 A ~[ lb ] B = Union lb A B
-
-instance →⊔-rel : Rel₃ (Set → Set)
-→⊔-rel = →-rel
 
 open Necessary {A = Set} _~[_]_ 
 
@@ -214,7 +209,7 @@ module _ where
 
   N∣B∣P = Nats ∪ Bools ∪ Pairs
 
-  Indexed : (Set → Set) → Set
+  Indexed : (Set → Set) → Set₁
   Indexed F = ∀ {T} → Open Data T F
 
   NatExp : Indexed Nats
@@ -315,4 +310,3 @@ module _ where
 
   expr₂ : μ Exp (tpair (tpair tbool tnat) tbool)
   expr₂ = `if fff then `swap (mkpair (snd (mkpair ttt fff)) (mkpair fff zz)) else mkpair (mkpair fff (ss zz)) ttt
-  
