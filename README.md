@@ -14,6 +14,8 @@ For a linear session-typed language we implement for example:
   send!    : ∀[ Endptr (a ! β) ⇒ Val a ─✴ State? Channels (Endptr β) ]
 ```
 
+To get an idea of what this contains and how to use it, see `Everything.agda`.
+
 ## Publications
 
 *Talk*: [at Edinburgh seminar](https://www.youtube.com/watch?v=9WmOmpyz_qo) 

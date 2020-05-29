@@ -18,6 +18,7 @@ open import Relation.Ternary.Structures.Contractive
 open IsPartialMonoid    {{...}}
 open IsPartialSemigroup {{...}}
 open IsContractive      {{...}}
+
 open Emptiness          {{...}}
 
 -- Being a total proof-relevant relation means that there is always at least one way

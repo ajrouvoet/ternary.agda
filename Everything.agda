@@ -27,12 +27,13 @@ import Relation.Ternary.Structures
 -- This works well if you don't have multiple relations on a single carrier at the same time.
 import Relation.Ternary.Structures.Syntax
 
--- On top of these structures we can define data structures:
+-- On top of these structures we can define some common data structures,
+-- making them 'resource' aware by replacing products by ✴:
 import Relation.Ternary.Data.Bigstar             -- like Data.List
 import Relation.Ternary.Data.Allstar             -- like Data.List.Relation.All
 import Relation.Ternary.Data.ReflexiveTransitive -- like Data.Star
 
--- As well as computational structures
+-- The same, but for computational structures:
 import Relation.Ternary.Functor
 import Relation.Ternary.Monad
 import Relation.Ternary.Comonad

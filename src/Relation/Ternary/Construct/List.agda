@@ -181,10 +181,10 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
   --     unpar (_ ∷ zs₁) (consˡ σ)    with _ , τ₁ , τ₂ , τ₃ , τ₄ ← unpar zs₁ σ = -, consˡ τ₁ , τ₂ , consˡ τ₃ , τ₄
   --     unpar (_ ∷ zs₁) (consʳ σ)    with _ , τ₁ , τ₂ , τ₃ , τ₄ ← unpar zs₁ σ = -, τ₁ , consˡ τ₂ , consʳ τ₃ , τ₄
 
-module _ {{_ : IsIntuitionistic U division}} where
+module _ {{_ : IsContractive U division}} where
 
-  instance list-isIntuitionistic : IsIntuitionistic U splits
-  IsIntuitionistic.∙-copy list-isIntuitionistic {xs} tt = copies xs
+  instance list-isContractive : IsContractive U splits
+  IsContractive.∙-copy list-isContractive {xs} tt = copies xs
     where
       copies : ∀ (xs : List A) → xs ∙ xs ≣ xs
       copies [] = []
