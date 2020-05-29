@@ -36,11 +36,11 @@ module _
       j-∙⁻    : ∀ {Φ₁ Φ₂ Φ} → j Φ₁ ∙ j Φ₂ ≣ Φ → ∃ λ Φ′ → Φ₁ ∙ Φ₂ ≣ Φ′ × Φ ≡ j Φ′
 
     infixr 8 _⇒ⱼ_
-    _⇒ⱼ_ : ∀ {p q} → Pred A p → Pred B q → Pred A _ 
+    _⇒ⱼ_ : ∀ {p q} → Pred A p → Pred B q → Pred A _
     P ⇒ⱼ Q = P ⇒ (Q ∘ j)
 
     infixr 8 _─✴ⱼ_
-    _─✴ⱼ_ : ∀ {p q} → Pred A p → Pred B q → Pred B _ 
+    _─✴ⱼ_ : ∀ {p q} → Pred A p → Pred B q → Pred B _
     P ─✴ⱼ Q = P ─✴[ j ] Q
 
     module _ where
@@ -83,11 +83,11 @@ module _ {a e} {A : Set a} {{r : Rel₃ A}}
   open import Function
 
   instance id-morph : MonoidMorphism m m
-  id-morph = record 
+  id-morph = record
     { semigroupMorphism = record
       { j      = id
       ; jcong  = id
-      ; j-∙    = id 
+      ; j-∙    = id
       ; j-∙⁻   = λ x → -, x , P.refl }
       ; j-ε    = ≈-refl
     }

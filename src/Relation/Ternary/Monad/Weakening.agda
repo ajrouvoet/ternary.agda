@@ -3,8 +3,8 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
 module Relation.Ternary.Monad.Weakening {a e} {A : Set a} {_≈_ : A → A → Set e} {u}
-  {{rel : Rel₃ A}} 
-  {{c : IsCommutative rel}} 
+  {{rel : Rel₃ A}}
+  {{c : IsCommutative rel}}
   {{m : IsPartialMonoid _≈_ rel u}} where
 
 open import Level

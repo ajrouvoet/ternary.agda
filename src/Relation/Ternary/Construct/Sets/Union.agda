@@ -23,7 +23,7 @@ open import Function using (id; case_of_; _∘_; Inverse; _$_)
 open import Function.Structures
 open import Function.Bundles
 
--- TODO move to These.Properties 
+-- TODO move to These.Properties
 ¬this&that : ∀ {A B : Set} {x : These A B} {a b} → x ≡ this a → ¬ x ≡ that b
 ¬this&that refl ()
 
@@ -41,7 +41,7 @@ module From {A B C : Set} (from : C → These A B) where
     _A≺_  = λ a c   → from c ≡ this a
     _B≺_  = λ b c   → from c ≡ that b
     _&_≺_ = λ a b c → from c ≡ these a b
-    
+
   module _ (P : Pred A 0ℓ) (Q : Pred B 0ℓ) (R : Pred (A × B) 0ℓ) where
 
     From⟪_,_,_⟫ : C → Set
@@ -55,13 +55,13 @@ module From {A B C : Set} (from : C → These A B) where
       these : ∀ a b → (i : a & b ≺ c) → (rx : R (a , b)) → From⟨_,_,_⟩ c
 
   module _ {P : Pred A 0ℓ} {Q : Pred B 0ℓ} {R : Pred (A × B) 0ℓ} where
-  
+
     intro-from-a : ∀ {a c} → a A≺ c → P a → From⟪ P , Q , R ⟫ c
     intro-from-a eq px rewrite eq = px
 
     intro-from-b : ∀ {b c} → b B≺ c → Q b → From⟪ P , Q , R ⟫ c
     intro-from-b eq qx rewrite eq = qx
-    
+
     intro-from-ab : ∀ {a b c} → a & b ≺ c → R (a , b) → From⟪ P , Q , R ⟫ c
     intro-from-ab eq qx rewrite eq = qx
 
@@ -72,7 +72,7 @@ module From {A B C : Set} (from : C → These A B) where
     from-elim-b f eq rewrite eq = f
 
     from-elim-ab : ∀ {a b c} → From⟪ P , Q , R ⟫ c → a & b ≺ c → R (a , b)
-    from-elim-ab f eq rewrite eq = f 
+    from-elim-ab f eq rewrite eq = f
 
   --
   -- the types of the inverse functions
@@ -85,9 +85,9 @@ module From {A B C : Set} (from : C → These A B) where
   InjbInverses injb b = From⟪ ∅ , (_≡ b) , (_≡ b) ∘ proj₂ ⟫ (injb b)
 
   RightInverses : (A → C) → (B → C) → C → Set
-  RightInverses inja injb c = 
-    From⟪ (λ a → inja a ≡ c) 
-        , (λ b → injb b ≡ c) 
+  RightInverses inja injb c =
+    From⟪ (λ a → inja a ≡ c)
+        , (λ b → injb b ≡ c)
         , (λ (a , b) → inja a ≡ c × injb b ≡ c) ⟫ c
 
 -- C is a possible union of the Sets A and B.
@@ -126,7 +126,7 @@ record Union (A B C : Set) : Set₁ where
   -- and that generate a bunch of equations to work with
   module _ where
 
-    a-inv'    : ∀ a → From⟨ (λ a' → a ≡ a') 
+    a-inv'    : ∀ a → From⟨ (λ a' → a ≡ a')
               , ∅
               , (λ (a' , _) → a ≡ a') ⟩ (inja a)
     a-inv' a with from (inja a) | P.inspect from (inja a)
@@ -135,15 +135,15 @@ record Union (A B C : Set) : Set₁ where
     ... | these x x₁ | P.[ eq ] = these _ _ eq $ P.sym $ from-elim-ab (a-inv a) eq
 
     b-inv'    : ∀ b → From⟨ ∅
-              , (λ b' → b ≡ b') 
+              , (λ b' → b ≡ b')
               , (λ (_ , b') → b ≡ b') ⟩ (injb b)
     b-inv' b with from (injb b) | P.inspect from (injb b)
     ... | this x | P.[ eq ]     = this _ eq $ from-elim-a (b-inv b) eq
     ... | that x | P.[ eq ]     = that _ eq $ P.sym $ from-elim-b (b-inv b) eq
     ... | these x x₁ | P.[ eq ] = these _ _ eq $ P.sym $ from-elim-ab (b-inv b) eq
 
-    from-inv' : ∀ c → From⟨ (λ a → inja a ≡ c) 
-              , (λ b → injb b ≡ c) 
+    from-inv' : ∀ c → From⟨ (λ a → inja a ≡ c)
+              , (λ b → injb b ≡ c)
               , (λ (a , b) → inja a ≡ c × injb b ≡ c) ⟩ c
     from-inv' c with from c | P.inspect from c
     ... | this a | P.[ eq ]    = this _ eq (A≺-inv eq)

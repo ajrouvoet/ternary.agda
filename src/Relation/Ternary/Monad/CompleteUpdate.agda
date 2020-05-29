@@ -26,7 +26,7 @@ module Update where
   private bind' : ∀ {p q} {P : Pred (A × A) p} {Q : Pred (A × A) q} → ∀[ (P ─✴ ⟰ Q) ⇒ (⟰ P ─✴ ⟰ Q) ]
   updater (app (bind' f) c σ) fr with ⊎-assoc (⊎-comm σ) fr
   ... | xs , σ₂ , σ₃ with updater c σ₂
-  ... | ys , zs , σ₄ , px with ⊎-unassoc σ₄ σ₃ 
+  ... | ys , zs , σ₄ , px with ⊎-unassoc σ₄ σ₃
   ... | _ , σ₅ , σ₆ = updater (app f px (⊎-comm σ₅)) σ₆
 
   ⟰-monad : Monad ⊤ a (λ _ _ → ⟰_)
@@ -50,5 +50,5 @@ module UpdateWithFailure where
   ... | _ , _ , τ₁ , partial (inj₂ v) with ⊎-unassoc τ₁ σ₃
   ... | _ , τ₃ , τ₄ = updater (app f v (⊎-comm τ₃)) τ₄
 
-  ⟰error : ∀ P → ∀[ ⟰? P ] 
+  ⟰error : ∀ P → ∀[ ⟰? P ]
   updater (⟰error _) fr = -, -, fr , error

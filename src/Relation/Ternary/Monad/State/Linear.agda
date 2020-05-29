@@ -11,7 +11,7 @@ module Relation.Ternary.Monad.State.Linear
   {T : Set ℓ}
 
   -- stored values
-  (V : T → Pred (List T) ℓ) 
+  (V : T → Pred (List T) ℓ)
   where
 
 open import Level hiding (Lift)
@@ -30,21 +30,21 @@ open import Relation.Ternary.Construct.Market disjoint-split
 open import Relation.Ternary.Data.Allstar T
 
 open import Data.Product
-  
-module HeapOps 
+
+module HeapOps
   -- inner monad
-  (M : Pt Market ℓ) 
+  (M : Pt Market ℓ)
   where
 
   Cells : List T → List T → Set ℓ
   Cells Σ Φ = Allstar V Σ Φ
-  
+
   Heap : List T → Set ℓ
   Heap = LeftOver Cells
 
   open import Relation.Ternary.Monad.State disjoint-split
   open StateTransformer M public
-  
+
   module _ {{monad : Monad ⊤ (λ _ _ → M) }} where
 
     -- Creating a reference to a new cell, filled with a given value.
@@ -61,7 +61,7 @@ module HeapOps
     -- A linear read on a store: you lose the reference.
     -- Resources balance, because with the reference being lost, the cell is destroyed: no resources leak.
     read : ∀ {a} → ∀[ Just a ⇒ StateT M Heap (V a) ]
-    read refl ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) 
+    read refl ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁))
       with _ , σ₃ , σ₄ ← ∙-assocₗ σ₁ (∙-comm σ₂) with repartition (∙-comm σ₄) st
     ... | cons (v ∙⟨ σ₅ ⟩ nil) ∙⟨ σ₆ ⟩ st' with refl ← ∙-id⁻ʳ σ₅ with ∙-assocᵣ (∙-comm σ₆) σ₃
     ... | _ , τ₁ , τ₂ = return (lift v ∙⟨ supplyᵣ τ₂ ⟩ lift (subtract st' τ₁))
@@ -75,9 +75,9 @@ module HeapOps
     -- ... | _ , τ₅ , τ₆
     -- -- then we reorganize the store internally to take out the unit value
     --   with repartition τ₅ st
-    -- ... | cons (vb ∙⟨ σ₅ ⟩ nil) ∙⟨ σ₆ ⟩ st' rewrite ∙-id⁻ʳ σ₅ = 
-    --   let 
-    --     _ , κ₁ , κ₂ = ∙-assocₗ τ₄ (∙-comm σ₆) 
+    -- ... | cons (vb ∙⟨ σ₅ ⟩ nil) ∙⟨ σ₆ ⟩ st' rewrite ∙-id⁻ʳ σ₅ =
+    --   let
+    --     _ , κ₁ , κ₂ = ∙-assocₗ τ₄ (∙-comm σ₆)
     --     _ , κ₃ , κ₄ = ∙-assocᵣ κ₂ (∙-comm τ₆)
     --   in return (
     --     lift (refl ∙⟨ consˡ ∙-idˡ ⟩ vb)

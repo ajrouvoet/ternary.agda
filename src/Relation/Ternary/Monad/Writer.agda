@@ -2,7 +2,7 @@
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Monad.Writer {ℓ} {C : Set ℓ} (r : Rel₃ C) 
+module Relation.Ternary.Monad.Writer {ℓ} {C : Set ℓ} (r : Rel₃ C)
   {e u} {_≈_ : C → C → Set e}
   {{m : IsPartialMonoid _≈_ r u}}
   {{c : IsCommutative r}} where
@@ -28,7 +28,7 @@ module WriterTransformer
   open IsIndexedMonoid wm
 
   private
-    variable 
+    variable
       i j k : I
 
   {- Insert "writer?! I hardly know her?" joke here. -}
@@ -59,7 +59,7 @@ module WriterTransformer
       return (w ∙⟨ σ ⟩ ✴-swap px∙qx)
 
   -- Output a single, unlabeled instruction
-  tell : ∀[ W i j ⇒ WriterT i j Emp ] 
+  tell : ∀[ W i j ⇒ WriterT i j Emp ]
   tell cs = writer (return (cs ∙⟨ ∙-idʳ ⟩ refl))
 
   -- Linear listen, stealing the output from a computation and returning it as a value instead

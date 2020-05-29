@@ -2,7 +2,7 @@
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Data.IndexedMonoid {ℓ} {C : Set ℓ} {r : Rel₃ C} 
+module Relation.Ternary.Data.IndexedMonoid {ℓ} {C : Set ℓ} {r : Rel₃ C}
   {e u} {_≈_ : C → C → Set e}
   {{m : IsPartialMonoid _≈_ r u}}
   where

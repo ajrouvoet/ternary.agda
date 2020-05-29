@@ -36,7 +36,7 @@ module _
   ... | _ , ρ′ , σ′ = -, swap _ _ ρ′ , consˡ (consˡ σ′)
   ↭-∙ˡ (consˡ (consʳ σ)) ρ@(swap _ _ _) with ↭-∙ˡ (consˡ σ) ρ
   ... | _ , ρ′ , σ′ = -, ↭-trans (prep _ ρ′) (swap _ _ ↭-refl) , consʳ σ′
-  ↭-∙ˡ (consˡ (divide x _)) (swap _ _ _) with no-div x 
+  ↭-∙ˡ (consˡ (divide x _)) (swap _ _ _) with no-div x
   ... | ()
 
   ↭-∙ˡ σ@(consˡ _) (_↭_.trans ρ₁ ρ₂) with ↭-∙ˡ σ ρ₁
@@ -44,7 +44,7 @@ module _
   ... | _ , ρ₄ , σ′′ = -, ↭-trans ρ₄ ρ₃ , σ′′
 
   ↭-∙ˡ (divide x σ) ρ with no-div x
-  ... | () 
+  ... | ()
 
   ↭-∙ʳ : ∀ {xsˡ xsʳ xs ysʳ} → xsˡ ∙ xsʳ ≣ xs → xsʳ ↭ ysʳ → Σ[ ys ∈ _ ] ys ↭ xs × (xsˡ ∙ ysʳ ≣ ys)
   ↭-∙ʳ σ ρ with ↭-∙ˡ (∙-comm σ) ρ
@@ -69,7 +69,7 @@ module ListXSplit
   open Rel₃ div₂ using () renaming (_∙_≣_ to _∙ₐ₂_≣_)
   open Rel₃ L.splits using () renaming (_∙_≣_ to _∙₁_≣_)
   open Rel₃ R.splits using () renaming (_∙_≣_ to _∙₂_≣_)
-  
+
   xsplit : CrossSplit L.splits R.splits
 
   xsplit [] σ₂ with ε-split σ₂
@@ -90,7 +90,7 @@ module ListXSplit
   ... | _ , σ₃ , σ₄ , σ₅ , σ₆ = -, R.consˡ σ₃ , σ₄ , L.consˡ σ₅ , σ₆
   xsplit (consˡ σ₁) (consʳ σ₂) with xsplit σ₁ σ₂
   ... | _ , σ₃ , σ₄ , σ₅ , σ₆ = -, R.consʳ σ₃ , σ₄ , σ₅ , L.consˡ σ₆
-  
+
   xsplit (consʳ σ₁) (divide x σ₂) with xsplit σ₁ σ₂
   ... | _ , σ₃ , σ₄ , σ₅ , σ₆ = -, σ₃ , R.divide x σ₄ , L.consʳ σ₅ , L.consʳ σ₆
   xsplit (consʳ σ₁) (consˡ σ₂) with xsplit σ₁ σ₂
@@ -102,7 +102,7 @@ module ListXSplit
     private
       data Resplit x (xs ys zs : List A) : Set ℓ where
         left    : ∀ {zs'}
-                → (x ∷ zs') ↭ zs 
+                → (x ∷ zs') ↭ zs
                 → (xs ∙₂ ys ≣ zs')
                 → Resplit x xs ys zs
 
@@ -163,7 +163,7 @@ module _ {{div : Rel₃ A}} {p} {P : Pred A p} (joinP : ∀ {a b c} → a ∙ b 
   joinAll (divide x σ) (px ∷ pxs) (py ∷ pys) = joinP x px py ∷ joinAll σ pxs pys
   joinAll (consˡ σ) (px ∷ pxs) pys           = px ∷ joinAll σ pxs pys
   joinAll (consʳ σ) pxs (py ∷ pys)           = py ∷ joinAll σ pxs pys
-  
+
 
 -- Every monoid morphism between element divisions, induces a monoid morphism between
 -- list divisions
@@ -180,7 +180,7 @@ module _ {b} {B : Set b}
   open L
 
   private
-    j' = List.map j 
+    j' = List.map j
 
     lem⁺ : ∀ {xs ys zs} → L.Split xs ys zs → R.Split (j' xs) (j' ys) (j' zs)
     lem⁺ (divide x σ) = R.divide (j-∙ x) (lem⁺ σ )

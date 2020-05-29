@@ -40,7 +40,7 @@ record IsPositiveWithZero {e} s (_≈_ : A → A → Set e) (rel : Rel₃ A) ε 
   open IsPositive isPositive
 
   field
-    ε-least   : ∀ {Φ} → ε ≤ₐ Φ -- Φ ≤ ε 
+    ε-least   : ∀ {Φ} → ε ≤ₐ Φ -- Φ ≤ ε
     ε-split   : Positive rel ε
 
   -- module (is-empty : Decidable (_≈ ε)) where
@@ -55,7 +55,7 @@ record IsPositiveWithZero {e} s (_≈_ : A → A → Set e) (rel : Rel₃ A) ε 
   -- ... | no  z | _      = ⊥-elim (z (ε-least (positiveˡ σ)))
   -- ... | yes _ | no z   = ⊥-elim (z (ε-least (positiveʳ σ)))
 
-  -- module _ {{ _ : IsPartialMonoid _≈_ rel ε }} where 
+  -- module _ {{ _ : IsPartialMonoid _≈_ rel ε }} where
   --   ε-split : Positive rel ε
   --   ε-split σ with ε-split′ σ
   --   ... | eq₁ , eq₂ with ε-unique (sym eq₁) | ε-unique (sym eq₂)

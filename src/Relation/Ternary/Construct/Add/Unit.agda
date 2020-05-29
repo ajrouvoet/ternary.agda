@@ -1,7 +1,7 @@
 {-# OPTIONS --safe --without-K #-}
 open import Relation.Ternary.Core
 
-module Relation.Ternary.Construct.Add.Unit {a} {A : Set a} (div : Rel₃ A) where 
+module Relation.Ternary.Construct.Add.Unit {a} {A : Set a} (div : Rel₃ A) where
 
 open import Algebra
 open import Data.Sum

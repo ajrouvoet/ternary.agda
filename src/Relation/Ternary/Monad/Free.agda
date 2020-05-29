@@ -43,8 +43,8 @@ module _ {u} {{_ : IsPartialMonoid r u}} where
           bind f ⟨ σ₇ ⟩ (κ ⟨ σ₆ ⟩ resp))
 
   ⟪_⟫ : ∀ {Φ} → (c : Cmd Φ) → Free (δ c) Φ
-  ⟪_⟫ c = 
-    impure (c ∙⟨ ∙-idʳ ⟩ 
+  ⟪_⟫ c =
+    impure (c ∙⟨ ∙-idʳ ⟩
       arr λ σ r → return (coe (∙-id⁻ʳ σ) r))
 
 module _

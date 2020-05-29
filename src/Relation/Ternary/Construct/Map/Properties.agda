@@ -29,7 +29,7 @@ module CrossSplittable {k v} {K : Set k} {V : K → Set v}
     open import Relation.Ternary.Construct.Map K V as R
 
     xsplit : (∀ {k} → CrossSplit (div₁ {k}) div₂) → CrossSplit (L.maps div₁) (R.maps div₂)
-    xsplit xsplitₐ {a} {b} {c} {d} (union σs₁) (union σs₂) = 
+    xsplit xsplitₐ {a} {b} {c} {d} (union σs₁) (union σs₂) =
       let xsp = λ {k} → maybe-cross (xsplitₐ {k}) in
       -, R.union (λ k → let _ , τ , _ = xsp (σs₁ k) (σs₂ k) in τ)
        , R.union (λ k → let _ , _ , τ , _ = xsp (σs₁ k) (σs₂ k) in τ)

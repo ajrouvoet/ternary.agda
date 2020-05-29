@@ -25,7 +25,7 @@ record IsCommutative (rel : Rel₃ A) : Set (a) where
 
 open IsPartialSemigroup {{...}}
 open IsCommutative      {{...}}
-     
+
 module CommutativeSemigroupOps
   {e} {_≈_ : A → A → Set e} {rel : Rel₃ A}
   {{pcsg : IsPartialSemigroup _≈_ rel}}
@@ -102,7 +102,7 @@ module _  where
       {{comm}}           : IsCommutative rel
       assocᵣ             : ∀ {a b ab c abc} → a ∙ b ≣ ab → ab ∙ c ≣ abc
                          → ∃ λ bc → a ∙ bc ≣ abc × b ∙ c ≣ bc
-    
+
     instance semigroupˡ : IsPartialSemigroup _≈_ rel
     Respect.coe (IsPartialSemigroup.∙-respects-≈ʳ semigroupˡ) eq = ∙-comm ∘ coe eq ∘ ∙-comm
     IsPartialSemigroup.∙-assocᵣ semigroupˡ = assocᵣ
@@ -119,7 +119,7 @@ module _  where
       {{emptiness}}     : Emptiness unit
       identityˡ  : ∀ {Φ} → unit ∙ Φ ≣ Φ
       identity⁻ˡ : ∀ {Φ} → ∀[ unit ∙ Φ ⇒ _≈_ Φ ]
-  
+
     partialMonoidˡ : IsPartialMonoid _≈_ rel unit
     IsPartialMonoid.∙-idˡ partialMonoidˡ = identityˡ
     IsPartialMonoid.∙-idʳ partialMonoidˡ = ∙-comm identityˡ

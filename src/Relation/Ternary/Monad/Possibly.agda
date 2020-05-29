@@ -101,7 +101,7 @@ module Possibly {r g} {G : Set g} (_∼[_]_  : GradedRel A G r) where
             → ∃ λ c' → a' ∙ b' ≣ c' × c ∼[ Δ ] c') where
 
       ◇-zip : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ ◇[ Δ₁ ] P ✴ ◇[ Δ₂ ] Q ⇒ ◇[ Δ ] (P ✴ Q) ]
-      ◇-zip δ (possibly r₁ px ∙⟨ σ ⟩ possibly r₂ qx) with ∼-pull δ σ r₁ r₂ 
+      ◇-zip δ (possibly r₁ px ∙⟨ σ ⟩ possibly r₂ qx) with ∼-pull δ σ r₁ r₂
       ... | _ , σ′ , r′ = possibly r′ (px ∙⟨ σ′ ⟩ qx)
 
   module ◇-Unzip

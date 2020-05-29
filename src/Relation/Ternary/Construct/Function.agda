@@ -38,7 +38,7 @@ module _ {e} {_≈_ : B → B → Set e} {{sgb : IsPartialSemigroup _≈_ rb}} w
   IsPartialSemigroup.∙-assocₗ →-semigroup σ₁ σ₂ =
    -, (λ a → proj₁ (proj₂ (∙-assocₗ (σ₁ a) (σ₂ a))))
     , (λ a → proj₂ (proj₂ (∙-assocₗ (σ₁ a) (σ₂ a))))
-  
+
 module _ {{cb : IsCommutative rb}} where
 
   instance →-commutative : IsCommutative →-rel
@@ -50,7 +50,7 @@ module _ {e} {_≈_ : B → B → Set e} {u} {{cb : IsPartialMonoid _≈_ rb u}}
   →-empty = record {}
 
   instance →-monoid : IsPartialMonoid _≈→_ →-rel (λ _ → u)
-  IsPartialMonoid.∙-idˡ →-monoid a = ∙-idˡ 
+  IsPartialMonoid.∙-idˡ →-monoid a = ∙-idˡ
   IsPartialMonoid.∙-idʳ →-monoid a = ∙-idʳ
   IsPartialMonoid.∙-id⁻ˡ →-monoid σ a = ∙-id⁻ˡ (σ a)
   IsPartialMonoid.∙-id⁻ʳ →-monoid σ a = ∙-id⁻ʳ (σ a)

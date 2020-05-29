@@ -45,7 +45,7 @@ module _ where
     z ∷ zs       ↭⟨ prep z (toPermutation σ) ⟩
     z ∷ xs ++ ys ↭⟨ ↭-sym (shift z xs ys) ⟩
     xs ++ z ∷ ys  ∎
-    where 
+    where
       open PermutationReasoning
 
   ⊕-functional : ∀ {xs ys zs zs'}  → xs ⊕ ys ≣ zs → xs ⊕ ys ≣ zs' → zs ↭ zs'

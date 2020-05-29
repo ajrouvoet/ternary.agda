@@ -22,7 +22,7 @@ module _ {a} {A : Set a} where
   record IsUnique {e} (_≈_ : A → A → Set e) (el : A) : Set (a ⊔ e) where
     field
       unique : ∀ {a} → el ≈ a → el ≡ a
-      
+
     unique-respects : {{_ : IsEquivalence _≈_}} → Respect _≈_ (Own el)
     Respect.coe (unique-respects {{equiv}}) eq refl rewrite unique eq = refl
 
@@ -97,7 +97,7 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
 
     open _─✴[_]_ public
 
-    infixr 8 _─✴_ 
+    infixr 8 _─✴_
     _─✴_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
     _─✴_ = _─✴[ id ]_
 
@@ -147,7 +147,7 @@ module _ {a} {A : Set a} where
         open Rel₃ sub renaming (_∙_≣_ to _∸_≣_)
     in ∀ {a₁ a₂ a₃ a₂+₃ a₀} →
          a₁ ∸ a₂+₃ ≣ a₀ → a₂ + a₃ ≣ a₂+₃ →
-         ∃ λ a₁-₂ → 
+         ∃ λ a₁-₂ →
            a₁ ∸ a₂ ≣ a₁-₂ × a₁-₂ ∸ a₃ ≣ a₀
 
   -- (a ∪ b) - c => (a - c) ∪ (b - c)
@@ -200,13 +200,13 @@ module _ {a} {A : Set a} where
   Idempotent⁻ _≈_ rel = let open Rel₃ rel in ∀ {Φ Φ′} → Φ ∙ Φ ≣ Φ′ → Φ ≈ Φ′
 
   LeftMonotone : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e)
-  LeftMonotone _∼_ rel = let open Rel₃ rel in 
+  LeftMonotone _∼_ rel = let open Rel₃ rel in
     ∀ {Φ₁ Φ₂ Φ Φ₃ Φ′} → Φ₁ ∙ Φ₂ ≣ Φ → Φ₁ ∼ Φ₃ → Φ₃ ∙ Φ₂ ≣ Φ′ → Φ ∼ Φ′
 
   RightMonotone : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e)
   RightMonotone _∼_ rel = LeftMonotone _∼_ (rel flipped)
 
-  Functional : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e) 
+  Functional : ∀ {e} → (A → A → Set e) → Rel₃ A → Set (a ⊔ e)
   Functional _≈_ rel = let open Rel₃ rel in
     ∀ {a b c c'} → a ∙ b ≣ c → a ∙ b ≣ c' → c ≈ c'
 
@@ -219,7 +219,7 @@ module _ {a} {A : Set a} where
     in
       ∀ {a b c b∩c a-b∩c} → b ∩ c ≣ b∩c → a ∸ b∩c ≣ a-b∩c →
       ∃₂ λ a-b a-c → (a ∸ b ≣ a-b) × (a ∸ c ≣ a-c) × (a-b ⊎ a-c ≣ a-b∩c)
-      
+
 
 module _ {a} {A : Set a} where
 

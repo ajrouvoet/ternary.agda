@@ -15,8 +15,8 @@ open import Relation.Ternary.Construct.Map K V
 overmap-isSemigroup : IsPartialSemigroup _ (maps {{maybes}})
 overmap-isSemigroup = map-isSemigroup
 
-overmap-isMonoid : IsPartialMonoid _ (maps {{maybes}}) _ 
+overmap-isMonoid : IsPartialMonoid _ (maps {{maybes}}) _
 overmap-isMonoid = map-isMonoid
 
--- overmap-isTotal : IsTotal _ (maps {{maybes}}) _ 
+-- overmap-isTotal : IsTotal _ (maps {{maybes}}) _
 -- overmap-isTotal = map-isTotal

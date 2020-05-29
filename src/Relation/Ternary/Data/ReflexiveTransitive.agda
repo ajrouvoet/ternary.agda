@@ -4,7 +4,7 @@ open import Relation.Ternary.Structures
 
 module Relation.Ternary.Data.ReflexiveTransitive
   {c} {C : Set c} {{rc : Rel₃ C}}
-  {A : Set c} 
+  {A : Set c}
   where
 
 open import Level
@@ -30,7 +30,7 @@ module _
 
   data Plus : (a₁ a₂ : A) → Pred C c where
     cons  : ∀ {a₁ a₂ a₃} → ∀[ R a₁ a₂ ✴ Star a₂ a₃ ⇒ Plus a₁ a₃ ]
-  
+
 module _
   {R : A → A → Pred C c}
   {e u} {_≈_ : C → C → Set e}
@@ -48,7 +48,7 @@ module _
   private
     append : ∀[ Star R a₁ a₂ ⇒ Star R a₂ a₃ ─✴ Star R a₁ a₃ ]
     append nil ⟨ σ ⟩ y = coe (∙-id⁻ˡ σ) y
-    append (cons (r ∙⟨ σ₁ ⟩ rs)) ⟨ σ₂ ⟩ y = 
+    append (cons (r ∙⟨ σ₁ ⟩ rs)) ⟨ σ₂ ⟩ y =
       let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in
       r ▹⟨ σ₃ ⟩ (append rs ⟨ σ₄ ⟩ y)
 

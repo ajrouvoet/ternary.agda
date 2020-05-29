@@ -68,7 +68,7 @@ module _ {{sg : ∀ {k} → IsPartialSemigroup _≡_ (div {k})}} where
        , union (λ k → let _ , σ₂ , σ₃ = ∙-assocₗ (σs₁ k) (σs₂ k) in σ₃)
 
     map-isMonoid : IsPartialMonoid _≈_ maps ∅
-    IsPartialMonoid.isSemigroup map-isMonoid = map-isSemigroup 
+    IsPartialMonoid.isSemigroup map-isMonoid = map-isSemigroup
     IsPartialMonoid.∙-idˡ map-isMonoid  = union (λ k → ∙-idˡ)
     IsPartialMonoid.∙-idʳ map-isMonoid  = union (λ k → ∙-idʳ)
     IsPartialMonoid.∙-id⁻ˡ map-isMonoid (union ev) k = ∙-id⁻ˡ (ev k)
@@ -91,7 +91,7 @@ module _ {{sg : ∀ {k} → IsPartialSemigroup _≡_ (div {k})}} where
     IsPartialOrder.isPreorder ≤ₘ-isPartialOrder = ≤ₘ-isPreorder
     IsPartialOrder.antisym ≤ₘ-isPartialOrder {i = i} {j} l₁ l₂ k with i k | j k | l₁ k | l₂ k
     ... | nothing | nothing | _ | _ = refl
-    ... | just x  | just y  | l | n = IsPartialOrder.antisym (≤-isPartialOrder ≤-po) l n 
+    ... | just x  | just y  | l | n = IsPartialOrder.antisym (≤-isPartialOrder ≤-po) l n
 
   -- module _ {s} {{_ : ∀ {k} → IsNonNegative s _≡_ (div {k})}} where
 

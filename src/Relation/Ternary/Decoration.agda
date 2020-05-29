@@ -57,7 +57,7 @@ module _ {d} {D : Pred A d} {{_ : Decoration D}} (_⊕_ : ∀ {a} → D a → D 
       let a , σ₃ , σ₄ = ⊎-assoc σ₁ σ₂
       in (a , decorˡ (⊎-comm σ₃) (proj₂ abc)) , lift σ₃ , lift σ₄
 
-  
+
     ann-has-unit⁺ : ∀ {u} {{_ : HasUnit⁺ raw u}} {{_ : UnitDecoration D}}
                     → HasUnit⁺ ann-raw (ε , decorate-ε)
     HasUnit⁺.⊎-idˡ ann-has-unit⁺ = lift ⊎-idˡ

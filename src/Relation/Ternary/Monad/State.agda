@@ -1,7 +1,7 @@
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Monad.State {ℓ} {C : Set ℓ} (r : Rel₃ C) 
+module Relation.Ternary.Monad.State {ℓ} {C : Set ℓ} (r : Rel₃ C)
   {e u} {_≈_ : C → C → Set e}
   {{m : IsPartialMonoid _≈_ r u}}
   {{c : IsCommutative r}} where
@@ -37,7 +37,7 @@ module _ where
 
   State : Pred C ℓ → Pt C ℓ
   State St = STATET Id St St
-  
+
 module StateTransformer
   (M : Pt Market ℓ) {{strong : Strong ⊤ (λ _ _ → M)}}
   {St : Pred C ℓ}
@@ -68,7 +68,7 @@ module StateTransformer
   {- Lift a state computation into a transformed state operation -}
   liftState : ∀ {P} → ∀[ State St P ⇒ StateT M St P ]
   liftState mp ⟨ σ ⟩ st = Monad.return monad (mp ⟨ σ ⟩ st)
- 
+
 -- module StateWithErr {ℓ}
 --   {C : Set ℓ} {{r : Rel₃ C}}
 --   {u} {{s : IsPartialMonoid _≡_ r u}}

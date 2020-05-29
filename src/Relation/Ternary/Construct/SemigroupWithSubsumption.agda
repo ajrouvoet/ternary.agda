@@ -72,7 +72,7 @@ module MonotoneSemigroup {_∙_ : Op₂ A} (msg : IsMonotoneSemigroup _∙_) whe
 record IsMonotoneMonoid (_∙_ : Op₂ A) u : Set (a ⊔ e) where
   field
     {{isMonoid}}   : IsMonoid _≈_ _∙_ u
-    {{isMonotone}} : IsMonotone _∙_ 
+    {{isMonotone}} : IsMonotone _∙_
 
 module MonotoneMonoid {_∙_ : Op₂ A} {u} (mm : IsMonotoneMonoid _∙_ u) where
 

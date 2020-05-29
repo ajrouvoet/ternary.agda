@@ -45,7 +45,7 @@ module _ where
 
 module ExceptTrans
   (M : Pt A ℓ)
-  {{monad : Monads.Monad ⊤ ℓ (λ _ _ → M) }} 
+  {{monad : Monads.Monad ⊤ ℓ (λ _ _ → M) }}
   (Exc : Set ℓ) where
 
   open Monads

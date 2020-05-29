@@ -141,7 +141,7 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
     where
       idˡ : ∀ Φ → Split [] Φ Φ
       idˡ []      = []
-      idˡ (x ∷ Φ) = consʳ (idˡ Φ) 
+      idˡ (x ∷ Φ) = consʳ (idˡ Φ)
   IsPartialMonoid.∙-idʳ list-isMonoid {Φ} = idʳ Φ
     where
       idʳ : ∀ Φ → Split Φ [] Φ
@@ -225,7 +225,7 @@ module _ where
   ∙-↭ (consʳ (consʳ σ)) (swap x y ρ) with ∙-↭ σ ρ
   ... | _ , h₁ , h₂ , σ' = -, h₁ , swap y x h₂ , consʳ (consʳ σ')
   ∙-↭ (consʳ (divide τ σ)) (swap x y ρ) with ∙-↭ σ ρ
-  ... | _ , h₁ , h₂ , σ' = -, prep _ h₁ , swap _ _ h₂ , divide τ (consʳ σ') 
+  ... | _ , h₁ , h₂ , σ' = -, prep _ h₁ , swap _ _ h₂ , divide τ (consʳ σ')
   ∙-↭ (divide τ (consˡ σ)) (swap x y ρ) with ∙-↭ σ ρ
   ... | _ , h₁ , h₂ , σ' = -, swap _ _ h₁ , prep _ h₂ , consˡ (divide τ σ')
   ∙-↭ (divide τ (consʳ σ)) (swap x y ρ) with ∙-↭ σ ρ

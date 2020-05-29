@@ -42,7 +42,7 @@ FlowPred ℓ = Decorated 𝑭 → Set ℓ
 --    ╱       ╲
 --  ─∙─── Q ───∙─
 --
-_∥_ : ∀ {p q} → FlowPred p → FlowPred q → FlowPred _ 
+_∥_ : ∀ {p q} → FlowPred p → FlowPred q → FlowPred _
 P ∥ Q = P ✴ Q
 
 -- Lifting a decoration transformer to a flow predicate:
@@ -58,7 +58,7 @@ data Through (f : ∀[ DT 𝑫 ]) : FlowPred ℓₐ where
 --
 𝑰 = Through id
 
--- 
+--
 --     __ P __
 --    ╱       ╲
 --  ─∙─────────∙─
@@ -67,7 +67,7 @@ Sidechannelₗ : ∀ {p} (P : FlowPred p) → FlowPred _
 Sidechannelₗ P = P ∥ 𝑰
 
 -- Sequential composition of flow predicates:
--- 
+--
 --     __ P ____________
 --    ╱       ╲         ╲
 --  ─∙─────────∙─── Q ───∙─

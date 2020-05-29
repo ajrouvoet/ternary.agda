@@ -2,8 +2,8 @@
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Data.Bigstar 
-  {a} {A : Set a} 
+module Relation.Ternary.Data.Bigstar
+  {a} {A : Set a}
   {{ r : Rel₃ A }}
   {e u} {_≈_ : A → A → Set e} {{ _ : IsPartialMonoid _≈_ r u }} {{_ : IsUnique _≈_ u}} where
 
@@ -67,4 +67,4 @@ module _ {{ _ : IsCommutative r }} where
 --     then return (px ×⟨ σ ⟩ pxs)
 --     else do
 --       px' ×⟨ σ₁ ⟩ pxs' ×⟨ σ₂ ⟩ px ← mapM (find f pxs &⟨ P ∥ ⊎-comm σ ⟩ px) ✴-assocᵣ
---       return (px' ×⟨ σ₁ ⟩ cons (px ×⟨ ⊎-comm σ₂ ⟩ pxs')) 
+--       return (px' ×⟨ σ₁ ⟩ cons (px ×⟨ ⊎-comm σ₂ ⟩ pxs'))

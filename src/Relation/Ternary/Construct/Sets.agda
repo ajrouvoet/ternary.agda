@@ -28,28 +28,28 @@ open import Relation.Ternary.Construct.Sets.Union
 
 -- TODO move to Data.Unit.Properties?
 ⊤-prop : ∀ {tt tt' : ⊤} → tt ≡ tt'
-⊤-prop {tt} {tt} = refl 
+⊤-prop {tt} {tt} = refl
 
 instance ⊔-rel : Rel₃ Set
 Rel₃._∙_≣_ ⊔-rel = Union
 
-instance ⊔-commutative : IsCommutative ⊔-rel 
-IsCommutative.∙-comm ⊔-commutative σ = 
+instance ⊔-commutative : IsCommutative ⊔-rel
+IsCommutative.∙-comm ⊔-commutative σ =
   union injb inja (These.swap ∘ from) prf₁ prf₂ prf
-  where 
+  where
     open Union σ hiding (From⟨_,_,_⟩; this; that; these)
     module F = From (These.swap ∘ from)
-    
+
     prf₁ : ∀ b → F.InjaInverses injb b
-    prf₁ x with b-inv' x 
+    prf₁ x with b-inv' x
     ... | From.that _ i refl rewrite i = refl
     ... | From.these a .x i refl rewrite i = refl
 
     prf₂ : ∀ a → F.InjbInverses inja a
-    prf₂ x with a-inv' x 
+    prf₂ x with a-inv' x
     ... | From.this .x i refl rewrite i = refl
     ... | From.these .x b i refl rewrite i = refl
-    
+
     prf : ∀ c → F.RightInverses injb inja c
     prf ab with from-inv' ab
     ... | From.this _ i refl rewrite i = refl
@@ -60,11 +60,11 @@ IsCommutative.∙-comm ⊔-commutative σ =
 IsPartialSemigroupˡ.≈-equivalence ⊔-semigroupˡ = equiv
   where
     sym : ∀ {A B : Set} → A ↔ B → B ↔ A
-    sym e = record 
-      { f = f⁻¹ 
-      ; f⁻¹ = f 
-      ; cong₁ = cong₂ 
-      ; cong₂ = cong₁ 
+    sym e = record
+      { f = f⁻¹
+      ; f⁻¹ = f
+      ; cong₁ = cong₂
+      ; cong₂ = cong₁
       ; inverse = inverseʳ , inverseˡ }
       where open Inverse e
 
@@ -76,9 +76,9 @@ IsPartialSemigroupˡ.≈-equivalence ⊔-semigroupˡ = equiv
     IsEquivalence.sym equiv       = sym
     IsEquivalence.trans equiv x y = x ∘-↔ y
 
-Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ ⊔-semigroupˡ {A} {B}) {C} {D} eq σ = 
+Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ ⊔-semigroupˡ {A} {B}) {C} {D} eq σ =
   union (f ∘ inja) (f ∘ injb) (from ∘ f⁻¹) prf₁ prf₂ prf
-  where 
+  where
     open Union σ
     open Inverse eq
 
@@ -90,7 +90,7 @@ Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ ⊔-semigroupˡ {A} {B}) {C} 
     prf₂ : ∀ b → From.InjbInverses (from ∘ f⁻¹) (f ∘ injb) b
     prf₂ b with b-inv' b
     ... | From.that .b i refl    rewrite (P.cong from (inverseʳ (injb b))) | i = refl
-    ... | From.these a .b i refl rewrite (P.cong from (inverseʳ (injb b))) | i = refl    
+    ... | From.these a .b i refl rewrite (P.cong from (inverseʳ (injb b))) | i = refl
 
     prf : ∀ c → From.RightInverses (from ∘ f⁻¹) (f ∘ inja) (f ∘ injb) c
     prf d with from-inv' (f⁻¹ d)
@@ -99,9 +99,9 @@ Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ ⊔-semigroupˡ {A} {B}) {C} 
     ... | these _ _ i (px , qx) rewrite i =
       P.trans (P.cong f px) (inverseˡ _) , P.trans (P.cong f qx) (inverseˡ _)
 
-Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ ⊔-semigroupˡ {B} {C}) {A} {D} eq σ = 
+Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ ⊔-semigroupˡ {B} {C}) {A} {D} eq σ =
   union (inja ∘ f⁻¹) injb from' prf₁ prf₂ prf
-  where 
+  where
     open Union σ
     open Inverse eq
 
@@ -124,7 +124,7 @@ Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ ⊔-semigroupˡ {B} {C}) {A
     ... | that _ i px rewrite i = px
     ... | these _ _ i (px , qx) rewrite i = P.trans (P.cong inja (inverseʳ _)) px , qx
 
-IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂ = 
+IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂ =
   BC , union a→abc bc→abc ←abc a-inv bc-inv right
      , union b→bc c→bc ←bc b-inv c-inv c-right-inv
   where
@@ -132,13 +132,13 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
     module U₂ = Union σ₂
     open U₁ using () renaming (inja to a→ab; injb to b→ab)
     open U₂ using () renaming (inja to ab→abc; injb to c→abc; _B≺_ to _C≺_; _A≺_ to _AB≺_)
-    
+
     a→abc : A → ABC
     a→abc = ab→abc ∘ a→ab
-    
+
     b→abc : B → ABC
     b→abc = ab→abc ∘ b→ab
-    
+
     Condition = λ abc → U₂.From⟪ U₁.From⟪ ∅ , U , U ⟫ , U , U ⟫ abc
     BC = Σ[ abc ∈ ABC ] Condition abc
 
@@ -150,7 +150,7 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
     ... | From.these a₁ b₁ i₁ rx rewrite i | i₁      = ⊤-prop
     bc-prop {abc} a b | From.that c i refl rewrite i = ⊤-prop
     bc-prop {abc} a b | From.these ab _ i _ with U₁.from-inv' ab
-    ... | From.this a' i₁ refl rewrite i | i₁        = ⊤-prop 
+    ... | From.this a' i₁ refl rewrite i | i₁        = ⊤-prop
     ... | From.that b' i₁ refl rewrite i | i₁        = ⊤-prop
     ... | From.these a₁ b₁ i₁ _ rewrite i | i₁       = ⊤-prop
 
@@ -238,7 +238,7 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
       -- ... | Union.that .c c≺abc refl        = (-, U₂.intro-from-b c≺abc tt)
       --   , {!!}
       -- ... | Union.these ab .c ab&c≺abc refl = (-, U₂.intro-from-ab ab&c≺abc tt)
-      --   , {!!} 
+      --   , {!!}
 
     b→bc : B → BC
     b→bc = proj₁ ∘ b→bc'
@@ -265,7 +265,7 @@ set-emptiness = record {}
 IsPartialMonoidˡ.identityˡ ⊔-monoidˡ  =
   union ⊥-elim id that (λ ())
     (λ _ → refl)
-    (λ _ → refl) 
+    (λ _ → refl)
 IsPartialMonoidˡ.identity⁻ˡ ⊔-monoidˡ {b} {c} σ = prf
   where
     open Union σ

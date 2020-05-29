@@ -19,7 +19,7 @@ module _ (r₁ r₂ : Rel₃ A) where
   CrossSplit : Set a
   CrossSplit = ∀ {a b c d z} →
     a ∙₁ b ≣ z → c ∙₂ d ≣ z →
-    Σ[ frags ∈ (A × A × A × A) ] 
+    Σ[ frags ∈ (A × A × A × A) ]
     let ac , ad , bc , bd = frags
     in ac ∙₂ ad ≣ a × bc ∙₂ bd ≣ b × ac ∙₁ bc ≣ c × ad ∙₁ bd ≣ d
 

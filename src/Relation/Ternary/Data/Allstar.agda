@@ -43,7 +43,7 @@ module _ {ℓ} {P : I → Pred C ℓ} where
   singleton : ∀ {x} → ∀[ P x ⇒ Allstar P [ x ] ]
   singleton v = v :⟨ ∙-idʳ ⟩: nil
 
-  concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ✴ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ] 
+  concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ✴ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ]
   concat (nil ∙⟨ s ⟩ env₂) = coe (∙-id⁻ˡ s) env₂
   concat ((v :⟨ s ⟩: env₁) ∙⟨ s' ⟩ env₂) =
     let
@@ -56,7 +56,7 @@ module _ {{_ : IsCommutative rel}} where
   repartition : ∀ {ℓ} {P : I → Pred C ℓ} {Σ₁ Σ₂ Σ} →
                 Σ₁ ∙ Σ₂ ≣ Σ → ∀[ Allstar P Σ ⇒ Allstar P Σ₁ ✴ Allstar P Σ₂ ]
   repartition [] nil   = nil ∙⟨ ∙-idˡ ⟩ nil
-  repartition (consˡ σ) (cons (a ∙⟨ σ′ ⟩ qx)) = 
+  repartition (consˡ σ) (cons (a ∙⟨ σ′ ⟩ qx)) =
     let
       xs ∙⟨ σ′′ ⟩ ys = repartition σ qx
       _ , τ₁ , τ₂    = ∙-assocₗ σ′ σ′′
@@ -65,4 +65,4 @@ module _ {{_ : IsCommutative rel}} where
     let
       xs ∙⟨ σ′′ ⟩ ys = repartition σ qx
       _ , τ₁ , τ₂    = ∙-assocᵣ σ′′ (∙-comm σ′)
-    in xs ∙⟨ τ₁ ⟩ (a :⟨ ∙-comm τ₂ ⟩: ys) 
+    in xs ∙⟨ τ₁ ⟩ (a :⟨ ∙-comm τ₂ ⟩: ys)

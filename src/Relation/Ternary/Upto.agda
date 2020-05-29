@@ -20,7 +20,7 @@ module _ {{r : Rel₃ A}} {u} {{_ : IsPartialMonoid _≈_ r u }} where
     field
       ⌈_⌉                    : Pt A a
       overlap {{respectful}} : ∀ {P : Pred A a} → Respect _≈_ ⌈ P ⌉
-      overlap {{monad}}      : Monad ⊤ (λ _ _ → ⌈_⌉) 
+      overlap {{monad}}      : Monad ⊤ (λ _ _ → ⌈_⌉)
 
     _over_ : ∀ {P : Pred A a} {a b} → P a → a ≈ b → ⌈ P ⌉ b
     px over eq = coe {{respectful}} eq (return px)

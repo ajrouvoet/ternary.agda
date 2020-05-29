@@ -46,7 +46,7 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
 
     ∙-id⁻ˡ   : LeftIdentity⁻ _≈_ rel ε
     ∙-id⁻ʳ   : RightIdentity⁻ _≈_ rel ε
-    
+
   Emp′ = λ x → x ≈ ε
 
   ε∙ε′ : ∀[ ε ∙ ε ⇒ Emp′ ]
@@ -66,7 +66,7 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
     ✴-id⁻ʳ (px ∙⟨ σ ⟩ refl) = coe (∙-id⁻ʳ σ) px
 
     ✴-id⁻ˡ : ∀[ Emp ✴ P ⇒ P ]
-    ✴-id⁻ˡ (refl ∙⟨ σ ⟩ px) = coe (∙-id⁻ˡ σ) px 
+    ✴-id⁻ˡ (refl ∙⟨ σ ⟩ px) = coe (∙-id⁻ˡ σ) px
 
   module _ {p} {P : Pred A p} where
     ✴-idʳ : ∀[ P ⇒ P ✴ Emp ]

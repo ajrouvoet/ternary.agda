@@ -6,7 +6,7 @@ module Relation.Ternary.Monad.Reader
   {a} {A : Set a}
   {C : Set a} {{rel : Rel₃ C}}
   {_≈_ : C → C → Set a}
-  {u} {{csg : IsPartialMonoid _≈_ rel u}} 
+  {u} {{csg : IsPartialMonoid _≈_ rel u}}
   where
 
 open import Level
@@ -70,7 +70,7 @@ module ReaderTransformer
     frame : Γ₁ ∙ Γ₃ ≣ Γ₂ → ∀[ Reader Γ₁ [] P ⇒ Reader Γ₂ Γ₃ P ]
     frame sep c ⟨ σ ⟩ env = do
       let E₁ ∙⟨ σ₁ ⟩ E₂ = repartition sep env
-      let _ , σ₂ , σ₃   = ∙-assocₗ σ σ₁  
+      let _ , σ₂ , σ₃   = ∙-assocₗ σ σ₁
       E₂ ∙⟨ σ₅ ⟩ (px ∙⟨ σ₆ ⟩ nil) ← (c ⟨ σ₂ ⟩ E₁) &⟨ Allstar _ _ # ∙-comm σ₃ ⟩ E₂
       return (px ∙⟨ ∙-comm (coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ʳ σ₆)) σ₅) ⟩ E₂ )
 
@@ -95,7 +95,7 @@ module ReaderTransformer
 --     app (runReader env) mp σ = do
 --       px ×⟨ σ ⟩ nil ← app mp (inj env) (⊎-comm σ)
 --       case ⊎-id⁻ʳ σ of λ where
---         refl → return px 
+--         refl → return px
 
 --   module _ where
 --     open Monad reader-monad

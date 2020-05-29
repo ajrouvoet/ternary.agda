@@ -16,5 +16,5 @@ open import Relation.Ternary.Construct.Map K V
 disjoint-isSemigroup : IsPartialSemigroup _ (maps {{maybes}})
 disjoint-isSemigroup = map-isSemigroup
 
-disjoint-isMonoid : IsPartialMonoid _ (maps {{maybes}}) _ 
+disjoint-isMonoid : IsPartialMonoid _ (maps {{maybes}}) _
 disjoint-isMonoid = map-isMonoid

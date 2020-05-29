@@ -74,7 +74,7 @@ module _
   {{ or-sg        : IsPartialSemigroup _≈_ or }}
   {{ or-comm      : IsCommutative or }}
   where
-  
+
   assocᵣ : RightAssoc ▹-rel
   assocᵣ {r₁ , e₁} {r₂ , e₂} {r₁∪r₂-e₁ , e₁∪e₂} {r₃ , e₃} {r₁∪r₂-e₁∪r₃-es , e₁∪e₂∪e₃}
     record { subtract = s₁ ; seq-req = req₁ ; seq-ens = ens₁ }
@@ -84,7 +84,7 @@ module _
         _ , τ₁ , τ₂     = or-sub-assocₗ s₂ (∙-comm ens₁)
         _ , τ₃ , τ₄     = ∙-assocᵣ req₁ req₂
         _ , τ₅ , τ₆     = or-sub-distribₗ s₁ τ₂ τ₄
-      in 
+      in
       -, seq τ₆ τ₃ ens₃
        , seq τ₁ τ₅ ens₄
 
@@ -112,7 +112,7 @@ module _
 
   IsPartialSemigroup.∙-assocᵣ ▹-sg = assocᵣ
   IsPartialSemigroup.∙-assocₗ ▹-sg = assocₗ
-  
+
 module ReqEnsJoinoid
   {e} {_≈_ : A → A → Set e}
   {{ -respectsʳ : ∀ {a b} → Respect _≈_ (a -_≣ b) }}
@@ -124,10 +124,10 @@ module ReqEnsJoinoid
   {{ or-comm       : IsCommutative or }}
   {{ and-sg        : IsPartialSemigroup _≈_ and }}
 
-  (∸-idʳ           : RightIdentity sub ⊥) 
-  (∸-id⁻ʳ          : RightIdentity⁻ _≈_ sub ⊥) 
-  (∸-zeroˡ         : LeftZero sub ⊥) 
-  (∸-zero⁻ˡ        : LeftZero⁻ _≈_ sub ⊥) 
+  (∸-idʳ           : RightIdentity sub ⊥)
+  (∸-id⁻ʳ          : RightIdentity⁻ _≈_ sub ⊥)
+  (∸-zeroˡ         : LeftZero sub ⊥)
+  (∸-zero⁻ˡ        : LeftZero⁻ _≈_ sub ⊥)
   (deMorganʳ       : DeMorganʳ sub and or)
   (or-and-distribᵣ : and DistribOverᵣ or)
   (∪-idem          : Idempotent or)
@@ -155,7 +155,7 @@ module ReqEnsJoinoid
      , seq τ₂ τ₅ τ₈
      , (τ₆ , τ₉)
 
-  IsJoinoid.∥-distrib-∣ʳ joinoid {a} {b} {c} {a∥b} {d} (pre₁ , post₁) (pre₂ , post₂) 
+  IsJoinoid.∥-distrib-∣ʳ joinoid {a} {b} {c} {a∥b} {d} (pre₁ , post₁) (pre₂ , post₂)
     with resplit pre₁ ∪-idem pre₂ | or-and-distribᵣ post₁ post₂
   ... | _ , _ , τ₁ , τ₂ , τ₃ | _ , _ , τ₄ , τ₅ , τ₆
     = -,

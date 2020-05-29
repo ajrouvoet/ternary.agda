@@ -38,7 +38,7 @@ module CrossSplittable
 
   open import Relation.Ternary.Construct.List.Properties
   private module X = ListXSplit div₁ div₂ xsplitₐ
-  
+
   xsplit : CrossSplit L.bags R.bags
   xsplit (hustle ρx ρy ρz σ₁) (hustle ρx₁ ρy₁ ρz₁ σ₂) with I₁.∙-↭ σ₁ (↭-trans ρz (↭-sym ρz₁))
   ... | _ , ρₗ , ρᵣ , σ₁′ with X.xsplit σ₁′ σ₂
@@ -74,11 +74,11 @@ module _
   module _ {p} {P : Pred A p} (divP : ∀ {a b c} → a ∙ b ≣ c → P c → P a × P b) where
 
     splitAll : ∀ {xs ys zs} → xs ∙ ys ≣ zs → All P zs → All P xs × All P ys
-    splitAll (hustle ρx ρy ρz sep) pzs = 
+    splitAll (hustle ρx ρy ρz sep) pzs =
       let
         pzs' = All-resp-↭ (↭-sym ρz) pzs
         pxs' , pys' = List.splitAll divP sep pzs'
-      in All-resp-↭ ρx pxs' , All-resp-↭ ρy pys' 
+      in All-resp-↭ ρx pxs' , All-resp-↭ ρy pys'
 
   module _ {p} {P : Pred A p} (joinP : ∀ {a b c} → a ∙ b ≣ c → P a → P b → P c) where
 
@@ -109,7 +109,7 @@ module _ {b} {B : Set b}
   open SemigroupMorphism 𝑚
 
   private
-    j' = List.map j 
+    j' = List.map j
 
   open MonoidMorphism hiding (j)
 
@@ -120,7 +120,7 @@ module _ {b} {B : Set b}
     R.hustle (map⁺ j ρx) (map⁺ j ρy) (map⁺ j ρz) (LM.j-∙ sep)
   SemigroupMorphism.j-∙⁻ (semigroupMorphism bagMap) (hustle ρx ρy ρz sep)
     with _ , refl , ρx′ ← ↭-map-inv j (↭-sym ρx) | _ , refl , ρy′ ← ↭-map-inv j (↭-sym ρy)
-    with _ , τ , refl   ← LM.j-∙⁻ sep 
+    with _ , τ , refl   ← LM.j-∙⁻ sep
     with _ , refl , ρz′ ← ↭-map-inv j ρz
     = -, (L.hustle (↭-sym ρx′) (↭-sym ρy′) ρz′ τ , refl)
   j-ε bagMap               = refl

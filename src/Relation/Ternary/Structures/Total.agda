@@ -39,13 +39,13 @@ record IsTotal {ℓe} (_≈_ : A → A → Set ℓe) (rel : Rel₃ A) (_++_ : A 
       variable
         a b c d e : A
 
-    open IsMonoid {{...}} 
+    open IsMonoid {{...}}
 
     ∙-disjointₗₗ : a ∙ b ≣ Φ → (e ++ a) ∙ b ≣ (e ++ Φ)
     ∙-disjointₗₗ σ with z ← ∙-parallel ∙-idʳ σ = coe (identityˡ _) z
 
     ∙-disjointₗᵣ : a ∙ b ≣ Φ → (a ++ e) ∙ b ≣ (Φ ++ e)
-    ∙-disjointₗᵣ σ with z ← ∙-parallel σ ∙-idʳ = coe (identityʳ _) z 
+    ∙-disjointₗᵣ σ with z ← ∙-parallel σ ∙-idʳ = coe (identityʳ _) z
 
     ∙-disjointᵣₗ : a ∙ b ≣ c → a ∙ (e ++ b) ≣ (e ++ c)
     ∙-disjointᵣₗ σ with z ← ∙-parallel ∙-idˡ σ = coe (identityˡ _) z

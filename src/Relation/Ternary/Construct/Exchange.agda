@@ -24,7 +24,7 @@ module Relation.Ternary.Construct.Exchange {ℓ e s}
   {_∙_}
   {{_ : IsTotal _≈ₐ_ r₁ _∙_}}
   {{_ : IsTotal _≈ₐ_ r₂ _∙_}}
-  {{m : IsMonoid _≈ₐ_ _∙_ εₐ}} 
+  {{m : IsMonoid _≈ₐ_ _∙_ εₐ}}
   (xsplitₐ  : CrossSplit r₂ r₁)
   (uncrossₐ : Uncross r₁ r₂) where
 
@@ -114,7 +114,7 @@ module _ where
 
   instance exchange-isCommutative : IsCommutative exchange-rel
   IsCommutative.∙-comm exchange-isCommutative (ex x₁ x₂ x₃ x₄) = ex x₂ x₁ (∙-comm x₃) (∙-comm x₄)
-    
+
   exchange-isSemigroupˡ : IsPartialSemigroupˡ _≈_ exchange-rel
 
   Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ˡ exchange-isSemigroupˡ) (eq₁ , eq₂) (ex x₁ x₂ σ₁ σ₂) =
@@ -138,7 +138,7 @@ module _ where
       | _ , α-a↓ , ≺-ebc>a | _ , α-b↓ , ν₆ | _ , α-c↓ , μ₆
     with uncrossₐ (∙-comm ≺-ebc>a) ι₂ ν₅ μ₅ | uncrossover uncrossₐ ≺-ea>bc (∙-comm κ₂) μ₆ ν₆
   ... | _ , τ-bc↑ , σ-bc↑ | _ , bo , bu =
-    -, ex (sub α-a↓ (∙-comm τ-bc↑)) (sub (∙-comm bo) α-a↑) ι₁ (∙-comm κ₁) 
+    -, ex (sub α-a↓ (∙-comm τ-bc↑)) (sub (∙-comm bo) α-a↑) ι₁ (∙-comm κ₁)
      , ex (sub (∙-comm α-b↓) (∙-comm α-c↑)) (sub (∙-comm α-c↓) (∙-comm α-b↑)) σ-bc↑ bu
 
   instance exchange-isSemigroup : IsPartialSemigroup _≈_ exchange-rel
@@ -183,9 +183,9 @@ module _ where
 
   instance exchange-emptiness : Emptiness (εₐ ⇅ εₐ)
   exchange-emptiness = record {}
-  
+
   instance empty-unique : IsUnique _≈_ (εₐ ⇅ εₐ)
-  IsUnique.unique empty-unique eq 
+  IsUnique.unique empty-unique eq
     with PEq.refl ← unique (proj₁ eq) | PEq.refl ← unique (proj₂ eq) = PEq.refl
 
   ε-sub : ∀ {xs} → εₐ - xs ≣ (xs ⇅ εₐ)
@@ -268,7 +268,7 @@ module _ where
   downs (ex x x₁ x₂ x₃) with sub-ε⁻ x | sub-ε⁻ x₁
   ... | eq₁ , PEq.refl | eq₂ , PEq.refl = -, (reflexive (PEq.sym (ε∙ε x₂)) , refl) , ∙-comm (coe eq₁ (coe eq₂ x₃))
 
-  up-down=up : ∀ {xs ys zs} → (ε ⇅ xs) ∙ ys ≣ (zs ⇅ ε) → ∃ λ ys' →  ys ≈ (ys' ⇅ ε) × zs ∙₂ xs ≣ ys' 
+  up-down=up : ∀ {xs ys zs} → (ε ⇅ xs) ∙ ys ≣ (zs ⇅ ε) → ∃ λ ys' →  ys ≈ (ys' ⇅ ε) × zs ∙₂ xs ≣ ys'
   up-down=up (ex (sub x y) x₁ x₂ x₃) with sub-ε⁻ x₁
   ... | eq₁ , PEq.refl with ε-split x₃
   ... | PEq.refl = -, (refl , ≈-sym eq₁)  , coe (∙-id⁻ˡ x₂) (coe {{∙-respects-≈ʳ}} (∙-id⁻ˡ x) y)
@@ -278,14 +278,14 @@ module _ where
 
 module _ {P Q : Pred A ℓ} where
   zipUp : ∀[ (Up P) ✴ (Up Q) ⇒ Up (P ✴₁ Q) ]
-  zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx)) 
+  zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx))
 
   zipDown : ∀[ (Down P) ✴ (Down Q) ⇒ Down (P ✴₂ Q) ]
   zipDown (↓ p ∙⟨ σ ⟩ ↓ q) = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (p ∙⟨ σ↓ ⟩ q))
 
 module _ {P} where
 
-  pure : ∀[ P ⇒ Up P ∘ (_⇅ ε) ] 
+  pure : ∀[ P ⇒ Up P ∘ (_⇅ ε) ]
   pure px = ↑ px
 
 module _ {P Q : Pred A ℓ} {{_ : Respect _≈ₐ_ Q}} where

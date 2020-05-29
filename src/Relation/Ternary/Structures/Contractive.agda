@@ -17,7 +17,7 @@ record IsContractive {c} (Condition : Pred A c) (rel : Rel₃ A) : Set (a ⊔ su
 module _ {{rel : Rel₃ A}} where
   open Rel₃ rel
   open IsContractive {{...}}
-  
+
   copy : ∀ {p} {P : Pred A p} {{_ : IsContractive P rel}} → ∀[ P ⇒ P ✴ P ]
   copy px = px ∙⟨ ∙-copy px ⟩ px
 
@@ -26,6 +26,6 @@ module _ {e} {u} {_≈_ : A → A → Set e} {rel : Rel₃ A} {{m : IsPartialMon
   open Rel₃ rel
   open IsPartialMonoid m
   open Emptiness emptiness
-  
+
   Emp-intuitionistic : IsContractive Emp rel
   IsContractive.∙-copy Emp-intuitionistic refl = ∙-idˡ

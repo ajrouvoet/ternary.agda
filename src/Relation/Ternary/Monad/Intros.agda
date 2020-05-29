@@ -52,7 +52,7 @@ module _ where
   IsPreorder.isEquivalence ∼-isPreorder = isEquivalence
   IsPreorder.reflexive ∼-isPreorder refl = -, ∼-refl
   IsPreorder.trans ∼-isPreorder = ∼-trans
-  
+
   -- frame preserving
   ∼-fp : ∀ {fr Φ₁ Φ₂} → Φ₁ ∼ Φ₂ → (di₁ : fr ◆ₓ Φ₁) → ∃ λ (di₂ : fr ◆ₓ Φ₂) → whole di₁ ∼ whole di₂
   ∼-fp (Δ′ , i , τ , refl) (fst , σ₁) = (-, ∙-disjointᵣᵣ σ₁) , _ , (i , τ , refl)

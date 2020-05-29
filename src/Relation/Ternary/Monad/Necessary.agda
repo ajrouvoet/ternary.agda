@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-} -- --safe 
+{-# OPTIONS --without-K #-} -- --safe
 
 {- A graded necessity modality -}
 module Relation.Ternary.Monad.Necessary {ℓa} {A : Set ℓa} where
@@ -75,7 +75,7 @@ module Necessary {G : Set ℓa} (_∼[_]_  : GradedRel A G ℓa) where
   --   -- greturn px = necessary (λ r → coe (∼-unrefl r) px)
 
   --   -- goin : Δ₁ ∙ Δ₂ ≣ Δ → ∀[ □[ Δ₁ ] (□[ Δ₂ ] P) ⇒ □[ Δ ] P ]
-  --   -- future (goin δ □□px) r = let _ , r₁ , r₂ = ∼-untrans δ r in future (future □□px r₁) r₂ 
+  --   -- future (goin δ □□px) r = let _ , r₁ , r₂ = ∼-untrans δ r in future (future □□px r₁) r₂
 
   --   -- gstr : ∀ {Δ} → ∀[ P ✴ (□[ Δ ] Q) ⇒ □[ Δ ] (P ✴ Q) ]
   --   -- future (gstr (px ∙⟨ σ ⟩ mqx)) r with ∼-cofp r σ

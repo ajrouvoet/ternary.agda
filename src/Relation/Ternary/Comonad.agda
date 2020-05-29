@@ -32,7 +32,7 @@ record Comonad (M : RawComonad a) : Set (suc a) where
     extend      : ∀ {P Q} → ∀[ M P ⇒ Q ] → ∀[ M P ⇒ M Q ]
 
   infixl 1 _<<=_
-  _<<=_ = extend 
+  _<<=_ = extend
 
   infixl 1 _=>>_
   _=>>_ : ∀ {Φ} {P Q} → M P Φ → ∀[ M P ⇒ Q ] → M Q Φ

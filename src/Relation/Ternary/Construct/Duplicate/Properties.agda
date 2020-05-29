@@ -18,7 +18,7 @@ module _ {a b} {A : Set a} {B : Set b} (𝑓 : A ↣ B) where
 
   f-morphism : SemigroupMorphism L.dup-isSemigroup R.dup-isSemigroup
   SemigroupMorphism.j f-morphism     = j
-  SemigroupMorphism.jcong f-morphism = cong 
+  SemigroupMorphism.jcong f-morphism = cong
   SemigroupMorphism.j-∙ f-morphism L.dup = R.dup
   SemigroupMorphism.j-∙⁻ f-morphism σ = lem σ refl refl
     where

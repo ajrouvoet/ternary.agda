@@ -85,7 +85,7 @@ record IsJoinoid {e₂}
 
 -- every functional, idempotent, commutative monoid yields a joinoid.
 module FromMonoid (rel : Rel₃ A)
-  {e} {_≈_ : A → A → Set e} 
+  {e} {_≈_ : A → A → Set e}
   {u : A} {{ m : IsCommutativeMonoid _≈_ rel u }}
   {{ f : IsFunctional _≈_ rel }}
   {{ f : IsIdempotent rel }}

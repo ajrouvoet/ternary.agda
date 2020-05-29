@@ -34,7 +34,7 @@ module HeapOps
 
   Cells : List T → List T → Set ℓ
   Cells Σ Φ = Allstar V Σ Φ
-  
+
   Heap : List T → Set ℓ
   Heap = LeftOver Cells
 

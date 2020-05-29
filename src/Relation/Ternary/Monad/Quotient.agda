@@ -24,7 +24,7 @@ record 𝑸 (P : Pred A a)  (aₒ : A) : Set a where
 
 module _ {{eq : IsEquivalence _≈_ }} where
 
-  instance /≈-respect-≈ : ∀ {P : Pred A a} → Respect _≈_ (𝑸 P) 
+  instance /≈-respect-≈ : ∀ {P : Pred A a} → Respect _≈_ (𝑸 P)
   Respect.coe /≈-respect-≈ eq₁ (px / eq₂) = px / (trans eq₂ eq₁)
 
 module _ {{r : Rel₃ A}} where

@@ -50,7 +50,7 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
     bind : ∀[ (P ─✴ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─✴ M i₁ i₃ Q) ]
     bind f ⟨ σ ⟩ mp with f✴mp ← str {Q = _ ─✴ _} f ⟨ σ ⟩ mp = join (apply ⟨$⟩ f✴mp)
 
-    bind-syntax : (P ─✴ M i₂ i₃ Q) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₃ Q Φ 
+    bind-syntax : (P ─✴ M i₂ i₃ Q) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₃ Q Φ
     bind-syntax f σ m = bind f ⟨ σ ⟩ m
 
     syntax bind-syntax f σ m = m ⟨ σ ⟩= f
@@ -63,13 +63,13 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
 
   {- strong kleisli composition -}
   module _
-    {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ ra}} 
+    {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ ra}}
     {i₁ i₂ i₃} {P Q R : Pred A a} where
 
     kleisli : ∀[ (Q ─✴ M i₂ i₃ R) ⇒ (P ─✴ M i₁ i₂ Q) ─✴ (P ─✴ M i₁ i₃ R) ]
     kleisli g ⟨ σ ⟩ f = bind g ∘⟨ σ ⟩ f
 
-    kleisli-syntax : (P ─✴ M i₁ i₂ Q) Φ₁ → Φ₂ ∙ Φ₁ ≣ Φ → (Q ─✴ M i₂ i₃ R) Φ₂ → (P ─✴ M i₁ i₃ R) Φ 
+    kleisli-syntax : (P ─✴ M i₁ i₂ Q) Φ₁ → Φ₂ ∙ Φ₁ ≣ Φ → (Q ─✴ M i₂ i₃ R) Φ₂ → (P ─✴ M i₁ i₃ R) Φ
     kleisli-syntax g σ f = kleisli f ⟨ σ ⟩ g
 
     syntax kleisli-syntax f σ g = f ⟨ σ ⟩=> g
@@ -90,7 +90,7 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   {- Monoid structure gives a nice shorthand when the lhs is resourceless -}
   module _ {u} {e} {_≈_ : A → A → Set e} {{pm : IsPartialMonoid _≈_ ra u}} where
     open import Relation.Binary.PropositionalEquality
-    
+
     _>>_ : ∀ {i₁ i₂ i₃ P Φ₂} {{_ : Respect _≈_ (M i₂ i₃ P)}} → M i₁ i₂ Emp ε → M i₂ i₃ P Φ₂ → M i₁ i₃ P Φ₂
     mp >> mq = do
       px ∙⟨ σ ⟩ refl ← mp &⟨ M _ _ _ # ∙-idʳ ⟩ mq
@@ -125,10 +125,10 @@ module _ {g} {G : Set g}
       gstr     : ∀ {Δ} → Strength M[ Δ ]
 
     gbind : ∀ {P Q} → Δ₁ ∙ Δ₂ ≣ Δ → ∀[ P ⇒ M[ Δ₂ ] Q ] → ∀[ M[ Δ₁ ] P ⇒ M[ Δ ] Q ]
-    gbind δ f mpx = multiply δ (fmap f mpx) 
+    gbind δ f mpx = multiply δ (fmap f mpx)
 
     gbind-syntax : ∀ {P Q} → Δ₁ ∙ Δ₂ ≣ Δ → M[ Δ₁ ] P Φ → ∀[ P ⇒ M[ Δ₂ ] Q ] → M[ Δ ] Q Φ
-    gbind-syntax δ px f = gbind δ f px 
+    gbind-syntax δ px f = gbind δ f px
     syntax gbind-syntax δ px f = px >>=⟨ δ ⟩ f
 
   open GradedMonad {{...}} public
@@ -146,7 +146,7 @@ module _ {g} {G : Set g}
 --   _≐ₘ_ {P = P} {Q} {x} f g = ∀ {y z} {σ : x ∙ y ≣ z} {px : P y} → (f ⟨ σ ⟩ px) ≈ₘ (g ⟨ σ ⟩ px)
 
 --   module _ {P i₁ i₂ Q x} {f : (P ─✴ M i₁ i₂ Q) x} where
---     RightId = (f ⟨ ∙-idˡ ⟩=> arrow return) ≐ₘ f 
+--     RightId = (f ⟨ ∙-idˡ ⟩=> arrow return) ≐ₘ f
 --     LeftId  = (arrow return ⟨ ∙-idʳ ⟩=> f) ≐ₘ f
 --     Assoc   = ∀ {i₃ i₄ R S} {y z} {g : (Q ─✴ M i₂ i₃ R) y} {h : (R ─✴ M i₃ i₄ S) z}
 --               {xy xyz} {σ : y ∙ x ≣ xy} {τ : z ∙ xy ≣ xyz} →

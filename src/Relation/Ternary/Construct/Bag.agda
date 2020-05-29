@@ -4,7 +4,7 @@ open import Relation.Ternary.Structures
 open import Data.Unit using (⊤)
 
 module Relation.Ternary.Construct.Bag
-  {ℓ} {A : Set ℓ} (div : Rel₃ A) 
+  {ℓ} {A : Set ℓ} (div : Rel₃ A)
   {e} {_≈_ : A → A → Set e} {{_ : IsCommutative div}} {{_ : IsPartialSemigroup _≈_ div}}
   (force : ⊤)
   where
@@ -96,8 +96,8 @@ module _ where
   bags-isMonoid = IsPartialMonoidˡ.partialMonoidˡ bags-isMonoidˡ
 
   open import Data.Nat.SizeOf {A = List A} length as SizeOf
-  
-  -- Positivity follows by the positivity of list separation together 
+
+  -- Positivity follows by the positivity of list separation together
   -- with the fact that permutations are length preserving
   instance bags-isPositive : IsPositive _ _↭_ bags
 

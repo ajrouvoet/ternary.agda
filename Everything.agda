@@ -7,7 +7,7 @@ import Relation.Ternary.Core
 
 -- Then there is a hierarchy of structures that you can prove for such a relation.
 -- The main ones are:
---    ∙ IsPartialSemigroup _≈_ rel₃ 
+--    ∙ IsPartialSemigroup _≈_ rel₃
 --    ∙ IsPartialMonoid    _≈_ rel₃ ε
 --    ∙ IsCommutative      rel₃
 -- Additionally there are various other mixins, like:

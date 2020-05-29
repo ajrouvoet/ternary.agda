@@ -3,7 +3,7 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
 module Relation.Terary.Data.Bigplus
-  {a} {A : Set a} 
+  {a} {A : Set a}
   {{ r : Rel₃ A }}
   {e u} {_≈_ : A → A → Set e} {{ _ : IsPartialMonoid _≈_ r u }} where
 
@@ -15,12 +15,12 @@ open import Relation.Unary.PredicateTransformer using (PT)
 open import Relation.Binary.PropositionalEquality using (refl)
 open import Relation.Ternary.Structures.Syntax
 import Relation.Ternary.Data.Bigstar as Star
-  
+
 Bigplus : ∀ {p} → PT A A p _
 Bigplus P = P ✴ Star.Bigstar P
 
 module Plus {p} {P : Pred A p} where
-  
+
   [_] : ∀[ P ⇒ Bigplus P ]
   [ px ] = px ∙⟨ ∙-idʳ ⟩ Star.emp
 
