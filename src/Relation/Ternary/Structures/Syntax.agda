@@ -21,5 +21,6 @@ open IsCommutative      {{...}} public
 open IsCrosssplittable  {{...}} public
 open IsIntuitionistic   {{...}} public
 open IsJoinoid          {{...}} public
+open IsTotal            {{...}} public
 
 open CommutativeSemigroupOps public
