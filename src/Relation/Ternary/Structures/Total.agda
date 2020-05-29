@@ -13,11 +13,11 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
-open import Relation.Ternary.Structures.Intuitionistic
+open import Relation.Ternary.Structures.Contractive
 
 open IsPartialMonoid    {{...}}
 open IsPartialSemigroup {{...}}
-open IsIntuitionistic   {{...}}
+open IsContractive      {{...}}
 open Emptiness          {{...}}
 
 -- Being a total proof-relevant relation means that there is always at least one way
@@ -62,7 +62,7 @@ record IsTotal {ℓe} (_≈_ : A → A → Set ℓe) (rel : Rel₃ A) (_++_ : A 
 
     -- If in addition (!) the relation is contractible,
     -- we can add a part with a whole and get the whole again.
-    module _ {c} {C : Pred A c} {{i : IsIntuitionistic C rel}} where
+    module _ {c} {C : Pred A c} {{i : IsContractive C rel}} where
 
       subₗ : (_ : C a) → a ∙ (a ++ b) ≣ (a ++ b)
       subₗ c = ∙-disjointᵣᵣ (∙-copy c)
