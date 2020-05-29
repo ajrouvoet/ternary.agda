@@ -38,9 +38,6 @@ open Union
 _~[_]_ : Set → Set → Set → Set₁
 A ~[ lb ] B = Union lb A B
 
-instance →⊔-rel : Rel₃ (Set → Set)
-→⊔-rel = →-rel
-
 open Necessary {A = Set} _~[_]_ 
 
 ISet : Set → Set₁
@@ -212,7 +209,7 @@ module _ where
 
   N∣B∣P = Nats ∪ Bools ∪ Pairs
 
-  Indexed : (Set → Set) → Set
+  Indexed : (Set → Set) → Set₁
   Indexed F = ∀ {T} → Open Data T F
 
   NatExp : Indexed Nats
@@ -313,4 +310,3 @@ module _ where
 
   expr₂ : μ Exp (tpair (tpair tbool tnat) tbool)
   expr₂ = `if fff then `swap (mkpair (snd (mkpair ttt fff)) (mkpair fff zz)) else mkpair (mkpair fff (ss zz)) ttt
-  

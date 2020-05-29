@@ -56,8 +56,8 @@ record IsTotal {ℓe} (_≈_ : A → A → Set ℓe) (rel : Rel₃ A) (_++_ : A 
     ∙-disjoint with z ← ∙-parallel ∙-idʳ ∙-idˡ =
       coe (identityʳ _) (coe {{∙-respects-≈ʳ}} (identityˡ _) z)
 
-    pair : ∀ {p q} {P : Pred A p} {Q : Pred A q} {a b} → P a → Q b → (P ✴ Q) (a ++ b)
-    pair px qx = px ∙⟨ ∙-disjoint ⟩ qx
+    mk✴ : ∀ {p q} {P : Pred A p} {Q : Pred A q} {a b} → P a → Q b → (P ✴ Q) (a ++ b)
+    mk✴ px qx = px ∙⟨ ∙-disjoint ⟩ qx
 
 
     -- If in addition (!) the relation is contractible,
@@ -69,5 +69,3 @@ record IsTotal {ℓe} (_≈_ : A → A → Set ℓe) (rel : Rel₃ A) (_++_ : A 
 
       subᵣ : (_ : C b) → b ∙ (a ++ b) ≣ (a ++ b)
       subᵣ c with z ← ∙-parallel ∙-idˡ (∙-copy c) = coe (identityˡ _) z
-
-open IsTotal {{...}} public
