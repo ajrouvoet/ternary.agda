@@ -10,4 +10,4 @@ open import Relation.Ternary.Structures.Total public
 open import Relation.Ternary.Structures.Positive public
 open import Relation.Ternary.Structures.Functional public
 open import Relation.Ternary.Structures.Crosssplit public
-open import Relation.Ternary.Structures.Intuitionistic public
+open import Relation.Ternary.Structures.Contractive public
