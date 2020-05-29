@@ -69,7 +69,6 @@ module _ {{sg : ∀ {k} → IsPartialSemigroup _≡_ (div {k})}} where
 
     map-isMonoid : IsPartialMonoid _≈_ maps ∅
     IsPartialMonoid.isSemigroup map-isMonoid = map-isSemigroup 
-    IsPartialMonoid.ε-unique map-isMonoid e = funext λ k → ε-unique (e k)
     IsPartialMonoid.∙-idˡ map-isMonoid  = union (λ k → ∙-idˡ)
     IsPartialMonoid.∙-idʳ map-isMonoid  = union (λ k → ∙-idʳ)
     IsPartialMonoid.∙-id⁻ˡ map-isMonoid (union ev) k = ∙-id⁻ˡ (ev k)

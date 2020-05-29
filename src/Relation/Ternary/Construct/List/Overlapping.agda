@@ -47,8 +47,8 @@ module _ where
   instance overlap-total : IsTotal _≡_ overlap-rel _++_
   overlap-total = list-isTotal {{D.dup-isSemigroup}}
 
-  instance overlap-intuitive : IsIntuitionistic U overlap-rel
-  overlap-intuitive = list-isIntuitionistic {{D.dup-isIntuitive}}
+  instance overlap-intuitive : IsContractive U overlap-rel
+  overlap-intuitive = list-isContractive {{D.dup-isIntuitive}}
 
   pattern overlaps σ = divide dup σ
 

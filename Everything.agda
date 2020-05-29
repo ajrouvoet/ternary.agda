@@ -37,3 +37,29 @@ import Relation.Ternary.Data.ReflexiveTransitive -- like Data.Star
 import Relation.Ternary.Functor
 import Relation.Ternary.Monad
 import Relation.Ternary.Comonad
+
+-- Finally, we construct some useful instances of ternary relations.
+-- A good one to start is list separation.
+-- This generalizes List Interleavings from the stdlib, allowing elements to be split as well.
+import Relation.Ternary.Construct.List
+-- You can regain list Interleavings by instantiating element division by the empty set:
+import Relation.Ternary.Construct.List.Disjoint
+-- And list Interleavings with overlap:
+import Relation.Ternary.Construct.Duplicate
+import Relation.Ternary.Construct.List.Overlapping
+
+-- Other nice instances:
+import Relation.Ternary.Construct.Product
+import Relation.Ternary.Construct.Function
+import Relation.Ternary.Construct.Map
+import Relation.Ternary.Construct.Bag
+import Relation.Ternary.Construct.Unit
+import Relation.Ternary.Construct.Empty
+
+-- Then there is the Market PRSA transformer that we wrote about in CPP,
+-- which can be used to thread a state invariant (for both linear and monotone state):
+import Relation.Ternary.Construct.Market
+
+-- And the Exchange PRSA transformer that we can use to thread a co-contextual formulation
+-- of a global-binding invariant (Agda AIM XXXII talk, work in progress on typed compilation).
+import Relation.Ternary.Construct.Exchange

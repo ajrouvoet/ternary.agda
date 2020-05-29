@@ -121,7 +121,7 @@ module _ where
   IsTotal.∙-parallel bags-isTotal (hustle ρ₁ ρ₂ ρ₃ l) (hustle ρ₄ ρ₅ ρ₆ r) =
     hustle (Pm.++⁺ ρ₁ ρ₄) (Pm.++⁺ ρ₂ ρ₅) (Pm.++⁺ ρ₃ ρ₆) (∙-parallel l r)
 
-module _ {{_ : IsIntuitionistic U div}} where
+module _ {{_ : IsContractive U div}} where
 
-  instance bags-isIntuitionistic : IsIntuitionistic U bags
-  IsIntuitionistic.∙-copy bags-isIntuitionistic {xs} tt = hustle ↭-refl ↭-refl ↭-refl (∙-copy tt)
+  instance bags-isContractive : IsContractive U bags
+  IsContractive.∙-copy bags-isContractive {xs} tt = hustle ↭-refl ↭-refl ↭-refl (∙-copy tt)
