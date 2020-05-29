@@ -25,6 +25,9 @@ module _ where
   pattern _⇈_ px σ = px ∙⟨ σ ⟩ tt
 
   instance
+    ⇑-functor : Functor _⇑
+    Functor.fmap ⇑-functor f (px ⇈ wk) = (f px) ⇈ wk
+
     ⇑-monad : Monad ⊤ (λ _ _ → _⇑)
     Monad.return ⇑-monad px = px ⇈ ∙-idʳ
     Monad._=<<_ ⇑-monad f (px ⇈ wk) with qx ⇈ wk' ← f px =

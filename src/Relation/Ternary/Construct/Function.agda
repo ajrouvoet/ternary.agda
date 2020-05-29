@@ -12,7 +12,7 @@ open import Relation.Ternary.Structures.Syntax
 private
   F = A → B
 
-→-rel : Rel₃ F
+instance →-rel : Rel₃ F
 Rel₃._∙_≣_ →-rel f g h = ∀ a → f a ∙ g a ≣ h a
 
 module _ {e} {_≈_ : B → B → Set e} {{sgb : IsPartialSemigroup _≈_ rb}} where
@@ -41,7 +41,7 @@ module _ {e} {_≈_ : B → B → Set e} {{sgb : IsPartialSemigroup _≈_ rb}} w
   
 module _ {{cb : IsCommutative rb}} where
 
-  →-commutative : IsCommutative →-rel
+  instance →-commutative : IsCommutative →-rel
   IsCommutative.∙-comm →-commutative σ₁ a = ∙-comm (σ₁ a)
 
 module _ {e} {_≈_ : B → B → Set e} {u} {{cb : IsPartialMonoid _≈_ rb u}} where
@@ -49,7 +49,7 @@ module _ {e} {_≈_ : B → B → Set e} {u} {{cb : IsPartialMonoid _≈_ rb u}}
   instance →-empty : Emptiness {A = F} (λ _ → u)
   →-empty = record {}
 
-  →-monoid : IsPartialMonoid _≈→_ →-rel (λ _ → u)
+  instance →-monoid : IsPartialMonoid _≈→_ →-rel (λ _ → u)
   IsPartialMonoid.∙-idˡ →-monoid a = ∙-idˡ 
   IsPartialMonoid.∙-idʳ →-monoid a = ∙-idʳ
   IsPartialMonoid.∙-id⁻ˡ →-monoid σ a = ∙-id⁻ˡ (σ a)
