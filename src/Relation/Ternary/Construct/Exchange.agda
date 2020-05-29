@@ -18,6 +18,7 @@ module Relation.Ternary.Construct.Exchange {ℓ e s}
   {{r₂-monoid  : IsPartialMonoid _≈ₐ_ r₂ εₐ}}
   {{r₁-positive  : IsPositiveWithZero s _≈ₐ_ r₁ εₐ}}
   {{r₂-positive  : IsPositiveWithZero s _≈ₐ_ r₂ εₐ}}
+  {{εₐ-unique    : IsUnique _≈ₐ_ εₐ}}
   {{r₁-comm : IsCommutative r₁}}
   {{r₂-comm : IsCommutative r₂}}
   {_∙_}
@@ -182,6 +183,10 @@ module _ where
 
   instance exchange-emptiness : Emptiness (εₐ ⇅ εₐ)
   exchange-emptiness = record {}
+  
+  instance empty-unique : IsUnique _≈_ (εₐ ⇅ εₐ)
+  IsUnique.unique empty-unique eq 
+    with PEq.refl ← unique (proj₁ eq) | PEq.refl ← unique (proj₂ eq) = PEq.refl
 
   ε-sub : ∀ {xs} → εₐ - xs ≣ (xs ⇅ εₐ)
   ε-sub = sub ∙-idˡ ∙-idʳ
@@ -207,9 +212,6 @@ module _ where
 module _ where
 
   exchange-isMonoidˡ : IsPartialMonoidˡ _≈_ exchange-rel (εₐ ⇅ εₐ)
-
-  IsPartialMonoidˡ.ε-uniq exchange-isMonoidˡ {u ⇅ d} (eq₁ , eq₂) with ε-unique {{r₁-monoid}} eq₁ | ε-unique {{r₂-monoid}} eq₂
-  ... | PEq.refl | PEq.refl = PEq.refl
 
   IsPartialMonoidˡ.identityˡ exchange-isMonoidˡ = ex ε-sub sub-ε ∙-idˡ ∙-idʳ
   IsPartialMonoidˡ.identity⁻ˡ exchange-isMonoidˡ (ex x₁ x₂ σ₁ σ₂) with ε-sub⁻ x₁ | sub-ε⁻ x₂
@@ -250,11 +252,11 @@ module _ where
 module _ {P : Pred A ℓ} {{_ : Respect _≈ₐ_ P}} where
 
   instance ↓-respects : Respect _≈_ (Down P)
-  Respect.coe ↓-respects x (↓ x₁) with ε-unique {{r₂-monoid}} (proj₁ x)
+  Respect.coe ↓-respects x (↓ x₁) with unique (proj₁ x)
   ... | PEq.refl = ↓ (coe (proj₂ x) x₁)
 
   instance ↑-respects : Respect _≈_ (Up P)
-  Respect.coe ↑-respects x (↑ x₁) with ε-unique {{r₁-monoid}} (proj₂ x)
+  Respect.coe ↑-respects x (↑ x₁) with unique (proj₂ x)
   ... | PEq.refl = ↑ (coe (proj₁ x) x₁)
 
 module _ where
