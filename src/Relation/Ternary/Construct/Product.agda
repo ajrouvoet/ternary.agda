@@ -78,9 +78,6 @@ module _
   where
 
   instance ×-isPartialMonoid : IsPartialMonoid (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂) 
-  IsPartialMonoid.ε-unique ×-isPartialMonoid (fst , snd) with ε-unique fst | ε-unique snd
-  ... | refl | refl = refl
-
   IsPartialMonoid.∙-idˡ ×-isPartialMonoid = ∙-idˡ , ∙-idˡ
   IsPartialMonoid.∙-idʳ ×-isPartialMonoid = ∙-idʳ , ∙-idʳ
 
@@ -197,20 +194,18 @@ module _ {u} {{_ : Emptiness {A = C₁} u}} where
 module _
   {e} {{r : Rel₃ C₂}}
   {_≈₂_ : C₂ → C₂ → Set e} {u} {{s : IsPartialMonoid _≈₂_ r u}}
-  {e₁ p} {_≈₁_ : C₁ → C₁ → Set e₁} where
+  {e₁ p} {_≈₁_ : C₁ → C₁ → Set e₁} {{_ : IsUnique _≈₂_ u}} where
 
   instance Π₁-respect-≈ : ∀ {P : Pred C₁ p} {{_ : Respect _≈₁_ P }} → Respect (Pointwise _≈₁_ _≈₂_) (Π₁ P)
-  Respect.coe Π₁-respect-≈ (eq₁ , eq₂) (fst px) with ε-unique eq₂
-  ... | refl = fst (coe eq₁ px)
+  Respect.coe Π₁-respect-≈ (eq₁ , eq₂) (fst px) rewrite unique eq₂ = fst (coe eq₁ px) 
 
 module _
   {e} {{r : Rel₃ C₁}}
   {_≈₁_ : C₁ → C₁ → Set e} {u} {{s : IsPartialMonoid _≈₁_ r u}}
-  {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} where
+  {e₂ p} {_≈₂_ : C₂ → C₂ → Set e₂} {{_ : IsUnique _≈₁_ u}} where
 
   instance Π₂-respect-≈ : ∀ {P : Pred C₂ p} {{_ : Respect _≈₂_ P }} → Respect (Pointwise _≈₁_ _≈₂_) (Π₂ P)
-  Respect.coe Π₂-respect-≈ (eq₁ , eq₂) (snd px) with ε-unique eq₁
-  ... | refl = snd (coe eq₂ px)
+  Respect.coe Π₂-respect-≈ (eq₁ , eq₂) (snd px) rewrite unique eq₁ = snd (coe eq₂ px) 
 
 module Propositional
   {{R₁ : Rel₃ C₁}} {{R₂ : Rel₃ C₂}}
@@ -237,7 +232,6 @@ module Propositional
 
     ×-isPartialMonoid-≡ : IsPartialMonoid _≡_ (R₁ ×-∙ R₂) (ε₁ , ε₂)
     IsPartialMonoid.isSemigroup ×-isPartialMonoid-≡ = ×-isPartialSemigroup
-    IsPartialMonoid.ε-unique ×-isPartialMonoid-≡ refl = refl
     IsPartialMonoid.∙-idˡ ×-isPartialMonoid-≡ = ∙-idˡ , ∙-idˡ
     IsPartialMonoid.∙-idʳ ×-isPartialMonoid-≡ = ∙-idʳ , ∙-idʳ
     IsPartialMonoid.∙-id⁻ˡ ×-isPartialMonoid-≡ (σ₁ , σ₂) with ∙-id⁻ˡ σ₁ | ∙-id⁻ˡ σ₂

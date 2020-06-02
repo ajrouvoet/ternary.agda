@@ -5,7 +5,7 @@ open import Relation.Ternary.Structures
 module Relation.Ternary.Data.Bigstar 
   {a} {A : Set a} 
   {{ r : Rel₃ A }}
-  {e u} {_≈_ : A → A → Set e} {{ _ : IsPartialMonoid _≈_ r u }} where
+  {e u} {_≈_ : A → A → Set e} {{ _ : IsPartialMonoid _≈_ r u }} {{_ : IsUnique _≈_ u}} where
 
 open import Level
 open import Data.Bool
@@ -21,7 +21,7 @@ data Bigstar {p} (P : Pred A p) : Pred A (a ⊔ p) where
   cons : ∀[ P ✴ Bigstar P ⇒ Bigstar P ]
 
 instance bigstar-respects : ∀ {p} {P : Pred A p} → Respect _≈_ (Bigstar P)
-Respect.coe bigstar-respects eq emp with ε-unique eq
+Respect.coe bigstar-respects eq emp with unique eq
 ... | refl = emp
 Respect.coe bigstar-respects eq (cons x) = cons (coe eq x)
 

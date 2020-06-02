@@ -23,6 +23,9 @@ module Unwrapped where
   Id P = P
 
   instance
+    id-functor : Functor Id
+    Functor.fmap id-functor f px = f px
+
     id-monad : Monad ⊤ (λ _ _ → Id)
     Monad.return id-monad = id
     Monad._=<<_ id-monad f px = f px
@@ -40,6 +43,9 @@ module Wrapped where
   open Id public
 
   instance
+    id-functor : Functor Id
+    Functor.fmap id-functor f (mkId px) = mkId (f px)
+
     id-monad : Monad ⊤ (λ _ _ → Id)
     Monad.return id-monad = mkId
     Monad._=<<_ id-monad f px = f (runId px)

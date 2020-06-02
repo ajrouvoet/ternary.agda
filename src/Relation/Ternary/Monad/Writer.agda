@@ -40,16 +40,21 @@ module WriterTransformer
   open WriterT public
 
   instance
-    compiler-monad : Monad I WriterT
-    Monad.return compiler-monad px = writer (return (mempty ∙⟨ ∙-idˡ ⟩ px))
-    Monad._=<<_ compiler-monad f (writer mpx) = writer do
+    writer-functor : Functor (WriterT i j)
+    Functor.fmap writer-functor f (writer w) = writer do
+      w ∙⟨ σ ⟩ px ← w
+      return (w ∙⟨ σ ⟩ f px)
+
+    writer-monad : Monad I WriterT
+    Monad.return writer-monad px = writer (return (mempty ∙⟨ ∙-idˡ ⟩ px))
+    Monad._=<<_ writer-monad f (writer mpx) = writer do
       w₁    ∙⟨ σ ⟩ px ← mpx
       let (writer mqx) = f px
       (w₁ ∙⟨ σ₁ ⟩ w₂) ∙⟨ σ₂ ⟩ qx ← ✴-assocₗ ⟨$⟩ (mqx &⟨ W _ _ # σ ⟩ w₁)
       return ((mappend w₁ ⟨ σ₁ ⟩ w₂) ∙⟨ σ₂ ⟩ qx)
 
-    compiler-strong : Strong I WriterT
-    Strong.str compiler-strong {Q = Q} qx ⟨ σ ⟩ (writer mpx) = writer do
+    writer-strong : Strong I WriterT
+    Strong.str writer-strong {Q = Q} qx ⟨ σ ⟩ (writer mpx) = writer do
       w ∙⟨ σ ⟩ px∙qx ← ✴-rotateₗ ⟨$⟩ (mpx &⟨ Q # σ ⟩ qx)
       return (w ∙⟨ σ ⟩ ✴-swap px∙qx)
 

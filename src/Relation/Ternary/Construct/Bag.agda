@@ -87,7 +87,6 @@ module _ where
 
   -- The identities follow almost immediately from the identity laws of list separation
   bags-isMonoidˡ : IsPartialMonoidˡ _↭_ bags []
-  IsPartialMonoidˡ.ε-uniq bags-isMonoidˡ ρ = sym (↭-empty-inv (↭-sym ρ))
   IsPartialMonoidˡ.identityˡ bags-isMonoidˡ = hustle ↭-refl ↭-refl ↭-refl ∙-idˡ
   IsPartialMonoidˡ.identity⁻ˡ bags-isMonoidˡ (hustle ρx ρy ρz σ) with ↭-empty-inv ρx
   ... | refl with ∙-id⁻ˡ σ

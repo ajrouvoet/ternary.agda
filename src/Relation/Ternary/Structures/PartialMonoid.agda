@@ -8,8 +8,7 @@ open import Relation.Unary hiding (Empty)
 open import Relation.Binary.Structures
 open import Relation.Binary.Bundles
 open import Relation.Binary.PropositionalEquality
-open import Relation.Ternary.Core using
-  (Rel₃; Own; Respect; coe; LeftIdentity; RightIdentity; LeftIdentity⁻; RightIdentity⁻)
+open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.PartialSemigroup
 
 open import Data.Product
@@ -50,8 +49,11 @@ record IsPartialMonoid {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) (unit : 
     
   Emp′ = λ x → x ≈ ε
 
-  ε∙ε : ∀[ ε ∙ ε ⇒ Emp′ ]
-  ε∙ε p = Eq.sym (∙-id⁻ˡ p)
+  ε∙ε′ : ∀[ ε ∙ ε ⇒ Emp′ ]
+  ε∙ε′ p = Eq.sym (∙-id⁻ˡ p)
+
+  ε∙ε : {{_ : IsUnique _≈_ ε}} → ∀[ ε ∙ ε ⇒ Emp ]
+  ε∙ε p = unique (∙-id⁻ˡ p)
 
   ∙-id⁺ˡ : ∀[ _≈_ Φ ⇒ ε ∙ Φ ]
   ∙-id⁺ˡ eq = coe eq ∙-idˡ
