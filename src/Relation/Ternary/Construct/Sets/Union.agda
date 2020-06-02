@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --safe #-}
+{-# OPTIONS --without-K #-}
 module Relation.Ternary.Construct.Sets.Union where
 
 open import Data.Product as Pr
@@ -72,7 +72,7 @@ module From {A B C : Set} (from : C → These A B) where
     from-elim-b f eq rewrite eq = f
 
     from-elim-ab : ∀ {a b c} → From⟪ P , Q , R ⟫ c → a & b ≺ c → R (a , b)
-    from-elim-ab f eq rewrite eq = f 
+    from-elim-ab f eq rewrite eq = f
 
   --
   -- the types of the inverse functions
@@ -185,6 +185,9 @@ record Union (A B C : Set) : Set₁ where
 
     a&b≺inja : ∀ {a b a'} → a' & b ≺ inja a → a & b ≺ inja a
     a&b≺inja eq with eq' ← proj₁ (A&B≺-inv eq) rewrite inja-injective eq' = eq
+
+    a&b≺inja' : ∀ {a b a'} → a' & b ≺ inja a → a ≡ a'
+    a&b≺inja' eq with eq' ← proj₁ (A&B≺-inv eq) = inja-injective (P.sym eq')
 
     ¬A≺injb : ∀ {a b} → ¬ (a A≺ injb b)
     ¬A≺injb {a} {b} eq with b-inv' b
