@@ -6,7 +6,7 @@ module Relation.Ternary.Data.Allstar
   -- level restrictions due to use of monadic interface
   {i} (I : Set i)
   {C : Set i} {{rel : Rel₃ C}}
-  {u} {_≈_ : C → C → Set i} {{m : IsPartialMonoid _≈_ rel u}} {{unique-ε : IsUnique _≈_ u}}
+  {u} {_≈_ : C → C → Set i} {{m : IsPartialMonoid _≈_ rel u}} 
   where
 
 open import Level
@@ -29,13 +29,13 @@ module _ {ℓ} (P : I → Pred C ℓ) where
     nil  :            ε[ Allstar [] ]
     cons : ∀ {x xs} → ∀[ P x ✴ Allstar xs ⇒ Allstar (x ∷ xs) ]
 
-module _ {ℓ} {P : I → Pred C ℓ} where
+module _ {ℓ} {P : I → Pred C ℓ} {{unique-ε : IsUnique _≈_ u}} where
   instance allstar-respects-≈ : ∀ {is} → Respect _≈_ (Allstar P is)
   Respect.coe allstar-respects-≈ eq nil with unique eq
   ... | refl  = nil
   Respect.coe allstar-respects-≈ eq (cons x) = cons (coe eq x)
 
-module _ {ℓ} {P : I → Pred C ℓ} where
+module _ {ℓ} {P : I → Pred C ℓ} {{unique-ε : IsUnique _≈_ u}} where
 
   infixr 5 _:⟨_⟩:_
   pattern _:⟨_⟩:_ x p xs = cons (x ∙⟨ p ⟩ xs)

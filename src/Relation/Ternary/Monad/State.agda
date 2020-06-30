@@ -47,6 +47,11 @@ module StateTransformer
   Respect.coe state-respects eq st = coe (demands eq) st
 
   instance
+    state-functor : Functor (StateT M St)
+    Functor.fmap state-functor f m ⟨ σ ⟩ st = do
+      lift px ∙⟨ σ ⟩ st ← m ⟨ σ ⟩ st
+      return (lift (f px) ∙⟨ σ ⟩ st)
+
     state-monad : Monad ⊤ (λ _ _ → StateT M St)
     Monad.return state-monad px ⟨ σ₂ ⟩ st = return (lift px ∙⟨ σ₂ ⟩ st )
     Monad._=<<_ state-monad f mp ⟨ σ ⟩ st = do

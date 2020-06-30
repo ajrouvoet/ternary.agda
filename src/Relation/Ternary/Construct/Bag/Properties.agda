@@ -16,6 +16,9 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 open import Relation.Ternary.Morphisms
 
+instance one-respects-↭ : ∀ {a : A} → Respect _↭_ (One a)
+Respect.coe one-respects-↭ ρ refl rewrite ↭-singleton-inv (↭-sym ρ) = refl
+
 module CrossSplittable
   {{div₁ : Rel₃ A}} {{div₂ : Rel₃ A}}
   {e} {_≈₁_ : A → A → Set e} {_≈₂_ : A → A → Set e}
