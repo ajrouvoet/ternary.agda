@@ -182,15 +182,22 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
     ... | From.these a₁ b' i₁ (refl , snd) = refl , refl
 
     ←bc : BC → These B C
-    ←bc (abc , ev) with U₂.from abc | ev
-    ←bc (abc , ev) | this ab    | k with U₁.from ab
+    ←bc (abc , _) with U₂.from abc
+    ←bc (abc , _) | this ab with U₁.from ab
     ... | that b    = this b
     ... | these _ b = this b
-    ←bc (abc , ev) | that c     | k = that c
-    ←bc (abc , ev) | these ab c | k with U₁.from ab
+    ←bc (abc , _) | that c = that c
+    ←bc (abc , _) | these ab c with U₁.from ab
     ... | this a = that c
     ... | that b = these b c
     ... | these a b = these b c
+
+    -- feels like these lemmas could be inlined below, but doesn't work
+    ←bc-this-this : ∀ {abc ab b ev} → U₂.from abc ≡ this ab → U₁.from ab ≡ that b → ←bc (abc , ev) ≡ this b
+    ←bc-this-this e1 e2 rewrite e1 | e2 = refl
+
+    ←bc-these-this : ∀ {abc ab c b ev} → U₂.from abc ≡ these ab c → U₁.from ab ≡ that b → ←bc (abc , ev) ≡ these b c
+    ←bc-these-this e1 e2 rewrite e1 | e2 = refl
 
     a-inv : (a : A) → From.InjaInverses ←abc a→abc a
     a-inv a with U₂.from-inv' (a→abc a)
@@ -220,18 +227,18 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
       module F = From ←bc
 
       -- Simultaneously computing and proving the inverses
-      postulate b→bc' : (b : B) → Σ[ bc ∈ BC ] F.From⟪ (_≡ b) , ∅ , (_≡ b) ∘ proj₁ ⟫ bc
-      -- b→bc' b with U₁.b-inv' b
-      -- b→bc' b | From.that .b i refl with U₂.a-inv' (b→ab b)
-      -- ... | From.this ._ i₁ refl     = (-, U₂.intro-from-a i₁ (U₁.intro-from-b i tt))
-      --   , {!!}
-      -- ... | From.these ._ c i₁ refl  = (-, U₂.intro-from-ab i₁ tt)
-      --   , F.intro-from-ab {!!} refl
-      -- b→bc' b | From.these a .b i refl with U₂.a-inv' (b→ab b)
-      -- ... | From.this ._ i₁ refl     = (-, U₂.intro-from-a i₁ (U₁.intro-from-ab i tt))
-      --   , {!!}
-      -- ... | From.these ._ b₁ i₁ refl = (-, U₂.intro-from-ab i₁ tt)
-      --   , {!!}
+      b→bc' : (b : B) → Σ[ bc ∈ BC ] F.From⟪ (_≡ b) , ∅ , (_≡ b) ∘ proj₁ ⟫ bc
+      b→bc' b with U₁.b-inv' b
+      b→bc' b | From.that .b i refl with U₂.a-inv' (b→ab b)
+      ... | From.this ._ i₁ refl     = (-, U₂.intro-from-a i₁ (U₁.intro-from-b i tt))
+        , F.intro-from-a (←bc-this-this i₁ i) refl
+      ... | From.these ._ c i₁ refl = (-, U₂.intro-from-ab i₁ tt) 
+        , F.intro-from-ab (←bc-these-this i₁ i) refl
+      b→bc' b | From.these a .b i refl with U₂.a-inv' (b→ab b)
+      ... | From.this ._ i₁ refl     = (-, U₂.intro-from-a i₁ (U₁.intro-from-ab i tt))
+        , {!!}
+      ... | From.these ._ b₁ i₁ refl = (-, U₂.intro-from-ab i₁ tt)
+        , {!!}
 
       postulate c→bc' : (c : C) → Σ[ bc ∈ BC ] F.From⟪ ∅ , (_≡ c) , (_≡ c) ∘ proj₂ ⟫ bc
       -- c→bc' c with U₂.b-inv' c
@@ -288,8 +295,8 @@ instance ⊔-monoid : IsPartialMonoid _↔_ ⊔-rel ⊥
 ⊔-monoid = IsPartialMonoidˡ.partialMonoidˡ ⊔-monoidˡ
 
 -- Homogeneous composition is an instance of Union
-instance ⊔-intuitive : IsIntuitionistic U ⊔-rel
-IsIntuitionistic.∙-copy ⊔-intuitive _ = union
+instance ⊔-contractive : IsContractive U ⊔-rel
+IsContractive.∙-copy ⊔-contractive _ = union
   id id (λ x → these x x)
   (λ x → refl) (λ x → refl) (λ c → refl , refl)
 
