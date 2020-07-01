@@ -192,11 +192,23 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
     ... | that b = these b c
     ... | these a b = these b c
 
-    -- feels like these lemmas could be inlined below, but doesn't work
-    ←bc-this-this : ∀ {abc ab b ev} → U₂.from abc ≡ this ab → U₁.from ab ≡ that b → ←bc (abc , ev) ≡ this b
-    ←bc-this-this e1 e2 rewrite e1 | e2 = refl
+    -- Argh, spelling out the computation rules of ←bc...
+    ←bc-that : ∀ {abc c ev} → U₂.from abc ≡ that c → ←bc (abc , ev) ≡ that c
+    ←bc-that e1 rewrite e1 = refl
 
-    ←bc-these-this : ∀ {abc ab c b ev} → U₂.from abc ≡ these ab c → U₁.from ab ≡ that b → ←bc (abc , ev) ≡ these b c
+    ←bc-this-that : ∀ {abc ab b ev} → U₂.from abc ≡ this ab → U₁.from ab ≡ that b → ←bc (abc , ev) ≡ this b
+    ←bc-this-that e1 e2 rewrite e1 | e2 = refl
+
+    ←bc-these-that : ∀ {abc ab c b ev} → U₂.from abc ≡ these ab c → U₁.from ab ≡ that b → ←bc (abc , ev) ≡ these b c
+    ←bc-these-that e1 e2 rewrite e1 | e2 = refl
+
+    ←bc-this-these : ∀ {abc a b ab ev} → U₂.from abc ≡ this ab → U₁.from ab ≡ these a b → ←bc (abc , ev) ≡ this b
+    ←bc-this-these e1 e2 rewrite e1 | e2 = refl
+
+    ←bc-these-these : ∀ {abc a b c ab ev} → U₂.from abc ≡ these ab c → U₁.from ab ≡ these a b → ←bc (abc , ev) ≡ these b c
+    ←bc-these-these e1 e2 rewrite e1 | e2 = refl
+
+    ←bc-these-this : ∀ {abc a ab c ev} → U₂.from abc ≡ these ab c → U₁.from ab ≡ this a → ←bc (abc , ev) ≡ that c
     ←bc-these-this e1 e2 rewrite e1 | e2 = refl
 
     a-inv : (a : A) → From.InjaInverses ←abc a→abc a
@@ -231,21 +243,26 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
       b→bc' b with U₁.b-inv' b
       b→bc' b | From.that .b i refl with U₂.a-inv' (b→ab b)
       ... | From.this ._ i₁ refl     = (-, U₂.intro-from-a i₁ (U₁.intro-from-b i tt))
-        , F.intro-from-a (←bc-this-this i₁ i) refl
+        , F.intro-from-a (←bc-this-that i₁ i) refl
       ... | From.these ._ c i₁ refl = (-, U₂.intro-from-ab i₁ tt) 
-        , F.intro-from-ab (←bc-these-this i₁ i) refl
+        , F.intro-from-ab (←bc-these-that i₁ i) refl
       b→bc' b | From.these a .b i refl with U₂.a-inv' (b→ab b)
       ... | From.this ._ i₁ refl     = (-, U₂.intro-from-a i₁ (U₁.intro-from-ab i tt))
-        , {!!}
+        , F.intro-from-a (←bc-this-these i₁ i) refl
       ... | From.these ._ b₁ i₁ refl = (-, U₂.intro-from-ab i₁ tt)
-        , {!!}
+        , F.intro-from-ab (←bc-these-these i₁ i) refl
 
-      postulate c→bc' : (c : C) → Σ[ bc ∈ BC ] F.From⟪ ∅ , (_≡ c) , (_≡ c) ∘ proj₂ ⟫ bc
-      -- c→bc' c with U₂.b-inv' c
-      -- ... | Union.that .c c≺abc refl        = (-, U₂.intro-from-b c≺abc tt)
-      --   , {!!}
-      -- ... | Union.these ab .c ab&c≺abc refl = (-, U₂.intro-from-ab ab&c≺abc tt)
-      --   , {!!}
+      c→bc' : (c : C) → Σ[ bc ∈ BC ] F.From⟪ ∅ , (_≡ c) , (_≡ c) ∘ proj₂ ⟫ bc
+      c→bc' c with U₂.b-inv' c
+      c→bc' c | Union.that .c c≺abc refl = (-, U₂.intro-from-b c≺abc tt)
+        , F.intro-from-b (←bc-that c≺abc) refl
+      c→bc' c | Union.these ab .c ab&c≺abc refl with U₁.from-inv' ab
+      ... | From.this ._ a≺ab refl = (-, U₂.intro-from-ab ab&c≺abc tt) 
+        , F.intro-from-b (←bc-these-this ab&c≺abc a≺ab) refl
+      ... | From.that ._ b≺ab refl = (-, U₂.intro-from-ab ab&c≺abc tt) 
+        , F.intro-from-ab (←bc-these-that ab&c≺abc b≺ab) refl
+      ... | From.these ._ ._ a&b≺ab (refl , eq) = (-, U₂.intro-from-ab ab&c≺abc tt) 
+        , F.intro-from-ab (←bc-these-these ab&c≺abc a&b≺ab) refl
 
     b→bc : B → BC
     b→bc = proj₁ ∘ b→bc'
