@@ -25,6 +25,9 @@ module _ {a} {A : Set a} where
 
     unique-respects : {{_ : IsEquivalence _≈_}} → Respect _≈_ (Own el)
     Respect.coe (unique-respects {{equiv}}) eq refl rewrite unique eq = refl
+    
+  instance unique-≡ : ∀ {a} → IsUnique _≡_ a
+  IsUnique.unique unique-≡ eq = eq
 
   open Respect {{...}} public
   open IsUnique {{...}} public

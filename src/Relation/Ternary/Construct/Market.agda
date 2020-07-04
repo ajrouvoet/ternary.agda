@@ -68,6 +68,14 @@ module _
   instance market-empty : Emptiness {A = Market} (demand ε)
   market-empty = record {}
 
+  module _ {u : A} {{_ : IsUnique _≈ₐ_ u }} where
+
+    instance demand-uniq : IsUnique _≈_ (demand u)
+    IsUnique.unique demand-uniq (demands x) = cong demand (unique x)
+
+    instance supply-uniq : IsUnique _≈_ (supply u)
+    IsUnique.unique supply-uniq (supplys x) = cong supply (unique x)
+
   private
 
     respˡ : ∀ {b ab} → Respect _≈_ (λ a → Split a b ab)
