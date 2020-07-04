@@ -280,6 +280,9 @@ module _ {P Q : Pred A ℓ} where
   zipUp : ∀[ (Up P) ✴ (Up Q) ⇒ Up (P ✴₁ Q) ]
   zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx))
 
+  unzipUp : ∀[ (Up (P ✴₁ Q)) ⇒ Up P ✴ Up Q ]
+  unzipUp (↑ (px ∙⟨ σ ⟩ qx)) = (↑ px) Rel₃.∙⟨ (ex ε-sub ε-sub σ ∙-idʳ) ⟩ (↑ qx)
+
   zipDown : ∀[ (Down P) ✴ (Down Q) ⇒ Down (P ✴₂ Q) ]
   zipDown (↓ p ∙⟨ σ ⟩ ↓ q) = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (p ∙⟨ σ↓ ⟩ q))
 
