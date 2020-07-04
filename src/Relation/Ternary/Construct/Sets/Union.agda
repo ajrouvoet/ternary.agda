@@ -73,6 +73,16 @@ module From {A B C : Set} (from : C → These A B) where
 
     from-elim-ab : ∀ {a b c} → From⟪ P , Q , R ⟫ c → a & b ≺ c → R (a , b)
     from-elim-ab f eq rewrite eq = f
+    
+    from-elim : ∀ {c} {S : Set} → From⟪ P , Q , R ⟫ c
+              → (∀ {a} → P a → S)
+              → (∀ {b} → Q b → S)
+              → (∀ {a b} → R (a , b) → S)
+              → S
+    from-elim {c} ev f g h with from c
+    ... | this _    = f ev
+    ... | that _    = g ev
+    ... | these _ _ = h ev
 
   --
   -- the types of the inverse functions
