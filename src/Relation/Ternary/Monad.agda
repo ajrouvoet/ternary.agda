@@ -106,6 +106,11 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
       mq ∙⟨ σ ⟩ px ← mp &⟨ M _ _ _ # ∙-comm σ ⟩ mq
       mq &⟨ P # ∙-comm σ ⟩ px
 
+    infixl 5 typed-str-syntax'
+    typed-str-syntax' : ∀ {i₁ i₂ Φ₁ Φ₂ Φ P} Q → M i₁ i₂ P Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → Q Φ₂ → M i₁ i₂ (P ✴ Q) Φ
+    typed-str-syntax' Q mp σ qx = ✴-swap ⟨$⟩ (str {Q = Q} qx ⟨ ∙-comm σ ⟩ mp)
+    syntax typed-str-syntax' Q mp σ qx = mp ⟨ Q # σ ⟩& qx
+
 open Strong {{...}} public
 
 module _ {g} {G : Set g}

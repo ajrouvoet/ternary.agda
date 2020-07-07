@@ -27,7 +27,8 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.Syntax
 
 open import Relation.Ternary.Construct.List div
-open import Relation.Ternary.Construct.List div public using (list-emptiness)
+open import Relation.Ternary.Construct.List div public using () 
+  renaming (list-emptiness to bag-emptiness)
 
 private
   variable
