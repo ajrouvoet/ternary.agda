@@ -69,12 +69,12 @@ record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set
     ✴-curry f ⟨ σ₂ ⟩ (p ∙⟨ σ₁ ⟩ q) =
       let _ , σ₃ , σ₄ = ∙-assocₗ σ₂ σ₁ in f ⟨ σ₃ ⟩ p ⟨ σ₄ ⟩ q
 
-    intro : ∀[ (P ✴ Q) ⇒ R ] → ∀[ P ⇒ (Q ─✴ R) ]
-    intro f px ⟨ s ⟩ qx = f (px ∙⟨ s ⟩ qx)
-
     ✴-uncurry : ∀[ (P ✴ Q ─✴ R) ⇒ P ─✴ (Q ─✴ R) ]
     ✴-uncurry f ⟨ σ₁ ⟩ p ⟨ σ₂ ⟩ q =
       let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂ in f ⟨ σ₃ ⟩ (p ∙⟨ σ₄ ⟩ q)
+
+    intro : ∀[ (P ✴ Q) ⇒ R ] → ∀[ P ⇒ (Q ─✴ R) ]
+    intro f px ⟨ s ⟩ qx = f (px ∙⟨ s ⟩ qx)
 
   module _ where
 

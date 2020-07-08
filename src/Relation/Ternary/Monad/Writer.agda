@@ -68,10 +68,13 @@ module WriterTransformer
     w✴px ← mpx
     return (mempty ∙⟨ ∙-idˡ ⟩ ✴-swap w✴px)
 
-  pass : ∀ {P} → ∀[ WriterT i j ((W i j ─✴ W i j) ✴ P) ⇒ WriterT i j P ]
+  pass : ∀ {P k l} → ∀[ WriterT i j ((W i j ─✴ W k l) ✴ P) ⇒ WriterT k l P ]
   pass (writer mpx) = writer do
     (w ∙⟨ σ₁ ⟩ f) ∙⟨ σ₂ ⟩ px ← ✴-assocₗ ⟨$⟩ mpx
     return ((f ⟨ ∙-comm σ₁ ⟩ w) ∙⟨ σ₂ ⟩ px)
+    
+  censor : ∀ {P k l} → ∀[ (W i j ─✴ W k l) ⇒ WriterT i j P ─✴ WriterT k l P ]
+  censor f ⟨ σ ⟩ m = pass (✴-swap ⟨$⟩ (m ⟨ _ # ∙-comm σ ⟩& f))
 
 module WriterMonad
   {ℓi} {I : Set ℓi}
