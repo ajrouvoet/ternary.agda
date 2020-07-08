@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
