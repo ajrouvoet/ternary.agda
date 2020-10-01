@@ -65,8 +65,8 @@ module HeapOps
     ... | _ , τ₁ , τ₂ = return (lift v ∙⟨ supplyᵣ τ₂ ⟩ lift (subtract st' τ₁))
 
     -- -- Writing into a cell, returning the current contents
-    write : ∀ {a b} → ∀[ (V a) ⇒ One b ─✴ StateT M Heap (One a ✴ V b) ]
-    write v ⟨ σ₁ ⟩ refl ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₃)) with ∙-assocᵣ (∙-comm σ₁) σ₂
+    write : ∀ {a b} → ∀[ One b ⇒ (V a) ─✴ StateT M Heap (One a ✴ V b) ]
+    write refl ⟨ σ₁ ⟩ v ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₃)) with ∙-assocᵣ σ₁ σ₂
     -- first we reassociate the arguments in the order that we want to piece it back together
     ... | _ , τ₁ , τ₂ with ∙-assocₗ σ₃ (∙-comm τ₁)
     ... | _ , τ₃ , τ₄ with repartition (∙-comm τ₄) st
