@@ -52,10 +52,8 @@ module HeapOps
     -- Because we get a reference that consumes the freshly created resource.
     mkref : ∀ {a} → ∀[ V a ⇒ StateT M Heap (Just a) ]
     mkref v ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) =
-      let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂
-      in return (
-        lift refl
-          ∙⟨ supplyᵣ ∙-disjoint ⟩
+      let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂ in return (
+        lift refl ∙⟨ supplyᵣ ∙-disjoint ⟩
         lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ st)) (∙-disjointᵣₗ τ₂)))
 
     -- A linear read on a store: you lose the reference.

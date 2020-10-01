@@ -29,6 +29,14 @@ module _ {ℓ} (P : I → Pred C ℓ) where
     nil  :            ε[ Allstar [] ]
     cons : ∀ {x xs} → ∀[ P x ✴ Allstar xs ⇒ Allstar (x ∷ xs) ]
 
+infixr 5 _:⟨_⟩:_
+pattern _:⟨_⟩:_ x p xs = cons (x ∙⟨ p ⟩ xs)
+
+module _ {ℓ} {P : I → Pred C ℓ} where
+
+  singleton : ∀ {x} → ∀[ P x ⇒ Allstar P [ x ] ]
+  singleton v = v :⟨ ∙-idʳ ⟩: nil
+
 module _ {ℓ} {P : I → Pred C ℓ} {{unique-ε : IsUnique _≈_ u}} where
   instance allstar-respects-≈ : ∀ {is} → Respect _≈_ (Allstar P is)
   Respect.coe allstar-respects-≈ eq nil with unique eq
@@ -36,12 +44,6 @@ module _ {ℓ} {P : I → Pred C ℓ} {{unique-ε : IsUnique _≈_ u}} where
   Respect.coe allstar-respects-≈ eq (cons x) = cons (coe eq x)
 
 module _ {ℓ} {P : I → Pred C ℓ} {{unique-ε : IsUnique _≈_ u}} where
-
-  infixr 5 _:⟨_⟩:_
-  pattern _:⟨_⟩:_ x p xs = cons (x ∙⟨ p ⟩ xs)
-
-  singleton : ∀ {x} → ∀[ P x ⇒ Allstar P [ x ] ]
-  singleton v = v :⟨ ∙-idʳ ⟩: nil
 
   concat : ∀ {Γ₁ Γ₂} → ∀[ Allstar P Γ₁ ✴ Allstar P Γ₂ ⇒ Allstar P (Γ₁ ++ Γ₂) ]
   concat (nil ∙⟨ s ⟩ env₂) = coe (∙-id⁻ˡ s) env₂

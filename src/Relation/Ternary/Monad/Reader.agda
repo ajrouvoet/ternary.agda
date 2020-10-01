@@ -23,7 +23,6 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Data.Allstar A
-open import Relation.Ternary.Upto.Quotient
 open import Relation.Ternary.Monad
 
 private
@@ -47,6 +46,10 @@ module ReaderTransformer
     Reader Γ₁ Γ₂ P = (Allstar V Γ₁) ─✴ M (P ✴ Allstar V Γ₂)
 
     instance
+      reader-functor : {{functor : Functor M}} → Functor (Reader Γ₁ Γ₂)
+      Functor.fmap reader-functor f m ⟨ σ ⟩ env =
+        (λ where (px ∙⟨ σ ⟩ env) → f px ∙⟨ σ ⟩ env) ⟨$⟩ (m ⟨ σ ⟩ env)
+
       reader-monad : {{monad : Monad ⊤ (λ _ _ → M)}} → Monad (List A) Reader
       Monad.return reader-monad px ⟨ σ ⟩ env   = return (px ∙⟨ σ ⟩ env)
       Monad._=<<_ reader-monad f mp ⟨ σ₁ ⟩ env = do
@@ -83,13 +86,14 @@ module ReaderTransformer
       v :⟨ σ ⟩: nil ←  ask
       coe (∙-id⁻ʳ σ) (return v)
 
-    prepend : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₁ ++ Γ₂) Emp ]
-    prepend env₁ ⟨ σ ⟩ env₂ =
-      return (refl ∙⟨ ∙-idˡ ⟩ concat (env₁ ∙⟨ σ ⟩ env₂))
+    module _ {{_ : IsUnique _≈_ u}} where
+      append : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₂ ++ Γ₁) Emp ]
+      append env₁ ⟨ σ ⟩ env₂ =
+        return (refl ∙⟨ ∙-idˡ ⟩ concat (env₂ ∙⟨ ∙-comm σ ⟩ env₁))
 
-    append : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₂ ++ Γ₁) Emp ]
-    append env₁ ⟨ σ ⟩ env₂ =
-      return (refl ∙⟨ ∙-idˡ ⟩ concat (env₂ ∙⟨ ∙-comm σ ⟩ env₁))
+      prepend : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₁ ++ Γ₂) Emp ]
+      prepend env₁ ⟨ σ ⟩ env₂ =
+        return (refl ∙⟨ ∙-idˡ ⟩ concat (env₁ ∙⟨ σ ⟩ env₂))
 
 --     runReader : ∀[ Allstar V Γ ⇒ⱼ Reader Γ ε P ─✴ M P ]
 --     app (runReader env) mp σ = do

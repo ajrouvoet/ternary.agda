@@ -77,6 +77,11 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   {- Monadic strength -}
   module _ {i₁ i₂} {P : Pred A a} where
 
+    infixl 5 str-syntax'
+    str-syntax'  : ∀ {Q : Pred A a} → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
+    str-syntax' qx σ mp = str qx ⟨ σ ⟩ mp
+    syntax str-syntax' qx σ mp = qx ⅋⟨ σ ⟩ mp
+
     infixl 5 str-syntax
     str-syntax  : ∀ {Q : Pred A a} → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
     str-syntax qx σ mp = str qx ⟨ σ ⟩ mp
