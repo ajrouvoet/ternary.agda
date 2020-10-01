@@ -50,7 +50,7 @@ module HeapOps
     -- Creating a reference to a new cell, filled with a given value.
     -- Note that in the market monoid this is pure!
     -- Because we get a reference that consumes the freshly created resource.
-    mkref : ∀ {a} → ∀[ V a ⇒ StateT M Heap (Just a) ]
+    mkref : ∀ {a} → ∀[ V a ⇒ StateT M Heap (One a) ]
     mkref v ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) =
       let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂ in return (
         lift refl ∙⟨ supplyᵣ ∙-disjoint ⟩
@@ -58,7 +58,7 @@ module HeapOps
 
     -- A linear read on a store: you lose the reference.
     -- Resources balance, because with the reference being lost, the cell is destroyed: no resources leak.
-    read : ∀ {a} → ∀[ Just a ⇒ StateT M Heap (V a) ]
+    read : ∀ {a} → ∀[ One a ⇒ StateT M Heap (V a) ]
     read refl ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁))
       with _ , σ₃ , σ₄ ← ∙-assocₗ σ₁ (∙-comm σ₂) with repartition (∙-comm σ₄) st
     ... | cons (v ∙⟨ σ₅ ⟩ nil) ∙⟨ σ₆ ⟩ st' with refl ← ∙-id⁻ʳ σ₅ with ∙-assocᵣ (∙-comm σ₆) σ₃
@@ -84,7 +84,7 @@ module HeapOps
 
   module _ {{_ : Strong ⊤ (λ _ _ → M)}} where
     -- A linear (strong) update on the store
-    update! : ∀ {a b} → ∀[ Just a ⇒ (V a ─✴ StateT M Heap (V b)) ─✴ StateT M Heap (Just b) ]
+    update! : ∀ {a b} → ∀[ One a ⇒ (V a ─✴ StateT M Heap (V b)) ─✴ StateT M Heap (One b) ]
     update! ptr ⟨ σ ⟩ f = do
       f ∙⟨ σ₁ ⟩ a ← read ptr &⟨ ∙-comm σ ⟩ f
       b           ← f ⟨ σ₁ ⟩ a
