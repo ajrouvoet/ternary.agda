@@ -42,7 +42,7 @@ module HeapOps
   Heap : List T → Set ℓ
   Heap = LeftOver Cells
 
-  open import Relation.Ternary.Monad.State disjoint-split
+  open import Relation.Ternary.Monad.State disjoint-split public
   open StateTransformer M public
 
   module _ {{monad : Monad ⊤ (λ _ _ → M) }} where
@@ -65,22 +65,18 @@ module HeapOps
     ... | _ , τ₁ , τ₂ = return (lift v ∙⟨ supplyᵣ τ₂ ⟩ lift (subtract st' τ₁))
 
     -- -- Writing into a cell, returning the current contents
-    -- write : ∀ {a b} → ∀[ Just b ✴ (V a) ⇒ StateT M Cells (Just a ✴ V b) ]
-    -- write (refl ∙⟨ σ₁ ⟩ v) ⟨ supplyᵣ σ₃ ⟩ (lift st σ₂) with ∙-assocᵣ (∙-comm σ₁) σ₃
-    -- -- first we reassociate the arguments in the order that we want to piece it back together
-    -- ... | _ , τ₁ , τ₂ with ∙-assocᵣ (∙-comm τ₁) σ₂
-    -- ... | _ , τ₃ , τ₄ with ∙-assocᵣ τ₂ τ₃
-    -- ... | _ , τ₅ , τ₆
-    -- -- then we reorganize the store internally to take out the unit value
-    --   with repartition τ₅ st
-    -- ... | cons (vb ∙⟨ σ₅ ⟩ nil) ∙⟨ σ₆ ⟩ st' rewrite ∙-id⁻ʳ σ₅ =
-    --   let
-    --     _ , κ₁ , κ₂ = ∙-assocₗ τ₄ (∙-comm σ₆)
-    --     _ , κ₃ , κ₄ = ∙-assocᵣ κ₂ (∙-comm τ₆)
-    --   in return (
-    --     lift (refl ∙⟨ consˡ ∙-idˡ ⟩ vb)
-    --       ∙⟨ supplyᵣ (consˡ κ₄) ⟩
-    --     lift (cons (v ∙⟨ κ₁ ⟩ st')) (∙-disjointₗₗ (∙-comm κ₃)))
+    write : ∀ {a b} → ∀[ (V a) ⇒ One b ─✴ StateT M Heap (One a ✴ V b) ]
+    write v ⟨ σ₁ ⟩ refl ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₃)) with ∙-assocᵣ (∙-comm σ₁) σ₂
+    -- first we reassociate the arguments in the order that we want to piece it back together
+    ... | _ , τ₁ , τ₂ with ∙-assocₗ σ₃ (∙-comm τ₁)
+    ... | _ , τ₃ , τ₄ with repartition (∙-comm τ₄) st
+    -- then we reorganize the store internally to take out the unit value
+    ... | (vb :⟨ σ₅ ⟩: nil) ∙⟨ σ₆ ⟩ st' rewrite ∙-id⁻ʳ σ₅ =
+      -- and we put everything back together
+      let _ , _ , κ₁ , κ₂ , κ = resplit σ₆ (∙-comm τ₂) τ₃ in
+      return (
+        lift (refl ∙⟨ consˡ ∙-idˡ ⟩ vb) ∙⟨ supplyᵣ (consˡ κ₁) ⟩ 
+        lift (subtract (v :⟨ ∙-comm κ₂ ⟩: st') (∙-disjointᵣₗ (∙-comm κ))))
 
   module _ {{_ : Strong ⊤ (λ _ _ → M)}} where
     -- A linear (strong) update on the store
