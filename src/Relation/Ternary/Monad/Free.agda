@@ -16,7 +16,7 @@ module Relation.Ternary.Monad.Free
   {ℓ e} {A : Set ℓ} {{r : Rel₃ A}}
   (_≈_ : A → A → Set e)
   (Cmd : Pred A ℓ)
-  (δ   : ∀ {Φ} → Cmd Φ → Pred A ℓ) {{δ-≈ : ∀ {Φ} {c : Cmd Φ} → Respect _≈_ (δ c)}}
+  (δ   : ∀ {Φ} → Cmd Φ → Pred A ℓ) 
   where
 
 mutual
@@ -44,7 +44,7 @@ module _ {u} {{_ : IsPartialMonoid _≈_ r u}} where
     (free-monad Monad.=<< f) (impure (c ∙⟨ σ₁ ⟩ κ)) = 
       impure (c ∙⟨ σ₁ ⟩ arr (λ σ₂ r → f =<< (κ ⟨ σ₂ ⟩ r)))
 
-  ⟪_⟫ : ∀ {Φ} → (c : Cmd Φ) → Free (δ c) Φ
+  ⟪_⟫ : ∀ {Φ} (c : Cmd Φ) → {{δ-≈ : Respect _≈_ (δ c)}} → Free (δ c) Φ
   ⟪_⟫ c =
     impure (c ∙⟨ ∙-idʳ ⟩
       arr λ σ r → return (coe (∙-id⁻ˡ σ) r))
