@@ -30,19 +30,19 @@ open import Relation.Ternary.Construct.Market disjoint-split
 open import Relation.Ternary.Data.Allstar T
 
 open import Data.Product
+open import Relation.Ternary.Monad.State disjoint-split public
+
+Cells : List T → List T → Set ℓ
+Cells Σ Φ = Allstar V Σ Φ
+
+Heap : List T → Set ℓ
+Heap = LeftOver Cells
 
 module HeapOps
   -- inner monad
   (M : Pt Market ℓ)
   where
 
-  Cells : List T → List T → Set ℓ
-  Cells Σ Φ = Allstar V Σ Φ
-
-  Heap : List T → Set ℓ
-  Heap = LeftOver Cells
-
-  open import Relation.Ternary.Monad.State disjoint-split public
   open StateTransformer M public
 
   module _ {{monad : Monad ⊤ (λ _ _ → M) }} where
@@ -51,7 +51,7 @@ module HeapOps
     -- Note that in the market monoid this is pure!
     -- Because we get a reference that consumes the freshly created resource.
     mkref : ∀ {a} → ∀[ V a ⇒ StateT M Heap (One a) ]
-    mkref v ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) =
+    runState (mkref v) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) =
       let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂ in return (
         lift refl ∙⟨ supplyᵣ ∙-disjoint ⟩
         lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ st)) (∙-disjointᵣₗ τ₂)))
@@ -59,14 +59,14 @@ module HeapOps
     -- A linear read on a store: you lose the reference.
     -- Resources balance, because with the reference being lost, the cell is destroyed: no resources leak.
     read : ∀ {a} → ∀[ One a ⇒ StateT M Heap (V a) ]
-    read refl ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁))
+    runState (read refl) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁))
       with _ , σ₃ , σ₄ ← ∙-assocₗ σ₁ (∙-comm σ₂) with repartition (∙-comm σ₄) st
     ... | cons (v ∙⟨ σ₅ ⟩ nil) ∙⟨ σ₆ ⟩ st' with refl ← ∙-id⁻ʳ σ₅ with ∙-assocᵣ (∙-comm σ₆) σ₃
     ... | _ , τ₁ , τ₂ = return (lift v ∙⟨ supplyᵣ τ₂ ⟩ lift (subtract st' τ₁))
 
     -- -- Writing into a cell, returning the current contents
     write : ∀ {a b} → ∀[ One b ⇒ (V a) ─✴ StateT M Heap (One a ✴ V b) ]
-    write refl ⟨ σ₁ ⟩ v ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₃)) with ∙-assocᵣ σ₁ σ₂
+    runState (write refl ⟨ σ₁ ⟩ v) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₃)) with ∙-assocᵣ σ₁ σ₂
     -- first we reassociate the arguments in the order that we want to piece it back together
     ... | _ , τ₁ , τ₂ with ∙-assocₗ σ₃ (∙-comm τ₁)
     ... | _ , τ₃ , τ₄ with repartition (∙-comm τ₄) st
