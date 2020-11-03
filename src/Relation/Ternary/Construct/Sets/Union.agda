@@ -140,8 +140,8 @@ record Union (A B C : Set) : Set₁ where
               , ∅
               , (λ (a' , _) → a ≡ a') ⟩ (inja a)
     a-inv' a with from (inja a) | P.inspect from (inja a)
-    ... | this x | P.[ eq ]     = this _ eq $ P.sym $ from-elim-a (a-inv a) eq
-    ... | that x | P.[ eq ]     = that _ eq $ from-elim-b (a-inv a) eq
+    ... | this x | P.[ eq ]     = this  _   eq $ P.sym $ from-elim-a (a-inv a) eq
+    ... | that x | P.[ eq ]     = that  _   eq $ from-elim-b (a-inv a) eq
     ... | these x x₁ | P.[ eq ] = these _ _ eq $ P.sym $ from-elim-ab (a-inv a) eq
 
     b-inv'    : ∀ b → From⟨ ∅

@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Construct.Sets where
 
 open import Data.Product as Pr
@@ -20,7 +20,7 @@ open import Relation.Binary.Structures
 open import Relation.Binary.PropositionalEquality as P using (_≡_; refl)
 open P.≡-Reasoning
 
-open import Function using (id; case_of_; _∘_; Inverse; _$_)
+open import Function using (id; case_of_; _∘_; Inverse; _$_ ; const)
 open import Function.Structures
 open import Function.Bundles
 
@@ -181,6 +181,8 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
     ... | From.that b' i₁ refl             = refl
     ... | From.these a₁ b' i₁ (refl , snd) = refl , refl
 
+    
+
     ←bc : BC → These B C
     ←bc (abc , _) with U₂.from abc
     ←bc (abc , _) | this ab with U₁.from ab
@@ -254,14 +256,14 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
 
       c→bc' : (c : C) → Σ[ bc ∈ BC ] F.From⟪ ∅ , (_≡ c) , (_≡ c) ∘ proj₂ ⟫ bc
       c→bc' c with U₂.b-inv' c
-      c→bc' c | Union.that .c c≺abc refl = (-, U₂.intro-from-b c≺abc tt)
+      c→bc' c | Union.that .c c≺abc refl = (c→abc c , U₂.intro-from-b c≺abc tt)
         , F.intro-from-b (←bc-that c≺abc) refl
       c→bc' c | Union.these ab .c ab&c≺abc refl with U₁.from-inv' ab
-      ... | From.this ._ a≺ab refl = (-, U₂.intro-from-ab ab&c≺abc tt) 
+      ... | From.this ._ a≺ab refl = (c→abc c , U₂.intro-from-ab ab&c≺abc tt) 
         , F.intro-from-b (←bc-these-this ab&c≺abc a≺ab) refl
-      ... | From.that ._ b≺ab refl = (-, U₂.intro-from-ab ab&c≺abc tt) 
+      ... | From.that ._ b≺ab refl = (c→abc c , U₂.intro-from-ab ab&c≺abc tt) 
         , F.intro-from-ab (←bc-these-that ab&c≺abc b≺ab) refl
-      ... | From.these ._ ._ a&b≺ab (refl , eq) = (-, U₂.intro-from-ab ab&c≺abc tt) 
+      ... | From.these ._ ._ a&b≺ab (refl , eq) = (c→abc c , U₂.intro-from-ab ab&c≺abc tt) 
         , F.intro-from-ab (←bc-these-these ab&c≺abc a&b≺ab) refl
 
     b→bc : B → BC
@@ -276,7 +278,53 @@ IsPartialSemigroupˡ.assocᵣ ⊔-semigroupˡ {A} {B} {AB} {C} {ABC} σ₁ σ₂
     c-inv : (c : C) → From.InjbInverses ←bc c→bc c
     c-inv c = proj₂ $ c→bc' c
 
-    postulate c-right-inv : (c : BC) → F.RightInverses b→bc c→bc c
+    -- Some kind of congruence for equalities over Σ-types idk ...
+    ,-cong : ∀ {A : Set} {B : A → Set} {xa ya : A} {xb : B xa}{yb : B ya}
+             → xa ≡ ya → ((eq : xa ≡ ya) → P.subst B eq xb ≡ yb)
+             → (xa , xb) ≡ (ya , yb)
+    ,-cong {A} {B} eq f with f eq
+    ,-cong {A} {B} refl f | refl = refl
+
+    c→bc-fst : ∀ {c} → proj₁ (c→bc c) ≡ c→abc c 
+    c→bc-fst {c} with U₂.b-inv' c
+    c→bc-fst {c} | From.that .c i refl = refl
+    c→bc-fst {c} | From.these ab c' i refl with U₁.from-inv' ab
+    ... | From.this  _ _   refl       = refl
+    ... | From.that  _ _   refl       = refl
+    ... | From.these _ _ _ (refl , _) = refl
+
+    b→bc-fst : ∀ {b} → proj₁ (b→bc b) ≡ ab→abc (b→ab b)
+    b→bc-fst {b} with U₁.b-inv' b
+    b→bc-fst {b} | From.that .b i refl with U₂.a-inv' (b→ab b)
+    ... | From.this  ._ i₁    refl = refl
+    ... | From.these ._ b₁ i₁ refl = refl
+    b→bc-fst {b} | From.these a .b i refl with U₂.a-inv' (b→ab b)
+    ... | From.this ._     i₁ refl = refl
+    ... | From.these ._ b₁ i₁ refl = refl
+
+    c-right-inv : (bc : BC) → F.RightInverses b→bc c→bc bc
+    c-right-inv (abc , ev) with U₂.from-inv' abc
+    c-right-inv (abc , ev) | From.this ab i₁ refl with U₁.from-inv' ab
+    ... | From.this  a i₂ refl           =
+      ⊥-elim (((U₁.from-elim-a (U₂.from-elim-a ev i₁) i₂)))
+    ... | From.that b i₂ refl            =
+      F.intro-from-a (←bc-this-that i₁ i₂)  (,-cong b→bc-fst λ _ → bc-prop _ _)
+    ... | From.these a b i₂ (refl , rx2) rewrite P.sym rx2 =
+      F.intro-from-a (←bc-this-these i₁ i₂) (,-cong b→bc-fst λ _ → bc-prop _ _)
+    c-right-inv (abc , ev) | From.that c  i refl
+      = F.intro-from-b (←bc-that i) (,-cong c→bc-fst λ _ → bc-prop _ _) 
+    c-right-inv (abc , ev) | From.these ab c i₁ (refl , rx₁) with U₁.from-inv' ab 
+    ... | From.this a i₂ refl            =
+      F.intro-from-b (←bc-these-this i₁ i₂) (,-cong (P.trans c→bc-fst rx₁) λ _ → bc-prop _ _ )
+    ... | From.that b i₂ refl            =
+      F.intro-from-ab (←bc-these-that i₁ i₂)
+                      ( ,-cong b→bc-fst               (λ _ → bc-prop _ _)
+                      , ,-cong (P.trans c→bc-fst rx₁)  λ _ → bc-prop _ _)
+    ... | From.these a b i₂ (refl , rx₂) =
+      F.intro-from-ab (←bc-these-these i₁ i₂)
+                      ( ,-cong (P.trans b→bc-fst (P.cong ab→abc rx₂)) (λ _ → bc-prop _ _)
+                      , ,-cong (P.trans c→bc-fst rx₁                )  λ _ → bc-prop _ _)
+
 
 instance ⊔-semigroup : IsPartialSemigroup _↔_ ⊔-rel
 ⊔-semigroup = IsPartialSemigroupˡ.semigroupˡ ⊔-semigroupˡ

@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K --safe #-}
+
 open import Relation.Ternary.Core
 
 module Relation.Ternary.Construct.Function {a b} {A : Set a} {B : Set b} {{rb : Rel₃ B}} where
