@@ -29,7 +29,7 @@ module Relation.Ternary.Construct.Exchange {ℓ e s}
   (uncrossₐ : Uncross r₁ r₂) where
 
 open import Level hiding (Lift)
-open import Data.Product
+open import Data.Product hiding (_<*>_)
 open import Data.Unit
 open import Function using (case_of_; _∘_)
 

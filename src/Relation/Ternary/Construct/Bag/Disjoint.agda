@@ -22,14 +22,15 @@ private
 module Model {t} (T : Set t) where
   open import Relation.Ternary.Construct.Empty T public
   open import Relation.Ternary.Construct.Bag empty-rel tt as Disjoint
-  open Disjoint public using (hustle) renaming
+  open Disjoint public using (hustle; empty-unique; singleton-unique) renaming
     (bags               to disjoint-split
-    ;list-emptiness     to disjoint-empty
+    ;bag-emptiness      to disjoint-empty
     ;bags-isPositive    to disjoint-positive
     ;bags-isCommutative to disjoint-commutative
     ;bags-isSemigroup   to disjoint-semigroup
     ;bags-isMonoid      to disjoint-monoid
-    ;bags-isTotal       to disjoint-total)
+    ;bags-isTotal       to disjoint-total
+    )
 
   open Rel₃ Disjoint.bags using ()
     renaming (_∙_≣_ to _⊕_≣_; _✴_ to _⊕_; _─✴_ to _─⊕_) public

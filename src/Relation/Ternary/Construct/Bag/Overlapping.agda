@@ -24,7 +24,7 @@ module Model {t} (T : Set t) where
   open import Relation.Ternary.Construct.Bag duplicate tt as Overlapping
   open Overlapping public using (hustle) renaming
     (bags               to overlap-split
-    ;list-emptiness     to overlap-empty
+    ;bag-emptiness      to overlap-empty
     ;bags-isPositive    to overlap-positive
     ;bags-isCommutative to overlap-commutative
     ;bags-isSemigroup   to overlap-semigroup
@@ -34,19 +34,19 @@ module Model {t} (T : Set t) where
   open Rel₃ Overlapping.bags using ()
     renaming (_∙_≣_ to _⊗_≣_; _✴_ to _⊗_; _─✴_ to _─⊗_) public
 
-module _ {a} {A : Set a} (f : T → A) where
+-- module _ {a} {A : Set a} (f : T → A) where
 
-  module L = Model T
-  module R = Model A
+--   module L = Model T
+--   module R = Model A
 
-  import Relation.Ternary.Construct.List.Overlapping as LO
+--   import Relation.Ternary.Construct.List.Overlapping as LO
 
-  map-inv : ∀ {xs ys : List A} {zs : List T} → xs R.⊗ ys ≣ map f zs →
-            Σ[ frags ∈ List T × List T ]
-              let xs' , ys' = frags in xs' L.⊗ ys' ≣ zs × xs ≡ map f xs' × ys ≡ map f ys'
-  map-inv (R.hustle ρx ρy ρz sep) with ↭.↭-map-inv f (↭-sym ρz)
-  ... | _ , refl , ρ' with LO.map-inv _ f sep
-  ... | _ , sep' , refl , refl with ↭.↭-map-inv f ρx | ↭.↭-map-inv f ρy
-  ... | _ , refl , ρx′ | _ , refl , ρy′ = -, L.hustle ρx′ ρy′ (↭-sym ρ') sep' , refl , refl
+--   map-inv : ∀ {xs ys : List A} {zs : List T} → xs R.⊗ ys ≣ map f zs →
+--             Σ[ frags ∈ List T × List T ]
+--               let xs' , ys' = frags in xs' L.⊗ ys' ≣ zs × xs ≡ map f xs' × ys ≡ map f ys'
+--   map-inv (R.hustle ρx ρy ρz sep) with ↭.↭-map-inv f (↭-sym ρz)
+--   ... | _ , refl , ρ' with LO.map-inv _ f sep
+--   ... | _ , sep' , refl , refl with ↭.↭-map-inv f ρx | ↭.↭-map-inv f ρy
+--   ... | _ , refl , ρx′ | _ , refl , ρy′ = -, L.hustle ρx′ ρy′ (↭-sym ρ') sep' , refl , refl
 
 open Model T public
