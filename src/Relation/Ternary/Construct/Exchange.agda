@@ -301,3 +301,12 @@ module _ {P Q : Pred A ℓ} {{_ : Respect _≈ₐ_ Q}} where
 
   downMap : ∀[ Down (P ─✴₂ Q) ⇒ (Down P ─✴ Down Q) ]
   downMap (↓ f) ⟨ σ ⟩ ↓ px = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (f ⟨ σ↓ ⟩ px))
+  
+module _ where
+  open import Relation.Ternary.Functor
+
+  instance up-functor : Functor Up
+  Functor.fmap up-functor f (↑ px) = ↑ (f px)
+
+  instance down-functor : Functor Down
+  Functor.fmap down-functor f (↓ px) = ↓ (f px)
