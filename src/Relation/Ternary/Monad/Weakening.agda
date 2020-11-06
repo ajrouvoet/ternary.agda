@@ -18,7 +18,7 @@ open import Relation.Ternary.Monad
 
 module _ where
   infixr 10 _⇑
-  _⇑ : ∀ {ℓ} → PT A A ℓ (a ⊔ ℓ)
+  _⇑ : PT A A a a
   P ⇑ = P ✴ U
 
   -- _⇈_ : ∀ {ℓ} {P : Pred A ℓ} {Φ₁ Φ₂ Φ} → P Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → (P ⇑) Φ
@@ -36,7 +36,7 @@ module _ where
     ⇑-strong : Strong ⊤ (λ _ _ → _⇑)
     Strong.str ⇑-strong qx ⟨ σ ⟩ px ⇈ wk with _ , σ₃ , σ₄ ← ∙-assocₗ σ wk = (qx ∙⟨ σ₃ ⟩ px) ⇈ σ₄
 
-  module _ {ℓ} {P Q : Pred A ℓ} where
+  module _ {P Q : Pred A a} where
     π₁ : ∀[ P ✴ Q ⇒ P ⇑ ]
     π₁ (px ∙⟨ σ ⟩ qx) = px ⇈ σ
 
@@ -47,6 +47,6 @@ module _ where
     unstar : ∀[ (P ✴ Q) ⇑ ⇒ ((P ⇑) ∩ (Q ⇑)) ]
     unstar p✴q = (p✴q >>= π₁) , (p✴q >>= π₂)
 
-  th : ∀ {ℓ} {P : Pred A ℓ} → Φ₁ ∙ Φ₂ ≣ Φ → (P ⇑) Φ₁ →  (P ⇑) Φ
+  th : {P : Pred A a} → Φ₁ ∙ Φ₂ ≣ Φ → (P ⇑) Φ₁ →  (P ⇑) Φ
   th σ (px ∙⟨ wk ⟩ tt) with ∙-assocᵣ wk σ
   ... | _ , σ₃ , σ₄ = px ⇈ σ₃
