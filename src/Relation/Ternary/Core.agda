@@ -76,34 +76,51 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
         sep : Φₗ ∙ Φᵣ ≣ Φ
         qx  : Q px Φᵣ
 
-    infixr 9 ∃[_]✴_
-    ∃[_]✴_ = Conj
+    infixr 9 Σ✴-syntax
+    Σ✴-syntax : ∀ {p q} → (P : Pred A p) → (Q : ∀ {Φ} → P Φ → Pred A q) → Pred A (p ⊔ q ⊔ a)
+    Σ✴-syntax = Conj
+
+    syntax Σ✴-syntax A (λ x → B) = Σ[ x ∈ A ]✴ B
 
     infixr 9 _✴_
     _✴_ : ∀ {p q} → Pred A p → Pred A q → Pred A (p ⊔ q ⊔ a)
-    P ✴ Q = ∃[ P ]✴ const Q
+    P ✴ Q = Σ[ x ∈ P ]✴ Q
 
   {- Partial exponents over the relation -}
   module _ where
 
-    infixr 8 _─✴[_]_
-    record _─✴[_]_ {b p q} {B : Set b}
+    record Wand {b p q} {B : Set b}
       (P : Pred B p)
       (j : B → A)
-      (Q : Pred A q)
+      (Q : ∀ {Φ} → P Φ → Pred A q)
       (Φᵢ : A) : Set (p ⊔ q ⊔ a ⊔ b) where
 
       constructor arr
 
       infixl 10 _⟨_⟩_
       field
-        _⟨_⟩_ : ∀ {Φₚ Φ} → Φᵢ ∙ j Φₚ ≣ Φ → P Φₚ → Q Φ
+        _⟨_⟩_ : ∀ {Φₚ Φ} → Φᵢ ∙ j Φₚ ≣ Φ → (px : P Φₚ) → Q px Φ
 
-    open _─✴[_]_ public
+    open Wand public
+
+    infixr 8 _─✴[_]_
+    _─✴[_]_ : ∀ {p q b} {B : Set b} (P : Pred B p) (j : B → A) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a ⊔ b)
+    (P ─✴[ j ] Q) = Wand P j (const Q)
+
+    infixr 8 Π✴-syntax
+    Π✴-syntax : ∀ {p q} → (P : Pred A p) → (Q : ∀ {Φ} → P Φ → Pred A q) → Pred A (p ⊔ q ⊔ a)
+    Π✴-syntax P Q = Wand P id Q
+    syntax Π✴-syntax P (λ x → Q) = Π[ x ∈ P ]✴ Q
+
+    -- TODO this should be in Relation.Unary
+    infixr 8 Π⇒-syntax
+    Π⇒-syntax : ∀ {p q} → (P : Pred A p) → (Q : ∀ {Φ} → P Φ → Pred A q) → Pred A (p ⊔ q)
+    Π⇒-syntax P Q = λ Φ → (px : P Φ) → Q px Φ
+    syntax Π⇒-syntax P (λ x → Q) = Π[ x ∈ P ]⇒ Q
 
     infixr 8 _─✴_
     _─✴_ : ∀ {p q} (P : Pred A p) (Q : Pred A q) → Pred A (p ⊔ q ⊔ a)
-    _─✴_ = _─✴[ id ]_
+    P ─✴ Q = Wand P id (const Q)
 
   module _ {p q} {P : Pred A p} {Q : Pred A q} where
 

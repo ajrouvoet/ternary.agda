@@ -25,7 +25,7 @@ mutual
 
   data Free : Pt A ℓ where
     pure   : ∀ {P}   → ∀[ P ⇒ Free P ]
-    impure : ∀ {P}   → ∀[ ∃[ Cmd ]✴ (λ c → Cont c P) ⇒ Free P ]
+    impure : ∀ {P}   → ∀[ Σ[ c ∈ Cmd ]✴ (Cont c P) ⇒ Free P ]
 
 module _ {u} {{_ : IsPartialMonoid _≈_ r u}} where
   instance
@@ -49,26 +49,26 @@ module _ {u} {{_ : IsPartialMonoid _≈_ r u}} where
     impure (c ∙⟨ ∙-idʳ ⟩
       arr λ σ r → return (coe (∙-id⁻ˡ σ) r))
 
--- module _
---   {u} {{pm : IsPartialMonoid r u}}
---   {M : Pt A ℓ}
---   {{ monad : Monad ⊤ ℓ (λ _ _ → M) }}
---   where
+module _
+  {u} {{pm : IsPartialMonoid _≈_ r u}}
+  {M : Pt A ℓ}
+  {{_ : Strong ⊤ (λ _ _ → M)}} {{_ : IsCommutative r}}
+  where
 
---   open import Data.Nat
+  open import Data.Nat
 
---   -- Unfolding a command tree one step
---   step : ∀ {P : Pred A ℓ} (cmd : ∀ {Φ} → (c : Cmd Φ) → M (δ c) Φ) → ∀[ Free P ⇒ M (Free P) ]
---   step cmd (pure px) = return (pure px)
---   step cmd (impure (c ∙⟨ σ ⟩ κ)) = do
---     r ∙⟨ σ ⟩ κ ← str {{ monad = monad }} (cmd c) κ -- &⟨ Cont c _ ∥ σ ⟩ κ
---     return (κ ⟨ σ ⟩ r)
+  -- Unfolding a command tree one step
+  step : ∀ {P : Pred A ℓ} (cmd : ∀ {Φ} → (c : Cmd Φ) → M (δ c) Φ) → ∀[ Free P ⇒ M (Free P) ]
+  step cmd (pure px) = return (pure px)
+  step cmd (impure (c ∙⟨ σ ⟩ κ)) = do
+    r ∙⟨ σ ⟩ κ ← cmd c ⟨ Cont c _ # σ ⟩& κ
+    return (κ ⟨ ∙-comm σ ⟩ r)
 
-  -- -- A fueled generic interpreter for command trees in Free
-  -- interpret : ℕ → ∀[ M P ] → (cmd : ∀ {Φ} → (c : Cmd Φ) → M (δ c) (j Φ)) → ∀[ Free P ⇒ⱼ M P ]
-  -- interpret zero    def cmd f = def
-  -- interpret (suc n) def cmd f = do
-  --   impure f ← step cmd f
-  --     where
-  --       (pure v) → return v
-  --   interpret n def cmd (impure f)
+  -- A fueled generic interpreter for command trees in Free
+  interpret : ∀ {P : Pred A ℓ} (n : ℕ) → ∀[ M P ] → (cmd : ∀ {Φ} → (c : Cmd Φ) → M (δ c) Φ) → ∀[ Free P ⇒ M P ]
+  interpret zero    def cmd f = def
+  interpret (suc n) def cmd f = do
+    impure f ← step cmd f
+      where
+        (pure v) → return v
+    interpret n def cmd (impure f)

@@ -27,7 +27,7 @@ record IsPartialSemigroup {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set
   -- the "product" and arrow respect the equivalence
   module _ where
 
-    instance ✴-respect-≈ : ∀ {p q} {P : Pred A p} {Q : ∀ {Φ} → P Φ → Pred A q} → Respect _≈_ (∃[ P ]✴ Q)
+    instance ✴-respect-≈ : ∀ {p q} {P : Pred A p} {Q : ∀ {Φ} → P Φ → Pred A q} → Respect _≈_ (Conj P Q)
     Respect.coe ✴-respect-≈ eq (px ∙⟨ σ ⟩ qx) = px ∙⟨ coe eq σ ⟩ qx
 
     instance ─✴-respect-≈ : ∀ {p q} {P : Pred A p} {Q : Pred A q} → Respect _≈_ (P ─✴ Q)
