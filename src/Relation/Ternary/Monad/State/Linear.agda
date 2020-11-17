@@ -6,12 +6,8 @@ open import Relation.Unary.PredicateTransformer using (Pt)
 
 module Relation.Ternary.Monad.State.Linear
   {ℓ}
-
-  -- value types
-  {T : Set ℓ}
-
-  -- stored values
-  (V : T → Pred (List T) ℓ)
+  {T : Set ℓ}               -- value types
+  (V : T → Pred (List T) ℓ) -- stored values
   where
 
 open import Level hiding (Lift)
@@ -38,12 +34,8 @@ Cells Σ Φ = Allstar V Σ Φ
 Heap : List T → Set ℓ
 Heap = LeftOver Cells
 
-module HeapOps
-  -- inner monad
-  (M : Pt Market ℓ)
-  where
-
-  open StateTransformer M public
+module HeapOps (M : Pt Market ℓ) where
+  open StateTransformer M Heap public
 
   module _ {{monad : Monad ⊤ (λ _ _ → M) }} where
 
@@ -79,6 +71,7 @@ module HeapOps
         lift (subtract (v :⟨ ∙-comm κ₂ ⟩: st') (∙-disjointᵣₗ (∙-comm κ))))
 
   module _ {{_ : Strong ⊤ (λ _ _ → M)}} where
+
     -- A linear (strong) update on the store
     update! : ∀ {a b} → ∀[ One a ⇒ (V a ─✴ StateT M Heap (V b)) ─✴ StateT M Heap (One b) ]
     update! ptr ⟨ σ ⟩ f = do
