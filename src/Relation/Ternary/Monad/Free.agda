@@ -58,14 +58,14 @@ module _
   open import Data.Nat
 
   -- Unfolding a command tree one step
-  step : ∀ {P : Pred A ℓ} (cmd : ∀ {Φ} → (c : Cmd Φ) → M (δ c) Φ) → ∀[ Free P ⇒ M (Free P) ]
+  step : ∀ {P : Pred A ℓ} → ∀[ Π[ c ∈ Cmd ]⇒ M (δ c) ] → ∀[ Free P ⇒ M (Free P) ]
   step cmd (pure px) = return (pure px)
   step cmd (impure (c ∙⟨ σ ⟩ κ)) = do
     r ∙⟨ σ ⟩ κ ← cmd c ⟨ Cont c _ # σ ⟩& κ
     return (κ ⟨ ∙-comm σ ⟩ r)
 
   -- A fueled generic interpreter for command trees in Free
-  interpret : ∀ {P : Pred A ℓ} (n : ℕ) → ∀[ M P ] → (cmd : ∀ {Φ} → (c : Cmd Φ) → M (δ c) Φ) → ∀[ Free P ⇒ M P ]
+  interpret : ∀ {P : Pred A ℓ} (n : ℕ) → ∀[ M P ] → ∀[ Π[ c ∈ Cmd ]⇒ M (δ c) ] → ∀[ Free P ⇒ M P ]
   interpret zero    def cmd f = def
   interpret (suc n) def cmd f = do
     impure f ← step cmd f

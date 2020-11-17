@@ -48,7 +48,7 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
 
   module _ {i₁ i₂ i₃} {P Q} where
     bind : ∀[ (P ─✴ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─✴ M i₁ i₃ Q) ]
-    bind f ⟨ σ ⟩ mp with f✴mp ← str {Q = _ ─✴ _} f ⟨ σ ⟩ mp = join (apply ⟨$⟩ f✴mp)
+    bind f ⟨ σ ⟩ mp with f✴mp ← str f ⟨ σ ⟩ mp = join (apply ⟨$⟩ f✴mp)
 
     bind-syntax : (P ─✴ M i₂ i₃ Q) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₃ Q Φ
     bind-syntax f σ m = bind f ⟨ σ ⟩ m

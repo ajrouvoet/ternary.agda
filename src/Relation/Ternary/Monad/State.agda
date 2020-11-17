@@ -9,6 +9,7 @@ module Relation.Ternary.Monad.State {ℓ} {C : Set ℓ} (r : Rel₃ C)
 
 open import Level hiding (Lift)
 open import Data.Product
+open import Data.Sum
 open import Function using (_∘_; case_of_)
 open import Relation.Binary.PropositionalEquality using (refl; _≡_)
 open import Relation.Unary.PredicateTransformer using (Pt; PT)
@@ -44,66 +45,62 @@ module _ where
   State : Pred C ℓ → Pt C ℓ
   State St = STATET Id St St
 
-module StateTransformer
-  (M : Pt Market ℓ) {{strong : Strong ⊤ (λ _ _ → M)}}
-  {St : Pred C ℓ}
-  where
+module StateTransformer (M : Pt Market ℓ) (St : Pred C ℓ) where
 
-  instance
-    state-respects : ∀ {P St St'} → Respect _≈_ (STATET M St St' P)
-    Respect.coe state-respects eq (state st) = state (coe (demands eq) st)
+  state-respects : ∀ {P St St'} → Respect _≈_ (STATET M St St' P)
+  Respect.coe state-respects eq (state st) = state (coe (demands eq) st)
 
-    state-functor : Functor (StateT M St)
+  module _ {{_ : Functor M}} where
+
+    instance state-functor : Functor (StateT M St)
     runState (Functor.fmap state-functor f (state m)) ⟨ σ ⟩ st = do
-      lift px ∙⟨ σ ⟩ st ← m ⟨ σ ⟩ st
-      return (lift (f px) ∙⟨ σ ⟩ st)
+      (λ where (lift px ∙⟨ σ ⟩ st) → lift (f px) ∙⟨ σ ⟩ st) ⟨$⟩ (m ⟨ σ ⟩ st)
 
-    state-monad : Monad ⊤ (λ _ _ → StateT M St)
+  module _ {{_ : Monad ⊤ (λ _ _ → M)}} where
+
+    instance state-monad : Monad ⊤ (λ _ _ → StateT M St)
     runState (Monad.return state-monad px) ⟨ σ₂ ⟩ st = return (lift px ∙⟨ σ₂ ⟩ st )
     runState (Monad._=<<_ state-monad f (state m)) ⟨ σ ⟩ st = do
       lift px ∙⟨ σ ⟩ st ← m ⟨ σ ⟩ st
       runState (f px) ⟨ σ ⟩ st
 
-    state-strong : Strong ⊤ (λ _ _ → StateT M St)
+    {- Lift a state computation into a transformed state operation -}
+    liftState : ∀ {P} → ∀[ State St P ⇒ StateT M St P ]
+    runState (liftState (state m)) ⟨ σ ⟩ st = return (runId (m ⟨ σ ⟩ st))
+
+  module _ {{_ : Strong ⊤ (λ _ _ → M)}} where
+
+    instance state-strong : Strong ⊤ (λ _ _ → StateT M St)
     runState (Strong.str state-strong {Q = Q} qx ⟨ σ₁ ⟩ (state mpx)) ⟨ σ₂ ⟩ st = do
       let _ , σ₃ , σ₄  = ∙-assocᵣ (demand σ₁) σ₂
       lift qx ∙⟨ supplyᵣ σ₅ ⟩ lift px ∙⟨ supplyᵣ σ₆ ⟩ st ← mpx ⟨ σ₄ ⟩ st &⟨ ○ Q # σ₃ ⟩ lift qx
       let _ , σ₇ , σ₈  = ∙-assocₗ σ₆ σ₅
       return ((lift (qx ∙⟨ ∙-comm σ₇ ⟩ px)) ∙⟨ supplyᵣ σ₈ ⟩ st)
 
-  {- Lift an M computation into a transformed state operation -}
-  liftM : ∀ {Φ P} → M P (demand Φ) → StateT M St (P ∘ demand) Φ
-  runState (liftM m) ⟨ supplyᵣ σ ⟩ (lift μ) =
-    mapM′ (arr λ where σ@(supplyₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ) ⟨ supplyₗ (∙-comm σ) ⟩ m
+    {- Lift an M computation into a transformed state operation -}
+    liftM : ∀ {Φ P} → M P (demand Φ) → StateT M St (P ∘ demand) Φ
+    runState (liftM m) ⟨ supplyᵣ σ ⟩ (lift μ) =
+      mapM′ (arr λ where σ@(supplyₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ) ⟨ supplyₗ (∙-comm σ) ⟩ m
 
-  {- Lift a state computation into a transformed state operation -}
-  liftState : ∀ {P} → ∀[ State St P ⇒ StateT M St P ]
-  runState (liftState (state m)) ⟨ σ ⟩ st = Monad.return monad (runId (m ⟨ σ ⟩ st))
+module StateWithErr {u} {{s : IsPartialMonoid _≡_ r u}} (Exc : Set ℓ) where
 
--- module StateWithErr {ℓ}
---   {C : Set ℓ} {{r : Rel₃ C}}
---   {u} {{s : IsPartialMonoid _≡_ r u}}
---   (Exc : Set ℓ) where
+  open import Relation.Ternary.Monad.Error {A = Market}
+  open ExceptTrans Id Exc public
+  open StateTransformer (Except Exc) public
 
---   open import Relation.Ternary.Monad.Error
---   open ExceptMonad {A = Market C} Exc public
---   open StateTransformer {C = C} (Except Exc) {{ monad = except-monad }} public
+  State? : ∀ (S : Pred C ℓ) → Pt C ℓ
+  State? = StateT (Except Exc)
 
---   open import Data.Sum
+  _orElse_ : ∀ {S P} {M : Pt Market ℓ} {{monad : Monad ⊤ (λ _ _ → M) }}
+           → ∀[ State? S P ⇒ (⋂[ _ ∶ Exc ] StateT M S P) ⇒ StateT M S P ]
+  runState (mp orElse mq) ⟨ σ ⟩ μ with runState mp ⟨ σ ⟩ μ
+  ... | error e = runState (mq e) ⟨ σ ⟩ μ
+  ... | ✓ px    = return px
 
---   State? : ∀ (S : Pred (C × C) ℓ) → Pt C ℓ
---   State? = StateT (Except Exc)
+  try : ∀ {S P} → ε[ State? S P ] → ε[ State S (Emp ∪ P) ]
+  runState (try mp?) ⟨ σ ⟩ st with runState mp? ⟨ σ ⟩ st
+  ... | error e                 = mkId (lift (inj₁ refl) ∙⟨ σ  ⟩ st)
+  ... | ✓ (lift px ∙⟨ σ' ⟩ st') = mkId (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
 
---   _orElse_ : ∀ {S P} {M : Pt Market ℓ} {{monad : Monads.Monad ⊤ ℓ (λ _ _ → M) }}
---                 → ∀[ State? S P ⇒ (⋂[ _ ∶ Exc ] StateT M S P) ⇒ StateT M S P ]
---   app (mp orElse mq) μ σ with app mp μ σ
---   ... | error e = app (mq e) μ σ
---   ... | ✓ px    = return px
-
---   try : ∀ {S P} → ε[ State? S P ] → ε[ State S (Emp ∪ P) ]
---   app (try mp?) st σ with app mp? st σ
---   ... | error e                = inj (inj₁ empty) ∙⟨ σ ⟩ st
---   ... | ✓ (inj px ∙⟨ σ' ⟩ st') = inj (inj₂ px) ∙⟨ σ' ⟩ st'
-
---   raise : ∀ {S P} → Exc → ∀[ State? S P ]
---   app (raise {P} e) μ σ = partial (inj₁ e)
+  raise : ∀ {S P} → Exc → ∀[ State? S P ]
+  runState (raise {P} e) ⟨ σ ⟩ μ = partial (inj₁ e)
