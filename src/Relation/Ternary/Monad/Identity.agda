@@ -2,10 +2,7 @@
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Monad.Identity
-  {a e} {A : Set a} {_≈_ : A → A → Set e}
-  {{rel : Rel₃ A}}
-  {unit} {{_ : IsPartialMonoid _≈_ rel unit}} where
+module Relation.Ternary.Monad.Identity {a} {A : Set a} where
 
 open import Level
 open import Function using (_∘_; case_of_; id)
@@ -22,16 +19,17 @@ module Unwrapped where
   Id : ∀ {ℓ} → Pt A ℓ
   Id P = P
 
-  instance
-    id-functor : Functor Id
-    Functor.fmap id-functor f px = f px
+  module _ {{rel : Rel₃ A}} where
+    instance
+      id-functor : Functor Id
+      Functor.fmap id-functor f px = f px
 
-    id-monad : Monad ⊤ (λ _ _ → Id)
-    Monad.return id-monad = id
-    Monad._=<<_ id-monad f px = f px
+      id-monad : Monad ⊤ (λ _ _ → Id)
+      Monad.return id-monad = id
+      Monad._=<<_ id-monad f px = f px
 
-    id-strong : Strong ⊤ (λ _ _ → Id)
-    Strong.str id-strong qx ⟨ σ ⟩ px = qx ∙⟨ σ ⟩ px
+      id-strong : Strong ⊤ (λ _ _ → Id)
+      Strong.str id-strong qx ⟨ σ ⟩ px = qx ∙⟨ σ ⟩ px
 
 module Wrapped where
 
@@ -42,15 +40,20 @@ module Wrapped where
 
   open Id public
 
-  instance
-    id-functor : Functor Id
-    Functor.fmap id-functor f (mkId px) = mkId (f px)
+  module _  {{rel : Rel₃ A}} where
 
-    id-monad : Monad ⊤ (λ _ _ → Id)
-    Monad.return id-monad = mkId
-    Monad._=<<_ id-monad f px = f (runId px)
+    instance
+      id-functor : Functor Id
+      Functor.fmap id-functor f (mkId px) = mkId (f px)
 
-    id-strong : Strong ⊤ (λ _ _ → Id)
-    Strong.str id-strong qx ⟨ σ ⟩ px = mkId (qx ∙⟨ σ ⟩ runId px)
+      id-resp : ∀ {p e} {_≈_ : A → A → Set e} {P : Pred A p} {{_ : Respect _≈_ P}} → Respect _≈_ (Id P)
+      Respect.coe id-resp eq (mkId px) = mkId (coe eq px)
+
+      id-monad : Monad ⊤ (λ _ _ → Id)
+      Monad.return id-monad = mkId
+      Monad._=<<_ id-monad f px = f (runId px)
+
+      id-strong : Strong ⊤ (λ _ _ → Id)
+      Strong.str id-strong qx ⟨ σ ⟩ px = mkId (qx ∙⟨ σ ⟩ runId px)
 
 open Unwrapped public

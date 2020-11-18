@@ -2,10 +2,7 @@
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Monad.Error {ℓ} {A : Set ℓ}
-  {{r : Rel₃ A}}
-  {e u} {_≈_ : A → A → Set e} {{_ : IsPartialMonoid _≈_ r u}}
-  where
+module Relation.Ternary.Monad.Error where
 
 open import Level
 open import Function using (_∘_)
@@ -15,20 +12,22 @@ open import Relation.Unary renaming (U to True)
 open import Relation.Unary.PredicateTransformer using (PT; Pt)
 open import Relation.Ternary.Morphisms
 open import Relation.Ternary.Monad
-open import Relation.Ternary.Monad.Identity using (Id)
+open import Relation.Ternary.Monad.Identity using (module Wrapped)
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Binary.PropositionalEquality
+open Wrapped
 
-module _ where
-  record ExceptT (M : Pt A ℓ) (E : Set ℓ) (P : Pred A ℓ) (Φ : A) : Set ℓ where
+module _ {ℓ} (Exc : Set ℓ) {A : Set ℓ} where
+
+  record ExceptT (M : Pt A ℓ) (P : Pred A ℓ) (Φ : A) : Set ℓ where
     constructor partial
     field
-      runErr : M ((λ _ → E) ∪ P) Φ
+      runErr : M ((λ _ → Exc) ∪ P) Φ
 
   open ExceptT public
 
-  Except : ∀ E → Pt A ℓ
-  Except E = ExceptT Id E
+  Except : Pt A ℓ
+  Except = ExceptT Id
 
   pattern error e = partial (inj₁ e)
   pattern ✓ x     = partial (inj₂ x)
@@ -36,33 +35,44 @@ module _ where
   data Err : Set ℓ where
     err : Err
 
+module _ {ℓ} {A : Set ℓ} where
+
   ErrorT : (M : Pt A ℓ) → Pt A ℓ
-  ErrorT M = ExceptT M Err
+  ErrorT M = ExceptT Unit.⊤ M
+    where open import Data.Unit.Polymorphic as Unit
 
   Error : Pt A ℓ
   Error = ErrorT Id
 
-module ExceptTrans (M : Pt A ℓ) (Exc : Set ℓ) where
+module _ {ℓ e} {A : Set ℓ} {_≈_ : A → A → Set e} {Exc} {M : Pt A ℓ} {{r : Rel₃ A}} where
 
-  module _ {{monad : Functor M }} where
+  expect-respect : ∀ {P} {{_ : ∀ {Q} → Respect _≈_ (M Q) }} → Respect _≈_ (ExceptT Exc M P)
+  Respect.coe expect-respect eq (partial runErr) = partial (coe eq runErr)
+
+module ExceptTrans {ℓ} (Exc : Set ℓ) {A : Set ℓ} (M : Pt A ℓ) where
+
+  module _ {{functor : Functor M }} where
     instance
-      except-functor : Functor (ExceptT M Exc)
+      except-functor : Functor (ExceptT Exc M)
       Functor.fmap except-functor f (partial m) = partial ([ inj₁ , inj₂ ∘ f ] ⟨$⟩ m)
 
-    mapExc : ∀ {E₁ E₂ P} → (E₁ → E₂) → ∀[ ExceptT M E₁ P ⇒ ExceptT M E₂ P ]
+    mapExc : ∀ {E₁ E₂ P} → (E₁ → E₂) → ∀[ ExceptT E₁ M P ⇒ ExceptT E₂ M P ]
     mapExc f (partial mc) = partial ((λ where (inj₁ e) → inj₁ (f e); (inj₂ px) → inj₂ px) ⟨$⟩ mc)
 
-  module _ {{monad : Monad ⊤ (λ _ _ → M) }} where
+  module _ {{r : Rel₃ A}} {{monad : Monad ⊤ (λ _ _ → M) }} where
     instance 
-      except-monad : Monad ⊤ (λ _ _ → ExceptT M Exc)
+      except-monad : Monad ⊤ (λ _ _ → ExceptT Exc M)
       Monad.return except-monad px = partial (return (inj₂ px))
       (except-monad Monad.=<< f) (partial m) = partial do
         inj₂ px ← m where (inj₁ e) → return (inj₁ e)
         runErr (f px)
+
+    raise : ∀ {P} {u} {{_ : Emptiness {A = A} u}} → Exc → ε[ ExceptT Exc M P ]
+    runErr (raise exc) = return (inj₁ exc)
         
-  module _ {{strong : Strong ⊤ (λ _ _ → M) }} where
+  module _ {{r : Rel₃ A}} {{strong : Strong ⊤ (λ _ _ → M) }} where
     instance 
-      except-strong : Strong ⊤ (λ _ _ → ExceptT M Exc)
+      except-strong : Strong ⊤ (λ _ _ → ExceptT Exc M)
       Strong.str except-strong {Q = Q} q ⟨ σ ⟩ (partial m) = partial do
         qx ∙⟨ σ ⟩ px? ← str {Q = Q} q ⟨ σ ⟩ m
         return ([ inj₁ , (λ px → inj₂ (qx ∙⟨ σ ⟩ px)) ] px?)

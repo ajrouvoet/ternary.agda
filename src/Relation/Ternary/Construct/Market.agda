@@ -88,7 +88,6 @@ module _
     Respect.coe resp (demands x) (demand σ) = demand (coe x σ)
     Respect.coe resp (supplys x) (supplyᵣ σ)  = supplyᵣ (coe x σ)
 
-
     assoc' : RightAssoc market-rel
     assoc' (demand σ₁) (demand σ₂) with _ , σ₃ , σ₄ ← ∙-assocᵣ σ₁ σ₂ = -, demand σ₃ , demand σ₄
     assoc' (supplyₗ σ₁) (supplyₗ σ₂) with _ , σ₃ , σ₄ ← ∙-assocᵣ σ₂ σ₁ = -, supplyₗ σ₃ , demand (∙-comm σ₄)

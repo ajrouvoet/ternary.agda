@@ -36,7 +36,7 @@ module _ where
     constructor state
     field
       runState : (● S ─✴ M (○ P ✴ ● S')) (demand c)
-      
+
   open STATET public
 
   StateT : (M : Pt Market ℓ) → Pred C ℓ → Pt C ℓ
@@ -47,7 +47,7 @@ module _ where
 
 module StateTransformer (M : Pt Market ℓ) (St : Pred C ℓ) where
 
-  state-respects : ∀ {P St St'} → Respect _≈_ (STATET M St St' P)
+  instance state-respects : ∀ {P St St'} → Respect _≈_ (STATET M St St' P)
   Respect.coe state-respects eq (state st) = state (coe (demands eq) st)
 
   module _ {{_ : Functor M}} where
@@ -82,25 +82,29 @@ module StateTransformer (M : Pt Market ℓ) (St : Pred C ℓ) where
     runState (liftM m) ⟨ supplyᵣ σ ⟩ (lift μ) =
       mapM′ (arr λ where σ@(supplyₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ) ⟨ supplyₗ (∙-comm σ) ⟩ m
 
-module StateWithErr {u} {{s : IsPartialMonoid _≡_ r u}} (Exc : Set ℓ) where
+module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
 
-  open import Relation.Ternary.Monad.Error {A = Market}
-  open ExceptTrans Id Exc public
-  open StateTransformer (Except Exc) public
+  open import Relation.Ternary.Monad.Error
+  open ExceptTrans Exc {A = C} Id public
+  open StateTransformer (Except Exc) S public
 
-  State? : ∀ (S : Pred C ℓ) → Pt C ℓ
-  State? = StateT (Except Exc)
+  State? : Pt C ℓ
+  State? = StateT (Except Exc) S
 
-  _orElse_ : ∀ {S P} {M : Pt Market ℓ} {{monad : Monad ⊤ (λ _ _ → M) }}
-           → ∀[ State? S P ⇒ (⋂[ _ ∶ Exc ] StateT M S P) ⇒ StateT M S P ]
-  runState (mp orElse mq) ⟨ σ ⟩ μ with runState mp ⟨ σ ⟩ μ
-  ... | error e = runState (mq e) ⟨ σ ⟩ μ
-  ... | ✓ px    = return px
+  _orElse_ : ∀ {P} {M : Pt Market ℓ} {{monad : Monad ⊤ (λ _ _ → M) }}
+           → ∀[ State? P ⇒ (⋂[ _ ∶ Exc ] StateT M S P) ⇒ StateT M S P ]
+  runState (mp orElse mq) ⟨ σ ⟩ μ =
+    case (runId (runErr (runState mp ⟨ σ ⟩ μ))) of λ where
+         (inj₁ e)   → runState (mq e) ⟨ σ ⟩ μ
+         (inj₂ px)  → return px
 
-  try : ∀ {S P} → ε[ State? S P ] → ε[ State S (Emp ∪ P) ]
-  runState (try mp?) ⟨ σ ⟩ st with runState mp? ⟨ σ ⟩ st
-  ... | error e                 = mkId (lift (inj₁ refl) ∙⟨ σ  ⟩ st)
-  ... | ✓ (lift px ∙⟨ σ' ⟩ st') = mkId (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
+  -- liftErr : ∀ {P} → ∀[ Except Exc P ⇒ State? P ]
+  -- runState (liftErr m) ⟨ σ ⟩ μ = do
+  --   case runId (runErr m) of λ where
+  --     (inj₁ e) → partial (mkId (inj₁ e))
+  --     (inj₂ p) → partial (mkId (inj₂ (lift p ∙⟨ σ ⟩ μ)))
 
-  raise : ∀ {S P} → Exc → ∀[ State? S P ]
-  runState (raise {P} e) ⟨ σ ⟩ μ = partial (inj₁ e)
+  try : ∀ {P} → ε[ State? P ] → ε[ State S (Emp ∪ P) ]
+  runState (try mp?) ⟨ σ ⟩ st with runId (runErr (runState mp? ⟨ σ ⟩ st))
+  ... | inj₁ e                       = mkId (lift (inj₁ refl) ∙⟨ σ  ⟩ st)
+  ... | (inj₂ (lift px ∙⟨ σ' ⟩ st')) = mkId (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
