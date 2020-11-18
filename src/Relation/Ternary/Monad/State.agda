@@ -10,7 +10,7 @@ module Relation.Ternary.Monad.State {ℓ} {C : Set ℓ} (r : Rel₃ C)
 open import Level hiding (Lift)
 open import Data.Product
 open import Data.Sum
-open import Function using (_∘_; case_of_)
+open import Function using (_∘_; case_of_; const)
 open import Relation.Binary.PropositionalEquality using (refl; _≡_)
 open import Relation.Unary.PredicateTransformer using (Pt; PT)
 open import Relation.Unary hiding (_∈_)
@@ -85,26 +85,29 @@ module StateTransformer (M : Pt Market ℓ) (St : Pred C ℓ) where
 module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
 
   open import Relation.Ternary.Monad.Error
-  open ExceptTrans Exc {A = C} Id public
+  open ExceptTrans Exc {A = Market} Id public
   open StateTransformer (Except Exc) S public
 
   State? : Pt C ℓ
   State? = StateT (Except Exc) S
+  
+  runState? : ∀ {P} → ∀[ State? P ⇒ (● S ─✴ (const Exc ∪ (○ P ✴ ● S))) ∘ demand ]
+  runState? c ⟨ σ ⟩ μ  = runExc (runState c ⟨ σ ⟩ μ)
 
   _orElse_ : ∀ {P} {M : Pt Market ℓ} {{monad : Monad ⊤ (λ _ _ → M) }}
            → ∀[ State? P ⇒ (⋂[ _ ∶ Exc ] StateT M S P) ⇒ StateT M S P ]
   runState (mp orElse mq) ⟨ σ ⟩ μ =
-    case (runId (runErr (runState mp ⟨ σ ⟩ μ))) of λ where
+    case (runState? mp ⟨ σ ⟩ μ) of λ where
          (inj₁ e)   → runState (mq e) ⟨ σ ⟩ μ
          (inj₂ px)  → return px
 
-  -- liftErr : ∀ {P} → ∀[ Except Exc P ⇒ State? P ]
-  -- runState (liftErr m) ⟨ σ ⟩ μ = do
-  --   case runId (runErr m) of λ where
-  --     (inj₁ e) → partial (mkId (inj₁ e))
-  --     (inj₂ p) → partial (mkId (inj₂ (lift p ∙⟨ σ ⟩ μ)))
+  liftErr : ∀ {P} → ∀[ Except Exc P ⇒ State? P ]
+  runState (liftErr m) ⟨ σ ⟩ μ = do
+    case (runExc m) of λ where
+      (inj₁ e) → raise e
+      (inj₂ p) → return (lift p ∙⟨ σ ⟩ μ)
 
   try : ∀ {P} → ε[ State? P ] → ε[ State S (Emp ∪ P) ]
-  runState (try mp?) ⟨ σ ⟩ st with runId (runErr (runState mp? ⟨ σ ⟩ st))
-  ... | inj₁ e                       = mkId (lift (inj₁ refl) ∙⟨ σ  ⟩ st)
-  ... | (inj₂ (lift px ∙⟨ σ' ⟩ st')) = mkId (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
+  runState (try mp?) ⟨ σ ⟩ st = case runState? mp? ⟨ σ ⟩ st of λ where
+    (inj₁ e)                     → return (lift (inj₁ refl) ∙⟨ σ  ⟩ st)
+    (inj₂ (lift px ∙⟨ σ' ⟩ st')) → return (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
