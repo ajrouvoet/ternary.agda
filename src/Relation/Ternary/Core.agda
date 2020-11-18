@@ -32,6 +32,12 @@ module _ {a} {A : Set a} where
   open Respect {{...}} public
   open IsUnique {{...}} public
 
+module _ {a} {A : Set a} where
+
+  True : ∀ {ℓ} → Pred A ℓ
+  True = λ _ → ⊤
+    where open import Data.Unit.Polymorphic
+
 record Rel₃ {a} (A : Set a) : Set (suc a) where
 
   field
@@ -39,11 +45,6 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
 
   variable
     Φ₁ Φ₂ Φ₃ Φ : A
-
-  module _ where
-    True : ∀ {ℓ} → Pred A ℓ
-    True = λ _ → ⊤
-      where open import Data.Unit.Polymorphic
 
   module _ where
     -- we can see the three point relation as a predicate on the carrier
