@@ -40,15 +40,15 @@ module Wrapped where
 
   open Id public
 
-  module _  {{rel : Rel₃ A}} where
+  instance
+    id-functor : Functor Id
+    Functor.fmap id-functor f (mkId px) = mkId (f px)
 
+    id-resp : ∀ {p e} {_≈_ : A → A → Set e} {P : Pred A p} {{_ : Respect _≈_ P}} → Respect _≈_ (Id P)
+    Respect.coe id-resp eq (mkId px) = mkId (coe eq px)
+
+  module _ {{rel : Rel₃ A}} where
     instance
-      id-functor : Functor Id
-      Functor.fmap id-functor f (mkId px) = mkId (f px)
-
-      id-resp : ∀ {p e} {_≈_ : A → A → Set e} {P : Pred A p} {{_ : Respect _≈_ P}} → Respect _≈_ (Id P)
-      Respect.coe id-resp eq (mkId px) = mkId (coe eq px)
-
       id-monad : Monad ⊤ (λ _ _ → Id)
       Monad.return id-monad = mkId
       Monad._=<<_ id-monad f px = f (runId px)

@@ -80,28 +80,52 @@ module ExceptTrans (Exc : Set ℓ) (M : Pt A ℓ) where
 
   module _ {{functor : Functor M }} where
     instance
-      except-functor : Functor (ExceptT Exc M)
-      Functor.fmap except-functor f (exceptT m) = exceptT ([ inj₁ , inj₂ ∘ f ] ⟨$⟩ m)
+      exceptT-functor : Functor (ExceptT Exc M)
+      Functor.fmap exceptT-functor f (exceptT m) = exceptT ([ inj₁ , inj₂ ∘ f ] ⟨$⟩ m)
 
     mapExc : ∀ {E₁ E₂ P} → (E₁ → E₂) → ∀[ ExceptT E₁ M P ⇒ ExceptT E₂ M P ]
     mapExc f (exceptT mc) = exceptT ((λ where (inj₁ e) → inj₁ (f e); (inj₂ px) → inj₂ px) ⟨$⟩ mc)
 
   module _ {{r : Rel₃ A}} {{monad : Monad ⊤ (λ _ _ → M) }} where
     instance 
-      except-monad : Monad ⊤ (λ _ _ → ExceptT Exc M)
-      Monad.return except-monad px = exceptT (return (inj₂ px))
-      (except-monad Monad.=<< f) (exceptT m) = exceptT do
+      exceptT-monad : Monad ⊤ (λ _ _ → ExceptT Exc M)
+      Monad.return exceptT-monad px = exceptT (return (inj₂ px))
+      (exceptT-monad Monad.=<< f) (exceptT m) = exceptT do
         inj₂ px ← m where (inj₁ e) → return (inj₁ e)
         runExcT (f px)
 
-      monad-except : MonadError Exc (ExceptT Exc M)
-      MonadError.raise monad-except e = exceptT (return (inj₁ e))
+      monad-exceptT : MonadError Exc (ExceptT Exc M)
+      MonadError.raise monad-exceptT e = exceptT (return (inj₁ e))
         
   module _ {{r : Rel₃ A}} {{strong : Strong ⊤ (λ _ _ → M) }} where
     instance 
-      except-strong : Strong ⊤ (λ _ _ → ExceptT Exc M)
-      Strong.str except-strong {Q = Q} q ⟨ σ ⟩ (exceptT m) = exceptT do
+      exceptT-strong : Strong ⊤ (λ _ _ → ExceptT Exc M)
+      Strong.str exceptT-strong {Q = Q} q ⟨ σ ⟩ (exceptT m) = exceptT do
         qx ∙⟨ σ ⟩ px? ← str {Q = Q} q ⟨ σ ⟩ m
         return ([ inj₁ , (λ px → inj₂ (qx ∙⟨ σ ⟩ px)) ] px?)
+
+module _ {Exc : Set ℓ} where
+  -- We specialize the above to avoid the extra instance arguments
+  -- at the use-site
+
+  open ExceptTrans Exc Id renaming (mapExc to mapExc')
+
+  instance
+    except-functor : Functor (Except Exc)
+    except-functor = exceptT-functor {{id-functor}}
+
+  mapExc : ∀ {E₁ E₂ P} → (E₁ → E₂) → ∀[ Except E₁ P ⇒ Except E₂ P ]
+  mapExc = mapExc' {{id-functor}}
+
+  module _ {{r : Rel₃ A}} where
+    instance 
+      except-monad : Monad ⊤ (λ _ _ → Except Exc)
+      except-monad = exceptT-monad {{monad = id-monad}}
+
+      monad-except : MonadError Exc (Except Exc)
+      monad-except = monad-exceptT {{monad = id-monad}}
+        
+      except-strong : Strong ⊤ (λ _ _ → Except Exc)
+      except-strong = exceptT-strong {{strong = id-strong}}
 
 open MonadError {{...}} public
