@@ -95,10 +95,16 @@ module StateTransformer (M : Pt Market ℓ) (St : Pred C ℓ) where
     runState (liftM m) ⟨ supplyᵣ σ ⟩ (lift μ) =
       mapM′ (arr λ where σ@(supplyₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ) ⟨ supplyₗ (∙-comm σ) ⟩ m
 
+module Substate {S₁ S₂} (M : Pt C ℓ) {{m : MonadState M S₁}} 
+  (zoom : ∀ {p} {P : Pred C p} → ∀[ (● S₂ ─✴ (○ P ✴ ● S₂)) ⇒ ● S₁ ─✴ (○ P ✴ ● S₁) ]) where
+
+  instance monad-state' : MonadState M S₂
+  MonadState.withState monad-state' f = MonadState.withState m (arr (λ σ px → zoom f ⟨ σ ⟩ px))
+
 module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
 
   open import Relation.Ternary.Monad.Error
-  open ExceptTrans Exc {A = Market} Id public
+  open ExceptTrans {A = Market} Exc Id public
   open StateTransformer (Except Exc) S public
 
   State? : Pt C ℓ
