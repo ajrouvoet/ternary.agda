@@ -7,6 +7,8 @@ module Relation.Ternary.Monad.State {ℓ} {C : Set ℓ} (r : Rel₃ C)
   {{m : IsPartialMonoid _≈_ r u}}
   {{c : IsCommutative r}} where
 
+private instance _ = r
+
 open import Level hiding (Lift)
 open import Data.Product
 open import Data.Sum
@@ -29,6 +31,14 @@ open import Relation.Ternary.Construct.Market r as Market hiding (_≈_)
 
 private
   instance _ = r
+
+-- state interface
+module _ where
+
+  record MonadState (M : Pt C ℓ) (S : Pred C ℓ) : Set (suc ℓ) where
+    field
+      {{monad}} : Monad ⊤ (λ _ _ → M)
+      withState : ∀ {P} → ∀[ (● S ─✴ (○ P ✴ ● S)) ∘ demand ⇒ M P ]      
 
 module _ where
 
@@ -63,6 +73,9 @@ module StateTransformer (M : Pt Market ℓ) (St : Pred C ℓ) where
     runState (Monad._=<<_ state-monad f (state m)) ⟨ σ ⟩ st = do
       lift px ∙⟨ σ ⟩ st ← m ⟨ σ ⟩ st
       runState (f px) ⟨ σ ⟩ st
+
+    instance state-monadstate : MonadState (StateT M St) St
+    runState (MonadState.withState state-monadstate f) ⟨ σ ⟩ μ = return (f ⟨ σ ⟩ μ)
 
     {- Lift a state computation into a transformed state operation -}
     liftState : ∀ {P} → ∀[ State St P ⇒ StateT M St P ]
@@ -111,3 +124,5 @@ module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
   runState (try mp?) ⟨ σ ⟩ st = case runState? mp? ⟨ σ ⟩ st of λ where
     (inj₁ e)                     → return (lift (inj₁ refl) ∙⟨ σ  ⟩ st)
     (inj₂ (lift px ∙⟨ σ' ⟩ st')) → return (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
+
+open MonadState {{...}} public

@@ -34,47 +34,58 @@ Cells Σ Φ = Allstar V Σ Φ
 Heap : List T → Set ℓ
 Heap = LeftOver Cells
 
-module HeapOps (M : Pt Market ℓ) where
-  open StateTransformer M Heap public
+-- The linear heap interface with strong update
+record MonadHeap (M : Pt (List T) ℓ) : Set (suc ℓ) where
+  field
+    mkref : ∀ {a}   → ∀[ V a   ⇒          M (One a)       ]
+    read  : ∀ {a}   → ∀[ One a ⇒          M (V a)         ]
+    write : ∀ {a b} → ∀[ One b ⇒ (V a) ─✴ M (One a ✴ V b) ]
 
-  module _ {{monad : Monad ⊤ (λ _ _ → M) }} where
+  module _ {{_ : Strong ⊤ (λ _ _ → M)}} where
 
+    -- A linear (strong) update on the store
+    update! : ∀ {a b} → ∀[ One a ⇒ (V a ─✴ M (V b)) ─✴ M (One b) ]
+    update! ptr ⟨ σ ⟩ f = do
+      f ∙⟨ σ₁ ⟩ a ← read ptr &⟨ ∙-comm σ ⟩ f
+      b           ← f ⟨ σ₁ ⟩ a
+      mkref b
+
+-- Every MonadState with state S ≡ Heap is a heap monad.
+module _ {M} {{_ : MonadState M Heap}} where
+
+  monad-heap : MonadHeap M
+  MonadHeap.mkref monad-heap v = withState (mkref (lift v))
+    where
     -- Creating a reference to a new cell, filled with a given value.
-    -- Note that in the market monoid this is pure!
+    -- Note that in the market monoid this is resource neutral!
     -- Because we get a reference that consumes the freshly created resource.
-    mkref : ∀ {a} → ∀[ V a ⇒ StateT M Heap (One a) ]
-    runState (mkref v) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) =
-      let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂ in return (
+    mkref : ∀ {a} → ∀[ ○ (V a) ⇒ ● Heap ─✴ ○ (One a) ✴ ● Heap ]
+    mkref (lift v) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁)) =
+      let _ , τ₁ , τ₂ = ∙-assocₗ σ₁ σ₂ in 
         lift refl ∙⟨ supplyᵣ ∙-disjoint ⟩
-        lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ st)) (∙-disjointᵣₗ τ₂)))
+        lift (subtract (cons (v ∙⟨ ∙-comm τ₁ ⟩ st)) (∙-disjointᵣₗ τ₂))
 
+  MonadHeap.read monad-heap ptr = withState (read (lift ptr))
+    where
     -- A linear read on a store: you lose the reference.
     -- Resources balance, because with the reference being lost, the cell is destroyed: no resources leak.
-    read : ∀ {a} → ∀[ One a ⇒ StateT M Heap (V a) ]
-    runState (read refl) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁))
+    read : ∀ {a} → ∀[ ○ (One a) ⇒ ● Heap ─✴ ○ (V a) ✴ ● Heap ]
+    read (lift refl) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₁))
       with _ , σ₃ , σ₄ ← ∙-assocₗ σ₁ (∙-comm σ₂) with repartition (∙-comm σ₄) st
     ... | cons (v ∙⟨ σ₅ ⟩ nil) ∙⟨ σ₆ ⟩ st' with refl ← ∙-id⁻ʳ σ₅ with ∙-assocᵣ (∙-comm σ₆) σ₃
-    ... | _ , τ₁ , τ₂ = return (lift v ∙⟨ supplyᵣ τ₂ ⟩ lift (subtract st' τ₁))
+    ... | _ , τ₁ , τ₂ = lift v ∙⟨ supplyᵣ τ₂ ⟩ lift (subtract st' τ₁)
 
-    -- -- Writing into a cell, returning the current contents
-    write : ∀ {a b} → ∀[ One b ⇒ (V a) ─✴ StateT M Heap (One a ✴ V b) ]
-    runState (write refl ⟨ σ₁ ⟩ v) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₃)) with ∙-assocᵣ σ₁ σ₂
+  MonadHeap.write monad-heap ptr ⟨ σ ⟩ v = withState (write (lift (ptr ∙⟨ σ ⟩ v)))
+    where
+    -- Writing into a cell, returning the current contents
+    write : ∀ {a b} → ∀[ ○ (One b ✴ V a) ⇒ ● Heap ─✴ ○ (One a ✴ V b) ✴ ● Heap ]
+    write (lift (refl ∙⟨ σ₁ ⟩ v)) ⟨ supplyᵣ σ₂ ⟩ (lift (subtract st σ₃)) with ∙-assocᵣ σ₁ σ₂
     -- first we reassociate the arguments in the order that we want to piece it back together
     ... | _ , τ₁ , τ₂ with ∙-assocₗ σ₃ (∙-comm τ₁)
     ... | _ , τ₃ , τ₄ with repartition (∙-comm τ₄) st
     -- then we reorganize the store internally to take out the unit value
     ... | (vb :⟨ σ₅ ⟩: nil) ∙⟨ σ₆ ⟩ st' rewrite ∙-id⁻ʳ σ₅ =
       -- and we put everything back together
-      let _ , _ , κ₁ , κ₂ , κ = resplit σ₆ (∙-comm τ₂) τ₃ in
-      return (
+      let _ , _ , κ₁ , κ₂ , κ = resplit σ₆ (∙-comm τ₂) τ₃ in (
         lift (refl ∙⟨ consˡ ∙-idˡ ⟩ vb) ∙⟨ supplyᵣ (consˡ κ₁) ⟩ 
         lift (subtract (v :⟨ ∙-comm κ₂ ⟩: st') (∙-disjointᵣₗ (∙-comm κ))))
-
-  module _ {{_ : Strong ⊤ (λ _ _ → M)}} where
-
-    -- A linear (strong) update on the store
-    update! : ∀ {a b} → ∀[ One a ⇒ (V a ─✴ StateT M Heap (V b)) ─✴ StateT M Heap (One b) ]
-    update! ptr ⟨ σ ⟩ f = do
-      f ∙⟨ σ₁ ⟩ a ← read ptr &⟨ ∙-comm σ ⟩ f
-      b           ← f ⟨ σ₁ ⟩ a
-      mkref b
