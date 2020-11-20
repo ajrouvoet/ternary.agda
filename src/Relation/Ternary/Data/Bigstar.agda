@@ -50,21 +50,32 @@ module _ {{ _ : IsCommutative r }} where
   concat (cons (x ∙⟨ σ₁ ⟩ xs)) ⟨ σ ⟩ ys with ∙-assocᵣ σ₁ σ
   ... | _ , σ₂ , σ₃ = cons (x ∙⟨ σ₂ ⟩ (concat xs ⟨ σ₃ ⟩ ys))
 
--- open import Relation.Ternary.Separation.Monad.Error
--- open import Relation.Ternary.Separation.Morphisms
--- open Monads
+module _ where
+  open import Data.Unit
+  open import Relation.Ternary.Monad
+  open import Relation.Ternary.Monad.Error
 
--- head : ∀ {P} → ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
--- head emp = error err
--- head pool@(cons (px ×⟨ σ ⟩ pxs)) = do
---   th₂ ×⟨ σ ⟩ pool' ×⟨ σ₂ ⟩ th₁ ← mapM (head pxs &⟨ ⊎-comm σ ⟩ px) ✴-assocᵣ
---   return (th₂ ×⟨ σ ⟩ cons (th₁ ×⟨ ⊎-comm σ₂ ⟩ pool'))
+  head : ∀ {P : Pred A a} → ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
+  head emp                = error
+  head (px ✴⟨ σ ⟩ pxs) = return (px ∙⟨ σ ⟩ pxs)
+  
+  module _ {{_ : IsCommutative r}} where
 
--- find : (∀ {Φ} → P Φ → Bool) → ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
--- find f emp = error err
--- find f (cons (px ×⟨ σ ⟩ pxs)) =
---   if f px
---     then return (px ×⟨ σ ⟩ pxs)
---     else do
---       px' ×⟨ σ₁ ⟩ pxs' ×⟨ σ₂ ⟩ px ← mapM (find f pxs &⟨ P ∥ ⊎-comm σ ⟩ px) ✴-assocᵣ
---       return (px' ×⟨ σ₁ ⟩ cons (px ×⟨ ⊎-comm σ₂ ⟩ pxs'))
+    last⁺ : ∀ {P : Pred A a} → ∀[ P ⇒ Bigstar P ─✴ (P ✴ Bigstar P) ]
+    last⁺ last? ⟨ σ ⟩ emp                = last? ∙⟨ σ ⟩ emp 
+    last⁺ last? ⟨ σ₁ ⟩ (px ✴⟨ σ₂ ⟩ tail) = 
+      let (last! ∙⟨ σ₃ ⟩ rest) = ✴-rotateᵣ (last? ∙⟨ σ₁ ⟩ (✴-swap (last⁺ px ⟨ σ₂ ⟩ tail)))
+      in last! ∙⟨ σ₃ ⟩ cons rest
+
+    last : ∀ {P : Pred A a} → ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
+    last emp = error
+    last (px ✴⟨ σ ⟩ pxs) = return (last⁺ px ⟨ σ ⟩ pxs) 
+    
+    find : ∀ {P : Pred A a} (f : ∀ {Φ} → P Φ → Bool) → ∀[ Bigstar P ⇒ Error (P ✴ Bigstar P) ]
+    find f emp = raise _
+    find {P} f (px ✴⟨ σ ⟩ pxs) =
+      if f px
+        then return (px ∙⟨ σ ⟩ pxs)
+        else do
+          result ∙⟨ σ₁ ⟩ tail✴head ← ✴-rotateₗ ⟨$⟩ (str {Q = P} px ⟨ σ ⟩ find f pxs)
+          return (result ∙⟨ σ₁ ⟩ cons (✴-swap tail✴head) )
