@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --no-qualified-instances #-}
+{-# OPTIONS --no-qualified-instances #-} -- --safe 
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
@@ -20,6 +20,7 @@ open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Construct.List.Disjoint
 open import Relation.Ternary.Monad
+open import Relation.Ternary.Monad.Error
 open import Relation.Ternary.Monad.Identity using (module Wrapped)
 
 open import Data.Unit
@@ -30,15 +31,15 @@ open Wrapped
 open import Relation.Ternary.Construct.Market r as Market hiding (_≈_)
 
 private
-  instance _ = r
+  instance r-rel = r
 
--- state interface
+-- state interfaces
 module _ where
 
   record MonadState (M : Pt C ℓ) (S : Pred C ℓ) : Set (suc ℓ) where
     field
-      {{monad}} : Monad ⊤ (λ _ _ → M)
-      withState : ∀ {P} → ∀[ (● S ─✴ (○ P ✴ ● S)) ∘ demand ⇒ M P ]      
+      overlap {{monad}} : Monad ⊤ (λ _ _ → M)
+      withState         : ∀ {P} → ∀[ (● S ─✴ (○ P ✴ ● S)) ∘ demand ⇒ M P ]      
 
 module _ where
 
@@ -103,8 +104,6 @@ module Substate {S₁ S₂} (M : Pt C ℓ) {{m : MonadState M S₁}}
 
 module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
 
-  open import Relation.Ternary.Monad.Error
-  open ExceptTrans {A = Market} Exc Id public
   open StateTransformer (Except Exc) S public
 
   State? : Pt C ℓ
@@ -132,3 +131,17 @@ module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
     (inj₂ (lift px ∙⟨ σ' ⟩ st')) → return (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
 
 open MonadState {{...}} public
+
+{- If we have state and error, then we can get an exceptional withState operation -}
+module _ {M : Pt C ℓ} {S} {E : Set ℓ} {{ms : MonadState M S}} {{me : MonadError E M}} where
+
+  withState? : ∀ {P} → ∀[ (● S ─✴ (Except E (○ P ✴ ● S))) ∘ demand ⇒ M P ]
+  withState? f = do
+    inj₂ px ← withState (arr λ σ st → 
+      -- remarkably the following switcheroo works out resource-wise
+      case runExc (f ⟨ σ ⟩ st) of λ where
+        (inj₁ e)                     → lift (inj₁ e) ∙⟨ σ ⟩ st
+        (inj₂ (lift px ∙⟨ σ' ⟩ st')) → lift (inj₂ px) ∙⟨ σ' ⟩ st'
+      ) 
+      where inj₁ e → raise e
+    return px

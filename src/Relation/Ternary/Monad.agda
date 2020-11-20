@@ -25,9 +25,9 @@ RawMonad I ℓ₁ ℓ₂ = (i j : I) → PT A A ℓ₁ ℓ₂
 -- regular indexed monad on indexed sets
 record Monad {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   field
-    {{functor}} : ∀ {i₁ i₂} → Functor (M i₁ i₂)
-    return : ∀ {P i₁}         → ∀[ P ⇒ M i₁ i₁ P ]
-    _=<<_  : ∀ {i₁ i₂ i₃ P Q} → ∀[ P ⇒ M i₂ i₃ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₃ Q ]
+    overlap {{functor}} : ∀ {i₁ i₂} → Functor (M i₁ i₂)
+    return              : ∀ {P i₁}         → ∀[ P ⇒ M i₁ i₁ P ]
+    _=<<_               : ∀ {i₁ i₂ i₃ P Q} → ∀[ P ⇒ M i₂ i₃ Q ] → ∀[ M i₁ i₂ P ⇒ M i₁ i₃ Q ]
 
   infixl 1 _>>=_
   _>>=_ : ∀ {Φ} {i₁ i₂ i₃ P Q} → M i₁ i₂ P Φ → ∀[ P ⇒ M i₂ i₃ Q ] → M i₁ i₃ Q Φ
@@ -43,7 +43,7 @@ open Monad {{...}} public
 
 record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   field
-    {{monad}} : Monad I M
+    overlap {{monad}} : Monad I M
     str       : ∀ {i₁ i₂} → Strength (M i₁ i₂)
 
   module _ {i₁ i₂ i₃} {P Q} where

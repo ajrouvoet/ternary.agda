@@ -10,11 +10,9 @@ open import Data.Unit
 open import Data.Sum
 open import Relation.Unary hiding (Empty)
 open import Relation.Unary.PredicateTransformer using (PT; Pt)
-open import Relation.Ternary.Morphisms
 open import Relation.Ternary.Monad
 open import Relation.Ternary.Monad.Identity using (module Wrapped)
 open import Relation.Ternary.Structures.Syntax
-open import Relation.Binary.PropositionalEquality
 open Wrapped
 
 {- The interface -}
@@ -22,8 +20,8 @@ module _ {{_ : Rel₃ A}} where
 
   record MonadError (E : Set ℓ) (M : Pt A ℓ) : Set (suc ℓ) where
     field
-      {{monad}} : Monad ⊤ (λ _ _ → M)
-      raise     : ∀ {P} → E → ∀[ M P ]
+      overlap {{monad}} : Monad ⊤ (λ _ _ → M)
+      raise             : ∀ {P} → E → ∀[ M P ]
 
   -- no idea what the catch signature should be
   -- catch     : ∀ {P} → ∀[ M P ⇒ (⋂[ _ ∶ E ] M P) ⇒ M P ]
