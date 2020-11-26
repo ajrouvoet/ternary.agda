@@ -109,6 +109,12 @@ module _
 
   ●-map : ∀ {p} {P Q : Pred A p} → ∀[ P ⇒ Q ] → ∀[ ● P ⇒ ● Q ]
   ●-map f (lift px) = lift (f px)
+  
+  ○-respect : ∀ {p} {P : Pred A p} {{_ : Respect _≈ₐ_ P}} → Respect _≈_ (○ P) 
+  Respect.coe ○-respect (demands eq) (lift px) = lift (coe eq px) 
+  
+  ●-respect : ∀ {p} {P : Pred A p} {{_ : Respect _≈ₐ_ P}} → Respect _≈_ (● P) 
+  Respect.coe ●-respect (supplys eq) (lift px) = lift (coe eq px) 
 
   record LeftOver {p} (P : A → A → Set p) rem : Set (ℓ ⊔ p) where
     constructor subtract

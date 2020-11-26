@@ -1,4 +1,4 @@
-{-# OPTIONS --no-qualified-instances #-} -- --safe 
+{-# OPTIONS --no-qualified-instances --safe #-}
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
@@ -129,6 +129,9 @@ module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
   runState (try mp?) ⟨ σ ⟩ st = case runState? mp? ⟨ σ ⟩ st of λ where
     (inj₁ e)                     → return (lift (inj₁ refl) ∙⟨ σ  ⟩ st)
     (inj₂ (lift px ∙⟨ σ' ⟩ st')) → return (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
+    
+  instance state?-error : MonadError Exc State?
+  runState (MonadError.raise state?-error e) ⟨ σ ⟩ μ = except (inj₁ e)
 
 open MonadState {{...}} public
 

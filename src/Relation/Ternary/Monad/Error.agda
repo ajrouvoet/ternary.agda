@@ -5,7 +5,7 @@ open import Relation.Ternary.Structures
 module Relation.Ternary.Monad.Error {ℓ} {A : Set ℓ} where
 
 open import Level
-open import Function using (_∘_; const)
+open import Function using (_∘_; const; case_of_)
 open import Data.Unit
 open import Data.Sum
 open import Relation.Unary hiding (Empty)
@@ -53,7 +53,7 @@ module _ where
   Error : Pt A ℓ
   Error = ErrorT Id
 
-  pattern error e = exceptT (inj₁ e)
+  pattern error = exceptT (mkId (inj₁ (lift tt)))
 
 {- The eliminators for the instances -}
 module _ {Exc : Set ℓ} {P : Pred A ℓ} where
@@ -61,6 +61,7 @@ module _ {Exc : Set ℓ} {P : Pred A ℓ} where
   runExc : ∀[ Except Exc P ⇒ ((const Exc) ∪ P) ]
   runExc = runId ∘ runExcT
   
+module _ {P : Pred A ℓ} where
   runErrT : ∀ {M} → ∀[ ErrorT M P ⇒ M (True ∪ P) ]
   runErrT = runExcT
   
@@ -102,9 +103,10 @@ module ExceptTrans (Exc : Set ℓ) (M : Pt A ℓ) where
         qx ∙⟨ σ ⟩ px? ← str {Q = Q} q ⟨ σ ⟩ m
         return ([ inj₁ , (λ px → inj₂ (qx ∙⟨ σ ⟩ px)) ] px?)
 
+-- We specialize the transformer above to inner monad Id
+-- to avoid the extra instance arguments at the use-site.
+-- We can also implement catch for this monad.
 module _ {Exc : Set ℓ} where
-  -- We specialize the above to avoid the extra instance arguments
-  -- at the use-site
 
   open ExceptTrans Exc Id renaming (mapExc to mapExc')
 
@@ -125,5 +127,10 @@ module _ {Exc : Set ℓ} where
         
       except-strong : Strong ⊤ (λ _ _ → Except Exc)
       except-strong = exceptT-strong {{strong = id-strong}}
+
+    catch : ∀ {P} → ∀[ Except Exc P ⇒ (⋂[ _ ∶ Exc ] P) ⇒ P ]
+    catch c f = case runExc c of λ where
+      (inj₁ e)  → f e
+      (inj₂ px) → px
 
 open MonadError {{...}} public
