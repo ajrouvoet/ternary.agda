@@ -2,12 +2,7 @@
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
 
-module Relation.Ternary.Monad.Reader
-  {a} {A : Set a}
-  {C : Set a} {{rel : Rel₃ C}}
-  {_≈_ : C → C → Set a}
-  {u} {{csg : IsPartialMonoid _≈_ rel u}}
-  where
+module Relation.Ternary.Monad.Reader {a} {A : Set a} where
 
 open import Level
 open import Function using (_∘_; case_of_)
@@ -31,6 +26,8 @@ private
     Γ Γ₁ Γ₂ Γ₃ : List A
 
 module ReaderTransformer
+  {C : Set a} {{rel : Rel₃ C}}
+  {u} {_≈_ : C → C → Set a} {{_ : IsPartialMonoid _≈_ rel u}}  
   (V : A → Pred C a)
   (M : Pt C a)
   where
@@ -49,6 +46,7 @@ module ReaderTransformer
         
     open Reader public
 
+  module _  {_≈_ : C → C → Set a} {u} {{csg : IsPartialMonoid _≈_ rel u}} where
     instance
       reader-respect : Respect _≈_ (Reader Γ₁ Γ₂ P)
       Respect.coe reader-respect x (reader m) = reader (coe x m)
@@ -92,7 +90,7 @@ module ReaderTransformer
     liftM : ∀[ M P ⇒ Reader Γ Γ P ]
     runReader (liftM mp) ⟨ σ ⟩ env = ✴-swap ⟨$⟩ (mp &⟨ ∙-comm σ ⟩ env)
 
-    module _ {{_ : IsUnique _≈_ u}} where
+    module _ {{_ : IsUnique _≈_ ε}} where
       append : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₂ ++ Γ₁) Emp ]
       runReader (append env₁) ⟨ σ ⟩ env₂ =
         return (refl ∙⟨ ∙-idˡ ⟩ concat (env₂ ∙⟨ ∙-comm σ ⟩ env₁))

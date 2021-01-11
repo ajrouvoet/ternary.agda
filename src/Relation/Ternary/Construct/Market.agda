@@ -110,10 +110,10 @@ module _
   ●-map : ∀ {p} {P Q : Pred A p} → ∀[ P ⇒ Q ] → ∀[ ● P ⇒ ● Q ]
   ●-map f (lift px) = lift (f px)
   
-  ○-respect : ∀ {p} {P : Pred A p} {{_ : Respect _≈ₐ_ P}} → Respect _≈_ (○ P) 
+  instance ○-respect : ∀ {p} {P : Pred A p} {{r : Respect _≈ₐ_ P}} → Respect _≈_ (○ P) 
   Respect.coe ○-respect (demands eq) (lift px) = lift (coe eq px) 
   
-  ●-respect : ∀ {p} {P : Pred A p} {{_ : Respect _≈ₐ_ P}} → Respect _≈_ (● P) 
+  instance ●-respect : ∀ {p} {P : Pred A p} {{r : Respect _≈ₐ_ P}} → Respect _≈_ (● P) 
   Respect.coe ●-respect (supplys eq) (lift px) = lift (coe eq px) 
 
   record LeftOver {p} (P : A → A → Set p) rem : Set (ℓ ⊔ p) where
@@ -122,7 +122,9 @@ module _
       {sup dem} : A
       px  : P sup dem
       sub : dem ∙ rem ≣ sup
-
+      
+  instance LeftOver-respect :  ∀ {p} {P : A → A → Set p} → Respect _≈ₐ_ (LeftOver P) 
+  Respect.coe LeftOver-respect eq (subtract px sub) = subtract px (coe eq sub)
 
 module _ {e} {_≈ₐ_ : A → A → Set e} {u}
   {{m    : IsPartialMonoid _≈ₐ_ rel u}}

@@ -53,7 +53,7 @@ record MonadHeap (M : Pt (List T) ℓ) : Set (suc ℓ) where
 -- Every MonadState with state S ≡ Heap is a heap monad.
 module _ {M} {{_ : MonadState M Heap}} where
 
-  monad-heap : MonadHeap M
+  instance monad-heap : MonadHeap M
   MonadHeap.mkref monad-heap v = withState (mkref (lift v))
     where
     -- Creating a reference to a new cell, filled with a given value.
@@ -89,3 +89,5 @@ module _ {M} {{_ : MonadState M Heap}} where
       let _ , _ , κ₁ , κ₂ , κ = resplit σ₆ (∙-comm τ₂) τ₃ in (
         lift (refl ∙⟨ consˡ ∙-idˡ ⟩ vb) ∙⟨ supplyᵣ (consˡ κ₁) ⟩ 
         lift (subtract (v :⟨ ∙-comm κ₂ ⟩: st') (∙-disjointᵣₗ (∙-comm κ))))
+
+open MonadHeap {{...}} public
