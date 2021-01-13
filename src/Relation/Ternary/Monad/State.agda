@@ -21,7 +21,7 @@ open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Construct.List.Disjoint
 open import Relation.Ternary.Monad
 open import Relation.Ternary.Monad.Error
-open import Relation.Ternary.Monad.Identity using (module Wrapped)
+open import Relation.Ternary.Monad.Identity using (module Wrapped; module Unwrapped)
 
 open import Data.Unit
 open import Data.Product
@@ -36,17 +36,23 @@ private
 -- state interfaces
 module _ where
 
+  ActionT : Pt Market ℓ → Pred C ℓ → Pred C ℓ → Pred C ℓ → Pred C ℓ
+  ActionT M S S' P = (● S ─✴ M (○ P ✴ ● S')) ∘ demand
+
+  Action : Pred C ℓ → Pred C ℓ → Pred C ℓ
+  Action S P = ActionT Unwrapped.Id S S P
+
   record MonadState (M : Pt C ℓ) (S : Pred C ℓ) : Set (suc ℓ) where
     field
       overlap {{monad}} : Monad ⊤ (λ _ _ → M)
-      withState         : ∀ {P} → ∀[ (● S ─✴ (○ P ✴ ● S)) ∘ demand ⇒ M P ]      
+      withState         : ∀ {P} → ∀[ Action S P ⇒ M P ]
 
 module _ where
 
   record STATET (M : Pt Market ℓ) (S S' : Pred C ℓ) (P : Pred C ℓ) (c : C) : Set ℓ where
     constructor state
     field
-      runState : (● S ─✴ M (○ P ✴ ● S')) (demand c)
+      runState : ActionT M S S' P c
 
   open STATET public
 
@@ -96,7 +102,7 @@ module StateTransformer (M : Pt Market ℓ) (St : Pred C ℓ) where
     runState (liftM m) ⟨ supplyᵣ σ ⟩ (lift μ) =
       mapM′ (arr λ where σ@(supplyₗ _) px → lift px ∙⟨ ∙-comm σ ⟩ lift μ) ⟨ supplyₗ (∙-comm σ) ⟩ m
 
-module Substate {S₁ S₂} (M : Pt C ℓ) {{m : MonadState M S₁}} 
+module Substate {S₁ S₂} (M : Pt C ℓ) {{m : MonadState M S₁}}
   (zoom : ∀ {p} {P : Pred C p} → ∀[ (● S₂ ─✴ (○ P ✴ ● S₂)) ⇒ ● S₁ ─✴ (○ P ✴ ● S₁) ]) where
 
   instance monad-state' : MonadState M S₂
@@ -108,7 +114,7 @@ module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
 
   State? : Pt C ℓ
   State? = StateT (Except Exc) S
-  
+
   runState? : ∀ {P} → ∀[ State? P ⇒ (● S ─✴ (const Exc ∪ (○ P ✴ ● S))) ∘ demand ]
   runState? c ⟨ σ ⟩ μ  = runExc (runState c ⟨ σ ⟩ μ)
 
@@ -129,7 +135,7 @@ module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
   runState (try mp?) ⟨ σ ⟩ st = case runState? mp? ⟨ σ ⟩ st of λ where
     (inj₁ e)                     → return (lift (inj₁ refl) ∙⟨ σ  ⟩ st)
     (inj₂ (lift px ∙⟨ σ' ⟩ st')) → return (lift (inj₂ px)   ∙⟨ σ' ⟩ st')
-    
+
   instance state?-error : MonadError Exc State?
   runState (MonadError.raise state?-error e) ⟨ σ ⟩ μ = except (inj₁ e)
 
@@ -140,11 +146,11 @@ module _ {M : Pt C ℓ} {S} {E : Set ℓ} {{ms : MonadState M S}} {{me : MonadEr
 
   withState? : ∀ {P} → ∀[ (● S ─✴ (Except E (○ P ✴ ● S))) ∘ demand ⇒ M P ]
   withState? f = do
-    inj₂ px ← withState (arr λ σ st → 
+    inj₂ px ← withState (arr λ σ st →
       -- remarkably the following switcheroo works out resource-wise
       case runExc (f ⟨ σ ⟩ st) of λ where
         (inj₁ e)                     → lift (inj₁ e) ∙⟨ σ ⟩ st
         (inj₂ (lift px ∙⟨ σ' ⟩ st')) → lift (inj₂ px) ∙⟨ σ' ⟩ st'
-      ) 
+      )
       where inj₁ e → raise e
     return px
