@@ -17,10 +17,13 @@ private
 instance →-rel : Rel₃ F
 Rel₃._∙_≣_ →-rel f g h = ∀ a → f a ∙ g a ≣ h a
 
-module _ {e} {_≈_ : B → B → Set e} {{sgb : IsPartialSemigroup _≈_ rb}} where
+module Pointwise {e} (_≈_ : B → B → Set e) where
 
   _≈→_ : F → F → Set _
   f ≈→ g = ∀ a → f a ≈ g a
+
+module _ {e} {_≈_ : B → B → Set e} {{sgb : IsPartialSemigroup _≈_ rb}} where
+  open Pointwise _≈_
 
   instance →-semigroup : IsPartialSemigroup _≈→_ →-rel
   IsPartialSemigroup.≈-equivalence →-semigroup = ≈→-isEquivalence
@@ -47,6 +50,7 @@ module _ {{cb : IsCommutative rb}} where
   IsCommutative.∙-comm →-commutative σ₁ a = ∙-comm (σ₁ a)
 
 module _ {e} {_≈_ : B → B → Set e} {u} {{cb : IsPartialMonoid _≈_ rb u}} where
+  open Pointwise _≈_
 
   instance →-empty : Emptiness {A = F} (λ _ → u)
   →-empty = record {}
@@ -56,3 +60,12 @@ module _ {e} {_≈_ : B → B → Set e} {u} {{cb : IsPartialMonoid _≈_ rb u}}
   IsPartialMonoid.∙-idʳ →-monoid a = ∙-idʳ
   IsPartialMonoid.∙-id⁻ˡ →-monoid σ a = ∙-id⁻ˡ (σ a)
   IsPartialMonoid.∙-id⁻ʳ →-monoid σ a = ∙-id⁻ʳ (σ a)
+
+module _ {e} {_≈_ : B → B → Set e} {op} {{sgb : IsTotal _≈_ rb op}} where
+  open Pointwise _≈_
+  private
+    op' : F → F → F
+    op' f g x = op (f x) (g x)
+
+  instance →-total : IsTotal _≈→_ →-rel op' 
+  IsTotal.∙-parallel →-total σ₁ σ₂ x = ∙-parallel (σ₁ x) (σ₂ x)
