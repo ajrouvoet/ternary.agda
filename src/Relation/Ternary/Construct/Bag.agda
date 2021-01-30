@@ -118,7 +118,7 @@ module _ where
   ... | refl with refl ← ↭-empty-inv (↭-sym (↭-trans ρx' ρx))
                 | refl ← ↭-empty-inv (↭-sym (↭-trans ρy' ρy)) = refl
 
-  instance bags-isTotal : IsTotal _↭_ bags _++_
+  instance bags-isTotal : IsTotal bags _++_
   IsTotal.∙-parallel bags-isTotal (hustle ρ₁ ρ₂ ρ₃ l) (hustle ρ₄ ρ₅ ρ₆ r) =
     hustle (Pm.++⁺ ρ₁ ρ₄) (Pm.++⁺ ρ₂ ρ₅) (Pm.++⁺ ρ₃ ρ₆) (∙-parallel l r)
 

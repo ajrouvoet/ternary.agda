@@ -23,7 +23,7 @@ open Emptiness          {{...}}
 
 -- Being a total proof-relevant relation means that there is always at least one way
 -- to put two arbitrary elements together.
-record IsTotal {ℓe} (_≈_ : A → A → Set ℓe) (rel : Rel₃ A) (_++_ : A → A → A) : Set (suc ℓ ⊔ ℓe) where
+record IsTotal (rel : Rel₃ A) (_++_ : A → A → A) : Set (suc ℓ) where
   open Rel₃ rel
 
   field
@@ -33,7 +33,7 @@ record IsTotal {ℓe} (_≈_ : A → A → Set ℓe) (rel : Rel₃ A) (_++_ : A 
                 → (a ++ c) ∙ (b ++ d) ≣ (ab ++ cd)
 
   -- If the relation is monoidal, we get some useful biased variations.
-  module _ {unit} {{m : IsMonoid _≈_ _++_ unit}} {{p : IsPartialMonoid _≈_ rel unit}} where
+  module _ {unit} {ℓe} {_≈_ : A → A → Set ℓe} {{m : IsMonoid _≈_ _++_ unit}} {{p : IsPartialMonoid _≈_ rel unit}} where
 
     private
       variable

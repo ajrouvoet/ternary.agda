@@ -11,7 +11,7 @@ import Relation.Ternary.Core
 --    ∙ IsPartialMonoid    _≈_ rel₃ ε
 --    ∙ IsCommutative      rel₃
 -- Additionally there are various other mixins, like:
---    ∙ IsTotal            _≈_ rel _∙_ (proving there is always at least 1 composition)
+--    ∙ IsTotal            rel _∙_     (proving there is always at least 1 composition)
 --    ∙ IsContractive      _≈_ rel     (proving xs ∙ xs ≣ xs)
 --    ∙ IsFunctional       _≈_ rel
 --    ∙ IsPositive         _≈_ rel     (proving that splittings make things smaller)

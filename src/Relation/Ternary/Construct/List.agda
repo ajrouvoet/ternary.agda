@@ -158,7 +158,7 @@ module _ {e} {_≈_ : A → A → Set e} {{_ : IsPartialSemigroup _≈_ division
       id⁻ʳ []        = refl
       id⁻ʳ (consˡ σ) = cong (_ ∷_) (id⁻ʳ σ)
 
-  instance list-isTotal : IsTotal _≡_ splits _++_
+  instance list-isTotal : IsTotal splits _++_
   IsTotal.∙-parallel list-isTotal = par
     where
       par : ∀ {a b c d ab cd} → Split a b ab → Split c d cd → Split (a ++ c) (b ++ d) (ab ++ cd)

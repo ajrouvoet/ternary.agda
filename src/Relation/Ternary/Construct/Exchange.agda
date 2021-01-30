@@ -22,8 +22,8 @@ module Relation.Ternary.Construct.Exchange {ℓ e s}
   {{r₁-comm : IsCommutative r₁}}
   {{r₂-comm : IsCommutative r₂}}
   {_∙_}
-  {{_ : IsTotal _≈ₐ_ r₁ _∙_}}
-  {{_ : IsTotal _≈ₐ_ r₂ _∙_}}
+  {{_ : IsTotal r₁ _∙_}}
+  {{_ : IsTotal r₂ _∙_}}
   {{m : IsMonoid _≈ₐ_ _∙_ εₐ}}
   (xsplitₐ  : CrossSplit r₂ r₁)
   (uncrossₐ : Uncross r₁ r₂) where
@@ -150,7 +150,7 @@ module _ where
   _↟_ : Account → Account → Account
   (u₁ ⇅ d₁) ↟ (u₂ ⇅ d₂) = (u₁ ∙ u₂) ⇅ (d₁ ∙ d₂)
 
-  instance exchange-isTotal : IsTotal _≈_ exchange-rel _↟_
+  instance exchange-isTotal : IsTotal exchange-rel _↟_
   IsTotal.∙-parallel exchange-isTotal (ex x₁ x₂ σ₁ σ₂) (ex x₃ x₄ σ₃ σ₄) =
     ex (sub-∙ x₁ x₃) (sub-∙ x₂ x₄) (∙-parallel σ₁ σ₃) (∙-parallel σ₂ σ₄)
 

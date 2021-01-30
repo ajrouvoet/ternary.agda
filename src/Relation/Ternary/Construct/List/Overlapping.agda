@@ -44,7 +44,7 @@ module _ where
   instance overlap-monoid : IsPartialMonoid _≡_ overlap-rel []
   overlap-monoid = list-isMonoid {{D.dup-isSemigroup}}
 
-  instance overlap-total : IsTotal _≡_ overlap-rel _++_
+  instance overlap-total : IsTotal overlap-rel _++_
   overlap-total = list-isTotal {{D.dup-isSemigroup}}
 
   instance overlap-intuitive : IsContractive U overlap-rel

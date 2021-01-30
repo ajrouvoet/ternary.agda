@@ -151,7 +151,7 @@ module _
 
   module _
     {{sep₁ : Rel₃ C₁}} {{sep₂ : Rel₃ C₂}} {_∙₁_ _∙₂_}
-    {{s₁ : IsTotal _≈₁_ sep₁ _∙₁_}} {{s₂ : IsTotal _≈₂_ sep₂ _∙₂_}}
+    {{s₁ : IsTotal sep₁ _∙₁_}} {{s₂ : IsTotal sep₂ _∙₂_}}
     where
 
     private
@@ -176,7 +176,7 @@ module _
       IsMonoid.identity ×-monoid    = (λ (x , y) → identityˡ x , identityˡ y)
                                     , (λ (x , y) → identityʳ x , identityʳ y)
 
-    instance ×-concat : IsTotal (Pointwise _≈₁_ _≈₂_) (×-rel {{sep₁}} {{sep₂}}) _∙×_
+    instance ×-concat : IsTotal (×-rel {{sep₁}} {{sep₂}}) _∙×_
     IsTotal.∙-parallel  ×-concat σ₁ σ₂ = zip ∙-parallel ∙-parallel σ₁ σ₂
 
 {- Some useful type-formers for this instance -}

@@ -119,7 +119,7 @@ module _ {s} {{nn : IsPositive s _≡_ div}} where
   -- IsPositive.ε-split maybe-positive nothing = ≡.refl
 
 module _ {_++_}
-  {{_ : IsTotal _≡_ div _++_}}
+  {{_ : IsTotal div _++_}}
   {u} {{_ : IsCommutative div}} {{_ : IsPartialMonoid _≡_ div u}}
   {{_ : IsMonoid _≡_ _++_ u}} where
 
@@ -129,7 +129,7 @@ module _ {_++_}
   op (just x) nothing = just x
   op (just x) (just x₁) = just (x ++ x₁)
 
-  instance maybe-total : IsTotal _≡_ maybes op
+  instance maybe-total : IsTotal maybes op
   IsTotal.∙-parallel maybe-total nothing nothing = nothing
   IsTotal.∙-parallel maybe-total nothing right = right
   IsTotal.∙-parallel maybe-total nothing left = left

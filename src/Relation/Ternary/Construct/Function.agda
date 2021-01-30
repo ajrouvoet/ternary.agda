@@ -61,26 +61,33 @@ module _ {e} {_≈_ : B → B → Set e} {u} {{cb : IsPartialMonoid _≈_ rb u}}
   IsPartialMonoid.∙-idʳ →-monoid a = ∙-idʳ
   IsPartialMonoid.∙-id⁻ˡ →-monoid σ a = ∙-id⁻ˡ (σ a)
   IsPartialMonoid.∙-id⁻ʳ →-monoid σ a = ∙-id⁻ʳ (σ a)
+  
+module LiftOp (op : B → B → B) where
 
-module _ {e} {_≈_ : B → B → Set e} {op} {{_ : IsEquivalence _≈_}} {{sgb : IsTotal _≈_ rb op}} where
+  op→ : F → F → F
+  op→ f g x = op (f x) (g x)
+
+-- these don't belong here, I suppose
+module _ {e} {_≈_ : B → B → Set e} {{_ : IsEquivalence _≈_}} {op} where
   open Pointwise _≈_
-  private
-    op' : F → F → F
-    op' f g x = op (f x) (g x)
+  
+  open LiftOp op
 
-  -- these don't belong here, I suppose
-  lift-magma : IsMagma _≈_ op → IsMagma _≈→_ op'
+  lift-magma : IsMagma _≈_ op → IsMagma _≈→_ op→
   IsMagma.isEquivalence (lift-magma x) = ≈→-isEquivalence
   IsMagma.∙-cong (lift-magma x) feq geq a = x .IsMagma.∙-cong (feq a) (geq a)
 
-  lift-semigroup : IsSemigroup _≈_ op → IsSemigroup _≈→_ op'
+  lift-semigroup : IsSemigroup _≈_ op → IsSemigroup _≈→_ op→
   IsSemigroup.isMagma (lift-semigroup sg) = lift-magma (sg .IsSemigroup.isMagma)
   IsSemigroup.assoc (lift-semigroup sg) x y z a = sg .IsSemigroup.assoc (x a) (y a) (z a)
 
-  instance lift-monoid : ∀ {unit} {{m : IsMonoid _≈_ op unit}} → IsMonoid _≈→_ op' (λ _ → unit)
+  instance lift-monoid : ∀ {unit} {{m : IsMonoid _≈_ op unit}} → IsMonoid _≈→_ op→ (λ _ → unit)
   IsMonoid.isSemigroup (lift-monoid {{m}}) = lift-semigroup (m .IsMonoid.isSemigroup)
   proj₁ (IsMonoid.identity (lift-monoid ⦃ m = m ⦄)) x a = proj₁ (m .IsMonoid.identity) (x a)
   proj₂ (IsMonoid.identity (lift-monoid ⦃ m = m ⦄)) x a = proj₂ (m .IsMonoid.identity) (x a)
 
-  instance →-total : IsTotal _≈→_ →-rel op' 
+module _  {op} {{sgb : IsTotal rb op}} where
+  open LiftOp op
+
+  instance →-total : IsTotal →-rel op→
   IsTotal.∙-parallel →-total σ₁ σ₂ x = ∙-parallel (σ₁ x) (σ₂ x)

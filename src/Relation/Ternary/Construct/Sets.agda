@@ -435,7 +435,7 @@ proj₁ (Inverse.inverse (proj₂ (IsMonoid.identity ⊎-monoid) z)) x        = 
 proj₂ (Inverse.inverse (proj₂ (IsMonoid.identity ⊎-monoid) z)) (inj₁ y) = refl
 
 -- Disjoint Set union gives you at least one way to compose two arbitrary types.
-instance ⊔-total : IsTotal _↔_ ⊔-rel _⊎_
+instance ⊔-total : IsTotal ⊔-rel _⊎_
 Union.inja (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ a) = inj₁ $ Union.inja σ₁ a
 Union.inja (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₂ c) = inj₂ $ Union.inja σ₂ c
 Union.injb (IsTotal.∙-parallel ⊔-total σ₁ σ₂) (inj₁ b) = inj₁ $ Union.injb σ₁ b
