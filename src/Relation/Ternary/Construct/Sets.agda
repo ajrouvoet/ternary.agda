@@ -30,6 +30,25 @@ open import Relation.Ternary.Construct.Sets.Union
 ⊤-prop : ∀ {tt tt' : ⊤} → tt ≡ tt'
 ⊤-prop {tt} {tt} = refl
 
+module _ where
+
+  sym : ∀ {A B : Set} → A ↔ B → B ↔ A
+  sym e = record
+    { f = f⁻¹
+    ; f⁻¹ = f
+    ; cong₁ = cong₂
+    ; cong₂ = cong₁
+    ; inverse = inverseʳ , inverseˡ }
+    where open Inverse e
+
+  open import Function.Construct.Identity
+  open import Function.Construct.Composition
+
+  instance equiv : IsEquivalence _↔_
+  IsEquivalence.refl equiv      = id-↔ _
+  IsEquivalence.sym equiv       = sym
+  IsEquivalence.trans equiv x y = x ∘-↔ y
+
 instance ⊔-rel : Rel₃ Set
 Rel₃._∙_≣_ ⊔-rel = Union
 
@@ -58,23 +77,6 @@ IsCommutative.∙-comm ⊔-commutative σ =
 
 ⊔-semigroupˡ : IsPartialSemigroupˡ _↔_ ⊔-rel
 IsPartialSemigroupˡ.≈-equivalence ⊔-semigroupˡ = equiv
-  where
-    sym : ∀ {A B : Set} → A ↔ B → B ↔ A
-    sym e = record
-      { f = f⁻¹
-      ; f⁻¹ = f
-      ; cong₁ = cong₂
-      ; cong₂ = cong₁
-      ; inverse = inverseʳ , inverseˡ }
-      where open Inverse e
-
-    open import Function.Construct.Identity
-    open import Function.Construct.Composition
-
-    equiv : IsEquivalence _↔_
-    IsEquivalence.refl equiv      = id-↔ _
-    IsEquivalence.sym equiv       = sym
-    IsEquivalence.trans equiv x y = x ∘-↔ y
 
 Respect.coe (IsPartialSemigroupˡ.∙-respects-≈ ⊔-semigroupˡ {A} {B}) {C} {D} eq σ =
   union (f ∘ inja) (f ∘ injb) (from ∘ f⁻¹) prf₁ prf₂ prf
