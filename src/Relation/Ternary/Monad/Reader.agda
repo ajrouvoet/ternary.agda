@@ -19,7 +19,6 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Data.Allstar A
 open import Relation.Ternary.Monad
-open import Relation.Ternary.Monad.Error
 
 private
   variable
@@ -76,6 +75,12 @@ module ReaderTransformer
     lookup = do
       v :⟨ σ ⟩: nil ← ask
       coe (∙-id⁻ʳ σ) (return v)
+        
+    runReader′ : {{_ : Respect _≈_ P}} 
+               → ∀[ Reader Γ [] P ⇒ (Allstar V Γ) ─✴ M P ]
+    runReader′ r ⟨ σ ⟩ env = do
+      px ∙⟨ σ ⟩ nil ← runReader r ⟨ σ ⟩ env
+      return (coe (∙-id⁻ʳ σ) px)
 
   module _
     {{monad : Strong ⊤ (λ _ _ → M)}}
