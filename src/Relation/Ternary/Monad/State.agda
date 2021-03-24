@@ -108,7 +108,7 @@ module Substate {S₁ S₂} (M : Pt C ℓ) {{m : MonadState M S₁}}
   instance monad-state' : MonadState M S₂
   MonadState.withState monad-state' f = MonadState.withState m (arr (λ σ px → zoom f ⟨ σ ⟩ px))
 
-module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
+module StateWithErr (Exc : Set) (S : Pred C ℓ) where
 
   open StateTransformer (Except Exc) S public
 
@@ -142,7 +142,7 @@ module StateWithErr (Exc : Set ℓ) (S : Pred C ℓ) where
 open MonadState {{...}} public
 
 {- If we have state and error, then we can get an exceptional withState operation -}
-module _ {M : Pt C ℓ} {S} {E : Set ℓ} {{ms : MonadState M S}} {{me : MonadError E M}} where
+module _ {M : Pt C ℓ} {S} {E : Set} {{ms : MonadState M S}} {{me : MonadError E M}} where
 
   withState? : ∀ {P} → ∀[ (● S ─✴ (Except E (○ P ✴ ● S))) ∘ demand ⇒ M P ]
   withState? f = do
