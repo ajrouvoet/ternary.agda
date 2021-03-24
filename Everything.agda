@@ -56,10 +56,10 @@ import Relation.Ternary.Construct.Bag
 import Relation.Ternary.Construct.Unit
 import Relation.Ternary.Construct.Empty
 
--- Then there is the Market PRSA transformer that we wrote about in CPP,
+-- Then there is the Market PRSA transformer that we wrote about in CPP 20,
 -- which can be used to thread a state invariant (for both linear and monotone state):
 import Relation.Ternary.Construct.Market
 
--- And the Exchange PRSA transformer that we can use to thread a co-contextual formulation
--- of a global-binding invariant (Agda AIM XXXII talk, work in progress on typed compilation).
+-- And the Exchange PRSA transformer that we can use to thread a co-contextual 
+-- formulation of a global-binding invariant (subject of the POPL 21 paper).
 import Relation.Ternary.Construct.Exchange

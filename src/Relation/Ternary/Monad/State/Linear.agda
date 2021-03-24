@@ -46,7 +46,7 @@ record MonadHeap (M : Pt (List T) ℓ) : Set (suc ℓ) where
     -- A linear (strong) update on the store
     update! : ∀ {a b} → ∀[ One a ⇒ (V a ─✴ M (V b)) ─✴ M (One b) ]
     update! ptr ⟨ σ ⟩ f = do
-      f ∙⟨ σ₁ ⟩ a ← read ptr &⟨ ∙-comm σ ⟩ f
+      f ∙⟨ σ₁ ⟩ a ← f &⟨ ∙-comm σ ⟩ read ptr
       b           ← f ⟨ σ₁ ⟩ a
       mkref b
 

@@ -77,49 +77,35 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   {- Monadic strength -}
   module _ {i₁ i₂} {P : Pred A a} where
 
-    infixl 5 str-syntax'
-    str-syntax'  : ∀ {Q : Pred A a} → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
-    str-syntax' qx σ mp = str qx ⟨ σ ⟩ mp
-    syntax str-syntax' qx σ mp = qx ⅋⟨ σ ⟩ mp
-
     infixl 5 str-syntax
     str-syntax  : ∀ {Q : Pred A a} → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
     str-syntax qx σ mp = str qx ⟨ σ ⟩ mp
-    syntax str-syntax qx σ mp = mp &⟨ σ ⟩ qx
+    syntax str-syntax qx σ mp = qx &⟨ σ ⟩ mp
 
     infixl 5 typed-str-syntax
     typed-str-syntax : ∀ {Φ₁ Φ₂ Φ} Q → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
     typed-str-syntax Q qx σ mp = str {Q = Q} qx ⟨ σ ⟩ mp
-    syntax typed-str-syntax Q qx σ mp = mp &⟨ Q # σ ⟩ qx
+    syntax typed-str-syntax Q qx σ mp = Q ∋ qx &⟨ σ ⟩ mp
 
-  {- Monoid structure gives a nice shorthand when the lhs is resourceless -}
+  {- Monoid structure gives a nice shorthands when one side is resourceless -}
   module _ {u} {e} {_≈_ : A → A → Set e} {{pm : IsPartialMonoid _≈_ ra u}} where
     open import Relation.Binary.PropositionalEquality
 
-    _>>_ : ∀ {i₁ i₂ i₃ P Φ₂} {{_ : Respect _≈_ (M i₂ i₃ P)}} → M i₁ i₂ Emp ε → M i₂ i₃ P Φ₂ → M i₁ i₃ P Φ₂
-    mp >> mq = do
-      px ∙⟨ σ ⟩ refl ← mp &⟨ M _ _ _ # ∙-idʳ ⟩ mq
-      coe (∙-id⁻ʳ σ) px
+    _>>_ : ∀ {i₁ i₂ i₃ P Φ₂} {{_ : Respect _≈_ (M i₂ i₃ P)}}
+         → M i₁ i₂ Emp ε → M i₂ i₃ P Φ₂ → M i₁ i₃ P Φ₂
+    _>>_ {P = P} m mp = do
+      mp ∙⟨ σ ⟩ refl ←  (M _ _ P) ∋ mp &⟨ ∙-idʳ ⟩ m
+      coe (∙-id⁻ʳ σ) mp
 
-    _&_ : ∀ {i₁ i₂ P Q} → M i₁ i₂ P ε → ∀[ Q ⇒ M i₁ i₂ (Q ✴ P) ]
-    mp & q = mp &⟨ ∙-idʳ ⟩ q
+    _&_ : ∀ {i₁ i₂ P Q Φ} → Q Φ → M i₁ i₂ P ε → M i₁ i₂ (Q ✴ P) Φ
+    q & mp = q &⟨ ∙-idʳ ⟩ mp
 
   module _ {{_ : IsCommutative ra }} where
 
     mzip : ∀ {P Q i₁ i₂ i₃} → ∀[ M i₁ i₂ P ⇒ M i₂ i₃ Q ─✴ M i₁ i₃ (P ✴ Q) ]
     mzip {P} {Q} mp ⟨ σ ⟩ mq = do
-      mq ∙⟨ σ ⟩ px ← mp &⟨ M _ _ _ # ∙-comm σ ⟩ mq
-      mq &⟨ P # ∙-comm σ ⟩ px
-
-    infixl 5 str-syntax''
-    str-syntax'' : ∀ {i₁ i₂ Φ₁ Φ₂ Φ P Q} → M i₁ i₂ P Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → Q Φ₂ → M i₁ i₂ (P ✴ Q) Φ
-    str-syntax'' mp σ qx = ✴-swap ⟨$⟩ (str qx ⟨ ∙-comm σ ⟩ mp)
-    syntax str-syntax'' mp σ qx = mp ⟨ σ ⟩& qx
-
-    infixl 5 typed-str-syntax'
-    typed-str-syntax' : ∀ {i₁ i₂ Φ₁ Φ₂ Φ P} Q → M i₁ i₂ P Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → Q Φ₂ → M i₁ i₂ (P ✴ Q) Φ
-    typed-str-syntax' Q mp σ qx = ✴-swap ⟨$⟩ (str {Q = Q} qx ⟨ ∙-comm σ ⟩ mp)
-    syntax typed-str-syntax' Q mp σ qx = mp ⟨ Q # σ ⟩& qx
+      mq ∙⟨ σ ⟩ px ← mq &⟨ ∙-comm σ ⟩ mp
+      P ∋ px &⟨ ∙-comm σ ⟩ mq
 
 open Strong {{...}} public
 

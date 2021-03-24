@@ -43,6 +43,14 @@ module _ {u} {{_ : IsPartialMonoid _≈_ r u}} where
     (free-monad Monad.=<< f) (pure x)   = f x
     (free-monad Monad.=<< f) (impure (c ∙⟨ σ₁ ⟩ κ)) = 
       impure (c ∙⟨ σ₁ ⟩ arr (λ σ₂ r → f =<< (κ ⟨ σ₂ ⟩ r)))
+      
+    free-strong : {{_ : IsCommutative r}} → Strong ⊤ (λ _ _ → Free)
+    Strong.str free-strong qx ⟨ σ ⟩ pure x = pure (qx ∙⟨ σ ⟩ x)
+    Strong.str free-strong qx ⟨ σ ⟩ impure (c ∙⟨ σ' ⟩ κ) = 
+      let _ , σ₃ , σ₄ = ∙-rotateₗ σ σ' in
+      impure (c ∙⟨ σ₃ ⟩ arr (λ σ₂ r → 
+        let _ , σ₅ , σ₆ = ∙-rotateᵣ (∙-comm σ₂) σ₄ in
+        str qx ⟨ σ₅ ⟩ (κ ⟨ ∙-comm σ₆ ⟩ r)))
 
   ⟪_⟫ : ∀ {Φ} (c : Cmd Φ) → {{δ-≈ : Respect _≈_ (δ c)}} → Free (δ c) Φ
   ⟪_⟫ c =
@@ -61,8 +69,8 @@ module _
   step : ∀ {P : Pred A ℓ} → ∀[ Π[ c ∈ Cmd ]⇒ M (δ c) ] → ∀[ Free P ⇒ M (Free P) ]
   step cmd (pure px) = return (pure px)
   step cmd (impure (c ∙⟨ σ ⟩ κ)) = do
-    r ∙⟨ σ ⟩ κ ← cmd c ⟨ Cont c _ # σ ⟩& κ
-    return (κ ⟨ ∙-comm σ ⟩ r)
+    κ ∙⟨ σ ⟩ r ← κ &⟨ ∙-comm σ ⟩ cmd c
+    return (κ ⟨ σ ⟩ r)
 
   -- A fueled generic interpreter for command trees in Free
   interpret : ∀ {P : Pred A ℓ} (n : ℕ) → ∀[ M P ] → ∀[ Π[ c ∈ Cmd ]⇒ M (δ c) ] → ∀[ Free P ⇒ M P ]

@@ -19,6 +19,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Data.Allstar A
 open import Relation.Ternary.Monad
+open import Relation.Ternary.Monad.Error
 
 private
   variable
@@ -64,7 +65,7 @@ module ReaderTransformer
       reader-strong : {{monad : Strong ⊤ (λ _ _ → M)}} → Strong (List A) Reader
       runReader ((Strong.str reader-strong {Q = Q} qx) ⟨ σ₁ ⟩ (reader m)) ⟨ σ₂ ⟩ env = do
         let _ , σ₃ , σ₄ = ∙-assocᵣ σ₁ σ₂
-        ✴-assocₗ ⟨$⟩ (m ⟨ σ₄ ⟩ env &⟨ Q # σ₃ ⟩ qx)
+        ✴-assocₗ ⟨$⟩ (qx &⟨ σ₃ ⟩ m ⟨ σ₄ ⟩ env)
 
   module _ {{monad : Monad ⊤ (λ _ _ → M)}} where
 
@@ -84,12 +85,15 @@ module ReaderTransformer
     runReader (frame sep (reader c)) ⟨ σ ⟩ env = do
       let E₁ ∙⟨ σ₁ ⟩ E₂ = repartition sep env
       let _ , σ₂ , σ₃   = ∙-assocₗ σ σ₁
-      E₂ ∙⟨ σ₅ ⟩ (px ∙⟨ σ₆ ⟩ nil) ← (c ⟨ σ₂ ⟩ E₁) &⟨ Allstar _ _ # ∙-comm σ₃ ⟩ E₂
+      E₂ ∙⟨ σ₅ ⟩ (px ∙⟨ σ₆ ⟩ nil) ← Allstar _ _ ∋ E₂ &⟨ ∙-comm σ₃ ⟩ (c ⟨ σ₂ ⟩ E₁)
       return (px ∙⟨ ∙-comm (coe {{∙-respects-≈ʳ}} (≈-sym (∙-id⁻ʳ σ₆)) σ₅) ⟩ E₂ )
 
     liftM : ∀[ M P ⇒ Reader Γ Γ P ]
-    runReader (liftM mp) ⟨ σ ⟩ env = ✴-swap ⟨$⟩ (mp &⟨ ∙-comm σ ⟩ env)
+    runReader (liftM mp) ⟨ σ ⟩ env = ✴-swap ⟨$⟩ (env &⟨ ∙-comm σ ⟩ mp)
 
+  module _
+    {{monad : Monad ⊤ (λ _ _ → M)}}
+    {{_ : IsCommutative rel}} where
     module _ {{_ : IsUnique _≈_ ε}} where
       append : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₂ ++ Γ₁) Emp ]
       runReader (append env₁) ⟨ σ ⟩ env₂ =
@@ -98,15 +102,3 @@ module ReaderTransformer
       prepend : ∀[ Allstar V Γ₁ ⇒ Reader Γ₂ (Γ₁ ++ Γ₂) Emp ]
       runReader (prepend env₁) ⟨ σ ⟩ env₂ =
         return (refl ∙⟨ ∙-idˡ ⟩ concat (env₁ ∙⟨ σ ⟩ env₂))
-
--- -- module ReaderMonad {ℓ}
--- --   -- types
--- --   {T : Set ℓ}
--- --   -- runtime resourele
--- --   {C : Set ℓ} {{rel : Rel₃ C}} {u} {{sc : IsUnitalSep rel u}} {{cc : HasConcat rel}}
--- --   -- values
--- --   (V : T → Pred C ℓ)
--- --   where
-
--- --   open import Relation.Ternary.Separation.Monad.Identity
--- --   open ReaderTransformer id-morph V Identity.Id {{ monad = Identity.id-monad }} public

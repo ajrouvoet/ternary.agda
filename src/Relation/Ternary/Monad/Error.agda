@@ -18,7 +18,7 @@ open Wrapped
 {- The interface -}
 module _ {{_ : Rel₃ A}} where
 
-  record MonadError (E : Set ℓ) (M : Pt A ℓ) : Set (suc ℓ) where
+  record MonadError (E : Set) (M : Pt A ℓ) : Set (suc ℓ) where
     field
       overlap {{monad}} : Monad ⊤ (λ _ _ → M)
       raise             : ∀ {P} → E → ∀[ M P ]
@@ -27,7 +27,7 @@ module _ {{_ : Rel₃ A}} where
   -- catch     : ∀ {P} → ∀[ M P ⇒ (⋂[ _ ∶ E ] M P) ⇒ M P ]
       
 {- We define a variety of instance constructors -}
-module _ (Exc : Set ℓ) where
+module _ (Exc : Set) where
 
   record ExceptT (M : Pt A ℓ) (P : Pred A ℓ) (Φ : A) : Set ℓ where
     constructor exceptT
@@ -47,25 +47,24 @@ module _ (Exc : Set ℓ) where
 module _ where
 
   ErrorT : (M : Pt A ℓ) → Pt A ℓ
-  ErrorT M = ExceptT Unit.⊤ M
-    where open import Data.Unit.Polymorphic as Unit
+  ErrorT M = ExceptT ⊤ M
 
   Error : Pt A ℓ
   Error = ErrorT Id
 
-  pattern error = exceptT (mkId (inj₁ (lift tt)))
+  pattern error = exceptT (mkId (inj₁ tt))
 
 {- The eliminators for the instances -}
-module _ {Exc : Set ℓ} {P : Pred A ℓ} where
+module _ {Exc : Set} {P : Pred A ℓ} where
 
   runExc : ∀[ Except Exc P ⇒ ((const Exc) ∪ P) ]
   runExc = runId ∘ runExcT
   
 module _ {P : Pred A ℓ} where
-  runErrT : ∀ {M} → ∀[ ErrorT M P ⇒ M (True ∪ P) ]
+  runErrT : ∀ {M} → ∀[ ErrorT M P ⇒ M (const ⊤ ∪ P) ]
   runErrT = runExcT
   
-  runErr : ∀[ Error P ⇒ (True ∪ P) ]
+  runErr : ∀[ Error P ⇒ (const ⊤ ∪ P) ]
   runErr = runId ∘ runErrT
 
 {- These instances are respectful when the underlying monad is repectful -}
@@ -75,7 +74,7 @@ module _ {e} {_≈_ : A → A → Set e} {Exc} {M : Pt A ℓ} {{r : Rel₃ A}} w
   Respect.coe expect-respect eq (exceptT e) = exceptT (coe eq e)
 
 {- These transformer indeed implements the interface -}
-module ExceptTrans (Exc : Set ℓ) (M : Pt A ℓ) where
+module ExceptTrans (Exc : Set) (M : Pt A ℓ) where
 
   module _ {{functor : Functor M }} where
     instance
@@ -106,7 +105,7 @@ module ExceptTrans (Exc : Set ℓ) (M : Pt A ℓ) where
 -- We specialize the transformer above to inner monad Id
 -- to avoid the extra instance arguments at the use-site.
 -- We can also implement catch for this monad.
-module _ {Exc : Set ℓ} where
+module _ {Exc : Set} where
 
   open ExceptTrans Exc Id renaming (mapExc to mapExc')
 

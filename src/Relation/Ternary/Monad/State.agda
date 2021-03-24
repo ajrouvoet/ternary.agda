@@ -93,7 +93,7 @@ module StateTransformer (M : Pt Market ℓ) (St : Pred C ℓ) where
     instance state-strong : Strong ⊤ (λ _ _ → StateT M St)
     runState (Strong.str state-strong {Q = Q} qx ⟨ σ₁ ⟩ (state mpx)) ⟨ σ₂ ⟩ st = do
       let _ , σ₃ , σ₄  = ∙-assocᵣ (demand σ₁) σ₂
-      lift qx ∙⟨ supplyᵣ σ₅ ⟩ lift px ∙⟨ supplyᵣ σ₆ ⟩ st ← mpx ⟨ σ₄ ⟩ st &⟨ ○ Q # σ₃ ⟩ lift qx
+      lift qx ∙⟨ supplyᵣ σ₅ ⟩ lift px ∙⟨ supplyᵣ σ₆ ⟩ st ← ○ Q ∋ lift qx &⟨ σ₃ ⟩ (mpx ⟨ σ₄ ⟩ st)
       let _ , σ₇ , σ₈  = ∙-assocₗ σ₆ σ₅
       return ((lift (qx ∙⟨ ∙-comm σ₇ ⟩ px)) ∙⟨ supplyᵣ σ₈ ⟩ st)
 
