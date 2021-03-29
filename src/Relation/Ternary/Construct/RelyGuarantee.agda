@@ -1,9 +1,11 @@
 open import Relation.Binary.Structures
 open import Relation.Ternary.Core
-open import Relation.Ternary.Structures as Tern
+open import Relation.Ternary.Structures
+open import Relation.Ternary.Structures.Syntax
+  hiding (_▹_≣_)
 open import Data.Product.Relation.Binary.Pointwise.NonDependent
 
-module Relation.Ternary.Construct.RequiresEnsures
+module Relation.Ternary.Construct.RelyGuarantee
   {a} {A : Set a}
 
   (and : Rel₃ A)
@@ -28,15 +30,15 @@ open Rel₃ or  using () renaming (_∙_≣_ to _∪_≣_)
 open Rel₃ and using () renaming (_∙_≣_ to _∩_≣_)
 open Rel₃ sub using () renaming (_∙_≣_ to _-_≣_)
 
-{- Pairs of A for requires and ensures, and their equivalences -}
+{- Pairs of A for rely and guarantee, and their equivalences -}
 module _ where
 
   Conditions : Set a
   Conditions = A × A
 
   module Conditions (c : Conditions) where
-    requires = proj₁ c
-    ensures  = proj₂ c
+    rely      = proj₁ c
+    guarantee = proj₂ c
 
 {- Parallel composition -}
 module _ where
@@ -53,9 +55,9 @@ module _ where
 
   record _▹_≣_ (cₗ : Conditions) (cᵣ : Conditions) (c : Conditions) : Set a where
     constructor seq
-    open Conditions cₗ renaming (requires to r₁; ensures to e₁)
-    open Conditions cᵣ renaming (requires to r₂; ensures to e₂)
-    open Conditions c  renaming (requires to r ; ensures to e)
+    open Conditions cₗ renaming (rely to r₁; guarantee to e₁)
+    open Conditions cᵣ renaming (rely to r₂; guarantee to e₂)
+    open Conditions c  renaming (rely to r ; guarantee to e)
 
     -- (r₁ , e₁) ▹ (r₂ , e₂) = (r₁ ∪ (r₂ - e₁) , e₁ ∪ e₂)
     field
@@ -135,31 +137,28 @@ module ReqEnsJoinoid
 
   instance ▹-isPartialMonoid : IsPartialMonoid (Pointwise _≈_ _≈_) ▹-rel (⊥ , ⊥)
 
-  IsPartialMonoid.ε-unique ▹-isPartialMonoid (eq₁ , eq₂) with ε-unique eq₁ | ε-unique eq₂
-  ... | refl | refl = refl
-
   IsPartialMonoid.∙-idˡ ▹-isPartialMonoid = seq ∸-idʳ   ∙-idˡ ∙-idˡ
   IsPartialMonoid.∙-idʳ ▹-isPartialMonoid = seq ∸-zeroˡ ∙-idʳ ∙-idʳ
 
   IsPartialMonoid.∙-id⁻ˡ ▹-isPartialMonoid (seq s req ens) = ≈-trans (∸-id⁻ʳ s) (∙-id⁻ˡ req) , (∙-id⁻ˡ ens)
   IsPartialMonoid.∙-id⁻ʳ ▹-isPartialMonoid (seq s req ens) = ∙-id⁻ʳ (coe (∸-zero⁻ˡ s) req)   , (∙-id⁻ʳ ens)
 
-  instance joinoid : IsJoinoid (Pointwise _≈_ _≈_) ▹-rel ∥-rel ∣-rel (⊥ , ⊥)
+  postulate instance joinoid : IsJoinoid (Pointwise _≈_ _≈_) ▹-rel ∥-rel ∣-rel (⊥ , ⊥)
 
-  IsJoinoid.▹-distrib-∣ʳ joinoid {a} {b} {c} {a∣b} {d} (pre , post) (seq s req ens) with deMorganʳ post s
-  ... | cᵣ-aₑ , cᵣ-bₑ , τ₁ , τ₂ , τ₃ with resplit pre τ₃ req
-  ... | _ , _ , τ₄ , τ₅ , τ₆ with or-and-distribᵣ post ens
-  ... | _ , _ , τ₇ , τ₈ , τ₉ =
-    -,
-    -, seq τ₁ τ₄ τ₇
-     , seq τ₂ τ₅ τ₈
-     , (τ₆ , τ₉)
+  -- IsJoinoid.▹-distrib-∣ʳ joinoid {a} {b} {c} {a∣b} {d} (pre , post) (seq s req ens) with deMorganʳ post s
+  -- ... | cᵣ-aₑ , cᵣ-bₑ , τ₁ , τ₂ , τ₃ with resplit pre τ₃ req
+  -- ... | _ , _ , τ₄ , τ₅ , τ₆ = {!or-and-distribᵣ (∙-comm ens) ?!} -- with or-and-distribᵣ post ens
+  -- -- ... | _ , _ , τ₇ , τ₈ , τ₉ =
+  -- --   -,
+  -- --   -, seq τ₁ τ₄ τ₇
+  -- --    , seq τ₂ τ₅ τ₈
+  -- --    , (τ₆ , τ₉)
 
-  IsJoinoid.∥-distrib-∣ʳ joinoid {a} {b} {c} {a∥b} {d} (pre₁ , post₁) (pre₂ , post₂)
-    with resplit pre₁ ∪-idem pre₂ | or-and-distribᵣ post₁ post₂
-  ... | _ , _ , τ₁ , τ₂ , τ₃ | _ , _ , τ₄ , τ₅ , τ₆
-    = -,
-    -, (τ₁ , τ₄)
-     , (τ₂ , τ₅)
-     , (τ₃ , τ₆)
+  -- IsJoinoid.∥-distrib-∣ʳ joinoid {a} {b} {c} {a∥b} {d} (pre₁ , post₁) (pre₂ , post₂) = {!!}
+  --   -- with resplit pre₁ ∪-idem pre₂ = ? -- | or-and-distribᵣ post₁ post₂
+  -- -- ... | _ , _ , τ₁ , τ₂ , τ₃ | _ , _ , τ₄ , τ₅ , τ₆
+  -- --   = -,
+  -- --   -, (τ₁ , τ₄)
+  -- --    , (τ₂ , τ₅)
+  -- --    , (τ₃ , τ₆)
 

@@ -1,6 +1,12 @@
 open import Relation.Ternary.Core
 
-module Relation.Ternary.Construct.Map {k v} (K : Set k) (V : K → Set v)
+open import Relation.Binary.Definitions
+open import Relation.Binary.PropositionalEquality as ≡ using (refl; _≢_; _≡_)
+
+module Relation.Ternary.Construct.Map {k v}
+  (K : Set k)
+  (V : K → Set v)
+  (_≡ₖ?_ : Decidable (_≡_ {A = K}))
   (div : ∀ {k} → Rel₃ (V k)) where
 
 open import Axiom.Extensionality.Propositional
@@ -14,22 +20,21 @@ open import Data.Maybe.Relation.Binary.Pointwise as M using (Pointwise; isEquiva
 open import Data.Product
 open import Data.Product.Relation.Binary.Pointwise.NonDependent
 
+open import Relation.Unary using (Pred)
 open import Relation.Binary.Structures
-open import Relation.Binary.Definitions
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures
-open import Relation.Binary.PropositionalEquality as ≡ using (refl; _≢_; _≡_)
-open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Respect.Propositional
+open import Relation.Ternary.Structures.Syntax
 open import Data.Empty using (⊥-elim)
 open Pointwise
 
 module _ {k} where
   open import Relation.Ternary.Construct.Add.Unit (div {k}) public
 
-open import Relation.Ternary.Construct.Map.Map K V
+open import Relation.Ternary.Construct.Map.Map K V _≡ₖ?_
 
-postulate funext : Extensionality k v
+-- postulate funext : Extensionality k v
 
 instance _ = ≡.isEquivalence
 instance _ = div
@@ -40,7 +45,7 @@ variable
 record Union (l r : Map) (m : Map) : Set (k ⊔ v) where
   constructor union
   field
-    unions : ∀ k → (l k) ∙ (r k) ≣ (m k)
+    _[_] : ∀ k → (l [ k ]) ∙ (r [ k ]) ≣ (m [ k ])
 
 instance
   maps : Rel₃ Map
@@ -52,8 +57,8 @@ instance
 
 module _ {{sg : ∀ {k} → IsPartialSemigroup _≡_ (div {k})}} where
   instance
-    map-isSemigroup : IsPartialSemigroup _≈_ maps
-    IsPartialSemigroup.≈-equivalence map-isSemigroup = ≈-isEquivalence
+    map-isSemigroup : IsPartialSemigroup _≗_ maps
+    IsPartialSemigroup.≈-equivalence map-isSemigroup = ≗-isEquivalence
     Respect.coe (IsPartialSemigroup.∙-respects-≈ map-isSemigroup) {x} {y} eq (union v) =
       union (λ k → coe {{∙-respects-≈}} (eq k) (v k))
     Respect.coe (IsPartialSemigroup.∙-respects-≈ˡ map-isSemigroup) {x} {y} eq (union v) =
@@ -67,29 +72,30 @@ module _ {{sg : ∀ {k} → IsPartialSemigroup _≡_ (div {k})}} where
       -, union (λ k → let _ , σ₂ , σ₃ = ∙-assocₗ (σs₁ k) (σs₂ k) in σ₂)
        , union (λ k → let _ , σ₂ , σ₃ = ∙-assocₗ (σs₁ k) (σs₂ k) in σ₃)
 
-    map-isMonoid : IsPartialMonoid _≈_ maps ∅
+    map-isMonoid : IsPartialMonoid _≗_ maps ∅
     IsPartialMonoid.isSemigroup map-isMonoid = map-isSemigroup
     IsPartialMonoid.∙-idˡ map-isMonoid  = union (λ k → ∙-idˡ)
     IsPartialMonoid.∙-idʳ map-isMonoid  = union (λ k → ∙-idʳ)
     IsPartialMonoid.∙-id⁻ˡ map-isMonoid (union ev) k = ∙-id⁻ˡ (ev k)
     IsPartialMonoid.∙-id⁻ʳ map-isMonoid (union ev) k = ∙-id⁻ʳ (ev k)
 
+  infix 4 _≤ₘ_
   _≤ₘ_ : Map → Map → Set _
-  m₁ ≤ₘ m₂ = ∀ k → m₁ k ≤ m₂ k
+  m₁ ≤ₘ m₂ = ∀ k → m₁ [ k ] ≤ m₂ [ k ]
 
   ≤ₘ-min : Minimum _≤ₘ_ ∅
   ≤ₘ-min x k = -, ∙-idˡ
 
-  instance ≤ₘ-isPreorder : IsPreorder _≈_ _≤ₘ_
-  IsPreorder.isEquivalence ≤ₘ-isPreorder = ≈-isEquivalence
+  instance ≤ₘ-isPreorder : IsPreorder _≗_ _≤ₘ_
+  IsPreorder.isEquivalence ≤ₘ-isPreorder = ≗-isEquivalence
   IsPreorder.reflexive ≤ₘ-isPreorder eq k = ≤-reflexive (eq k)
   IsPreorder.trans ≤ₘ-isPreorder l₁ l₂ k  = ≤-trans (l₁ k) (l₂ k)
 
   module _ (≤-po : ∀ {k} → IsPartialOrder {A = V k} _≡_ _≤_) where
 
-    instance ≤ₘ-isPartialOrder : IsPartialOrder _≈_ _≤ₘ_
+    instance ≤ₘ-isPartialOrder : IsPartialOrder _≗_ _≤ₘ_
     IsPartialOrder.isPreorder ≤ₘ-isPartialOrder = ≤ₘ-isPreorder
-    IsPartialOrder.antisym ≤ₘ-isPartialOrder {i = i} {j} l₁ l₂ k with i k | j k | l₁ k | l₂ k
+    IsPartialOrder.antisym ≤ₘ-isPartialOrder {i = i} {j} l₁ l₂ k with i [ k ] | j [ k ] | l₁ k | l₂ k
     ... | nothing | nothing | _ | _ = refl
     ... | just x  | just y  | l | n = IsPartialOrder.antisym (≤-isPartialOrder ≤-po) l n
 
@@ -100,7 +106,7 @@ module _ {{sg : ∀ {k} → IsPartialSemigroup _≡_ (div {k})}} where
   --                       , (funext λ k → ≡.cong proj₂ $ ε-split (σs k))
 
   --   instance
-  --     map-isNonNegative : IsNonNegative _ _≈_ maps
+  --     map-isNonNegative : IsNonNegative _ _≗_ maps
   --     IsNonNegative._≤ₐ_ map-isNonNegative = _≤ₘ_
   --     IsNonNegative.orderₐ map-isNonNegative = ≤ₘ-isPreorder
 
@@ -112,7 +118,7 @@ module _ {{sg : ∀ {k} → IsPartialSemigroup _≡_ (div {k})}} where
   --     IsNonNegative.nonNegativeʳ map-isNonNegative {Φ₂ = Φ₂} (union σs) k (just _) | just _ | σ with right-inv σ
   --     ... | _ , eq , τ = ≡.subst (Any _) (≡.sym eq) (just _)
 
-  --     map-isPositive : IsPositive _ _≈_ maps ∅
+  --     map-isPositive : IsPositive _ _≗_ maps ∅
   --     IsPositive.isNonNegative map-isPositive = map-isNonNegative
   --     IsPositive.ε-least map-isPositive {Φ}   = ≤ₘ-min Φ
   --     IsPositive.ε-split map-isPositive σ     = ≡×≡⇒≡ (ε-split' σ)
@@ -132,5 +138,10 @@ module _
 --   where
 
 --   instance
---     map-isTotal : IsTotal _≈_ maps λ m m' → (λ k → op (m k)  (m' k) )
+--     map-isTotal : IsTotal _≗_ maps λ m m' → (λ k → op (m k)  (m' k) )
 --     IsTotal.∙-parallel map-isTotal (union m) (union n) = union (λ k → ∙-parallel (m k) (n k))
+
+module _ where
+  
+  _↦_ : (k : K) → V k → Pred Map _
+  (ℓ ↦ v) m = m ≗ [ ℓ ↦ v ]

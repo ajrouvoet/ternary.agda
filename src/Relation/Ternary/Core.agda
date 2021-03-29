@@ -67,7 +67,6 @@ record Rel₃ {a} (A : Set a) : Set (suc a) where
 
     infixr 10 _∙⟨_⟩_
     record Conj {p q} (P : Pred A p) (Q : ∀ {Φ} → P Φ → Pred A q) Φ : Set (p ⊔ q ⊔ a) where
-      inductive
       pattern
       constructor _∙⟨_⟩_
       field
