@@ -19,7 +19,7 @@ open IsPositive         {{...}} public
 open IsPositiveWithZero {{...}} public
 open IsCommutative      {{...}} public
 open IsCrosssplittable  {{...}} public
-open IsContractive      {{...}} public
+open IsIdempotent       {{...}} public
 open IsJoinoid          {{...}} public
 open IsTotal            {{...}} public
 

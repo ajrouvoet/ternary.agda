@@ -4,6 +4,7 @@ module Relation.Ternary.Structures.Total {ℓ} {A : Set ℓ} where
 open import Level
 open import Function using (_∘_)
 open import Algebra
+open import Data.Unit
 
 open import Relation.Unary hiding (Empty)
 open import Relation.Binary.Structures
@@ -13,11 +14,11 @@ open import Relation.Binary.PropositionalEquality
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
-open import Relation.Ternary.Structures.Contractive
+open import Relation.Ternary.Structures.Idempotent
 
 open IsPartialMonoid    {{...}}
 open IsPartialSemigroup {{...}}
-open IsContractive      {{...}}
+open IsIdempotent      {{...}}
 
 open Emptiness          {{...}}
 
@@ -63,10 +64,10 @@ record IsTotal (rel : Rel₃ A) (_++_ : A → A → A) : Set (suc ℓ) where
 
     -- If in addition (!) the relation is contractible,
     -- we can add a part with a whole and get the whole again.
-    module _ {c} {C : Pred A c} {{i : IsContractive C rel}} where
+    module _ {c} {C : Pred A c} {{i : IsIdempotent C rel}} where
 
       subₗ : (_ : C a) → a ∙ (a ++ b) ≣ (a ++ b)
-      subₗ c = ∙-disjointᵣᵣ (∙-copy c)
+      subₗ c = ∙-disjointᵣᵣ (∙-idem c)
 
       subᵣ : (_ : C b) → b ∙ (a ++ b) ≣ (a ++ b)
-      subᵣ c with z ← ∙-parallel ∙-idˡ (∙-copy c) = coe (identityˡ _) z
+      subᵣ c with z ← ∙-parallel ∙-idˡ (∙-idem c) = coe (identityˡ _) z

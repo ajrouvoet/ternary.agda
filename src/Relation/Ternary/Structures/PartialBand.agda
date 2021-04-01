@@ -10,16 +10,13 @@ open import Data.Product
 open import Relation.Binary.PropositionalEquality as P using (_≡_)
 
 open import Relation.Ternary.Core using (Rel₃; Idempotent)
+open import Relation.Ternary.Structures.Idempotent
 open import Relation.Ternary.Structures.PartialSemigroup
 open IsEquivalence {{...}}
 
-record IsIdempotent (rel : Rel₃ A) : Set a where
-  field
-    ∙-idem : Idempotent rel
-
-record IsBand {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (a ⊔ e) where
+record IsBand {e} (_≈_ : A → A → Set e) (rel : Rel₃ A) : Set (suc zero ⊔ a ⊔ e) where
   open Rel₃ rel
 
   field
     {{isSemigroup}}  : IsPartialSemigroup _≈_ rel
-    {{isIdempotent}} : IsIdempotent rel
+    {{isIdempotent}} : IsIdempotent U rel

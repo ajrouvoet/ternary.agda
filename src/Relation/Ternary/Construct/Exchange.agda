@@ -231,10 +231,10 @@ module _ (P : Pred A ℓ) where
   data Up : Pred Account ℓ where
     ↑ : ∀ {x} → P x → Up (x ⇅ εₐ)
 
-module DownIntuitive {{r₂-intuitive : IsContractive U r₂}} where
+module DownIntuitive {{r₂-intuitive : IsIdempotent U r₂}} where
 
-  instance exchange-intuitive-down : ∀ {P} → IsContractive (Down P) exchange-rel
-  IsContractive.∙-copy exchange-intuitive-down (↓ _) = ex sub-ε sub-ε ∙-idˡ (∙-copy tt)
+  instance exchange-intuitive-down : ∀ {P} → IsIdempotent (Down P) exchange-rel
+  IsIdempotent.∙-idem exchange-intuitive-down (↓ _) = ex sub-ε sub-ε ∙-idˡ (∙-idem tt)
 
 module _ where
 

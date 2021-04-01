@@ -6,12 +6,15 @@ module Relation.Ternary.Structures.PartialJoinoid {a} {A : Set a} where
 open import Level
 
 open import Data.Product
+open import Data.Unit
+open import Relation.Unary
 open import Relation.Binary.Structures
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
 open import Relation.Ternary.Structures.PartialBand
 open import Relation.Ternary.Structures.Commutative
 open import Relation.Ternary.Structures.Functional
+open import Relation.Ternary.Structures.Idempotent
 
 open IsEquivalence      {{...}} using () renaming (sym to ≈-sym)
 open IsPartialSemigroup {{...}}
@@ -88,7 +91,7 @@ module FromMonoid (rel : Rel₃ A)
   {e} {_≈_ : A → A → Set e}
   {u : A} {{ m : IsCommutativeMonoid _≈_ rel u }}
   {{ f : IsFunctional _≈_ rel }}
-  {{ f : IsIdempotent rel }}
+  {{ f : IsIdempotent U rel }}
   where
 
   open IsJoinoid {{...}}
@@ -96,10 +99,10 @@ module FromMonoid (rel : Rel₃ A)
   instance free-joinoid : IsJoinoid _≈_ rel rel rel u
   IsJoinoid.∥-isCommutativeMonoid free-joinoid = m
   IsJoinoid.▹-distrib-∣ʳ free-joinoid σ₁ σ₂ =
-    let _ , _ , σ₃ , σ₄ , σ₅ = resplit σ₁ ∙-idem σ₂
+    let _ , _ , σ₃ , σ₄ , σ₅ = resplit σ₁ (∙-idem tt) σ₂
     in -, -, σ₃ , σ₄ , σ₅
   IsJoinoid.▹-distrib-∣ˡ free-joinoid σ₁ σ₂ σ₃ =
     let _ , _ , σ₃ , σ₄ , σ₅ = resplit σ₁ σ₂ σ₃
-    in -, σ₃ , coe (functional σ₄ ∙-idem) σ₅
+    in -, σ₃ , coe (functional σ₄ (∙-idem tt)) σ₅
   IsJoinoid.∥-distrib-∣ʳ free-joinoid = ▹-distrib-∣ʳ
   IsJoinoid.∥-distrib-∣ˡ free-joinoid = ▹-distrib-∣ˡ
