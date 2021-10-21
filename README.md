@@ -2,7 +2,17 @@
 
 This library adds an hierachy of algebraic structures on ternary relations.
 The focus of the library are *proof relevant separation algebras* and the induced
-(separation) logic on PRSA-indexed Sets.
+(separation) logic on PRSA-indexed Sets. We have used this setup to develop
+*resource-aware* version of various commonplace data-structures, as well as
+resource-aware computational structures (e.g., monads). The aim of the library
+is to make programming with these well-known structures as familiar as possible,
+despite the fact that our programs must preserve the invariants of the resource.
+
+What exactly can be treated as a "resource" in this setting is up for debate and experiment.
+In traditional separation logic it is usually (locations in) memory. We personally like
+to treat contexts in syntax typing as a resource. This has enabled us to give very
+elegant typing rules for languages with linearity constraints. But also computation costs could
+perhaps be captured as a resource, or probabilistic independence, or...
 
 To get an idea of what this contains and how to use it, see `Everything.agda`.
 
