@@ -1,7 +1,8 @@
+{-# OPTIONS --without-K #-}
 open import Relation.Ternary.Core
 
 open import Relation.Binary.Definitions
-open import Relation.Binary.PropositionalEquality as ≡ using (refl; _≢_; _≡_)
+open import Relation.Binary.PropositionalEquality as ≡ using (refl; _≢_; _≡_; subst)
 
 module Relation.Ternary.Construct.Map {k v}
   (K : Set k)
@@ -20,6 +21,7 @@ open import Data.Maybe.Relation.Binary.Pointwise as M using (Pointwise; isEquiva
 open import Data.Product
 open import Data.Product.Relation.Binary.Pointwise.NonDependent
 
+open import Relation.Nullary
 open import Relation.Unary using (Pred)
 open import Relation.Binary.Structures
 open import Relation.Ternary.Core
@@ -34,8 +36,6 @@ module _ {k} where
 
 open import Relation.Ternary.Construct.Map.Map K V _≡ₖ?_
 
--- postulate funext : Extensionality k v
-
 instance _ = ≡.isEquivalence
 instance _ = div
 
@@ -46,6 +46,11 @@ record Union (l r : Map) (m : Map) : Set (k ⊔ v) where
   constructor union
   field
     _[_] : ∀ k → (l [ k ]) ∙ (r [ k ]) ≣ (m [ k ])
+
+open Union public
+
+_at_ : Union m₁ m₂ m → (k : K) → m₁ [ k ] ∙ (m₂ [ k ]) ≣ (m [ k ])
+u at k = u [ k ]
 
 instance
   maps : Rel₃ Map
@@ -78,6 +83,22 @@ module _ {{sg : ∀ {k} → IsPartialSemigroup _≡_ (div {k})}} where
     IsPartialMonoid.∙-idʳ map-isMonoid  = union (λ k → ∙-idʳ)
     IsPartialMonoid.∙-id⁻ˡ map-isMonoid (union ev) k = ∙-id⁻ˡ (ev k)
     IsPartialMonoid.∙-id⁻ʳ map-isMonoid (union ev) k = ∙-id⁻ʳ (ev k)
+
+  {- Membership -}
+  module Membership where
+    _∈_ : K → Map → Set _
+    k ∈ m = ∃ λ v → [ k ↦ v ] ≤ m
+
+    witness-≤ : ∀ {m k v} → m [ k ] ≡ just v → [ k ↦ v ] ≤ m
+    proj₁ (witness-≤ {m} {k} eq) = remove k m
+    proj₂ (witness-≤ {k = k} eq) [ k' ] with k' ≡ₖ? k
+    ... | yes refl = coe {{∙-respects-≈ˡ}} eq ∙-idʳ
+    ... | no ¬eq   = ∙-idˡ
+
+    find : ∀ k m → Maybe (k ∈ m)
+    find k m with m [ k ] in eq
+    ... | just x  = just (-, witness-≤ eq)
+    ... | nothing = nothing
 
   infix 4 _≤ₘ_
   _≤ₘ_ : Map → Map → Set _
@@ -142,6 +163,6 @@ module _
 --     IsTotal.∙-parallel map-isTotal (union m) (union n) = union (λ k → ∙-parallel (m k) (n k))
 
 module _ where
-  
+
   _↦_ : (k : K) → V k → Pred Map _
   (ℓ ↦ v) m = m ≗ [ ℓ ↦ v ]

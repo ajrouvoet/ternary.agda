@@ -25,3 +25,6 @@ IsPartialSemigroup.∙-assocₗ empty-semigroup ()
 instance empty-commutative : IsCommutative empty-rel
 IsCommutative.∙-comm empty-commutative ()
 
+
+empty-xsplit : CrossSplit empty-rel empty-rel
+empty-xsplit ()
