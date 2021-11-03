@@ -11,6 +11,7 @@ open import Data.Product
 open import Relation.Ternary.Core using (Rel₃; Respect; coe; Own; Commutative)
 open import Relation.Ternary.Structures.PartialSemigroup
 open import Relation.Ternary.Structures.PartialMonoid
+open import Relation.Ternary.Structures.Idempotent
 
 record IsCommutative (rel : Rel₃ A) : Set (a) where
   open Rel₃ rel
@@ -25,6 +26,7 @@ record IsCommutative (rel : Rel₃ A) : Set (a) where
 
 open IsPartialSemigroup {{...}}
 open IsCommutative      {{...}}
+open IsIdempotent       {{...}}
 
 module CommutativeSemigroupOps
   {e} {_≈_ : A → A → Set e} {rel : Rel₃ A}
@@ -44,6 +46,13 @@ module CommutativeSemigroupOps
     ... | bd  , σ₅ , σ₆ with ∙-assocₗ σ₃ σ₆
     ... | abd , σ₇ , σ₈ with ∙-assocₗ (∙-comm σ₈) σ₇
     ... | ac  , τ  , τ' = -, -, ∙-comm τ , σ₅ , τ'
+    
+  module _ {{_ : IsIdempotent U rel}} where
+
+    -- Co-products of the extension order for any idempotent commutative semigroup,
+    -- along the lines set out by McBride in EGTBS
+    ≤-cop : ∀ {a b c} → a ≤ c → b ≤ c → Σ[ ab ∈ _ ] a ∙ b ≣ ab × ab ≤ c
+    ≤-cop (_ , σ₁) (_ , σ₂) with (m₁₂ , _ , σ₃ , σ₄ , σ₅) ← resplit σ₁ σ₂ (∙-idem _) = m₁₂ , σ₃ , (-, σ₅)
 
   module _ {p q p' q'}
     {P : Pred A p} {Q : Pred A q} {P' : Pred A p'} {Q' : Pred A q'} where
