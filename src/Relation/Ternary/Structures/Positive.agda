@@ -43,6 +43,18 @@ record IsPositiveWithZero {e} s (_≈_ : A → A → Set e) (rel : Rel₃ A) ε 
     ε-least   : ∀ {Φ} → ε ≤ₐ Φ -- Φ ≤ ε
     ε-split   : Positive rel ε
 
+  open import Relation.Nullary
+  open import Relation.Binary.PropositionalEquality
+  open import Data.Empty
+
+  non-negativeₗ : ∀ {x y} → x ∙ y ≣ ε → ¬ x ≢ ε
+  non-negativeₗ σ p with ε-split σ
+  non-negativeₗ σ fst | P.refl = ⊥-elim (fst P.refl)
+
+  non-negativeᵣ : ∀ {x y} → x ∙ y ≣ ε → ¬ y ≢ ε
+  non-negativeᵣ σ p with ε-split σ
+  non-negativeᵣ σ fst | P.refl = ⊥-elim (fst P.refl)
+
   -- module (is-empty : Decidable (_≈ ε)) where
   -- open IsPreorder orderₐ
   -- open import Data.Empty
