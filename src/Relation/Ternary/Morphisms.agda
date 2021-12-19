@@ -4,7 +4,7 @@ module Relation.Ternary.Morphisms where
 open import Level
 open import Relation.Unary
 open import Relation.Binary.Bundles
-open import Relation.Binary.PropositionalEquality as P
+open import Relation.Binary.PropositionalEquality as P hiding (J)
 open import Data.Product
 open import Function using (_∘_)
 
