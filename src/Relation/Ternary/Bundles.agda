@@ -1,12 +1,13 @@
-{-# OPTIONS --postfix-projections #-}
+{-# OPTIONS --safe --without-K #-}
 module Relation.Ternary.Bundles where
 
 open import Level
 open import Relation.Binary
 open import Relation.Binary.Bundles
-open import Relation.Ternary.Core hiding (_✴_)
+open import Relation.Ternary.Core
 open import Relation.Ternary.Structures using
-  ( IsPartialSemigroup
+  ( Emptiness
+  ; IsPartialSemigroup
   ; IsPartialMonoid
   ; IsJoinoid )
 
@@ -33,20 +34,19 @@ record PartialSemigroup a e : Set (suc (a ⊔ e)) where
 
 record PartialMonoid a e : Set (suc (a ⊔ e)) where
   field
-    {Carrier}   : Set a
-    {_≈_}       : Carrier → Carrier → Set e
-    {rel}       : Rel₃ Carrier
-    {unit}      : Carrier
+    {Carrier} : Set a
+    {_≈_}     : Carrier → Carrier → Set e
+    {rel}     : Rel₃ Carrier
+    {unit}    : Carrier
 
-    isMonoid    : IsPartialMonoid  _≈_ rel unit
+    isMonoid  : IsPartialMonoid _≈_ rel unit
 
   open IsPartialMonoid isMonoid public
+  open Emptiness emptiness public
+  open IsPartialSemigroup isSemigroup public
 
   instance partialSemigroup : PartialSemigroup a e
-  partialSemigroup = record { isSemigroup = isPartialSemigroup }
-
-open PartialSemigroup {{...}} public
-open PartialMonoid    {{...}} public
+  partialSemigroup = record { isSemigroup = isSemigroup }
 
 -- record PartialJoinoid a e : Set (suc (a ⊔ e)) where
 --   field
