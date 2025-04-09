@@ -11,6 +11,7 @@ module Relation.Ternary.Construct.Bag
 
 open import Level
 import Data.Nat as Nat
+open import Data.Unit
 open import Data.Product hiding (swap)
 open import Data.List
 open import Data.List.Relation.Binary.Permutation.Propositional
@@ -50,9 +51,6 @@ record BagSplit (xs ys zs : List A) : Set ℓ where
 -- Split yields a separation algebra
 instance bags : Rel₃ (List A)
 Rel₃._∙_≣_ bags = BagSplit
-
-^_ : xs ∙ ys ≣ zs → BagSplit xs ys zs
-^ σ = hustle refl refl refl σ
 
 module _ where
 

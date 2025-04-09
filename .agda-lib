@@ -1,5 +1,5 @@
 name: ternary-relations
+depend: standard-library
 include:
   - .
   - src
-  - lib/stdlib.agda/src/

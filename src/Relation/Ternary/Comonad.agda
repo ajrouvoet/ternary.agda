@@ -16,7 +16,7 @@ open import Relation.Binary.Structures
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Functor public
-open import Category.Monad.Predicate
+open import Effect.Monad.Predicate
 
 RawComonad : ∀ (ℓ : Level) → Set _
 RawComonad ℓ = Pt A ℓ

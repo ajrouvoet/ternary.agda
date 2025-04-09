@@ -45,7 +45,7 @@ import Relation.Ternary.Construct.List
 -- You can regain list Interleavings by instantiating element division by the empty set:
 import Relation.Ternary.Construct.List.Disjoint
 -- And list Interleavings with overlap:
-import Relation.Ternary.Construct.Duplicate
+import Relation.Ternary.Construct.Agree
 import Relation.Ternary.Construct.List.Overlapping
 
 -- Other nice instances:

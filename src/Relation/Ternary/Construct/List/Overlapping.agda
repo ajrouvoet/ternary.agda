@@ -22,8 +22,8 @@ private
 
 {- Redeclare instances to severe the dependency on Duplicate instances -}
 module _ where
-  open import Relation.Ternary.Construct.Duplicate T as D
-  open import Relation.Ternary.Construct.List duplicate as Overlapping
+  open import Relation.Ternary.Construct.Agree T as D
+  open import Relation.Ternary.Construct.List agrees as Overlapping
   open Overlapping using ([]; consˡ; consʳ; list-monoid; list-emptiness; from-⊆) public
 
   open Rel₃ splits using ()
@@ -42,15 +42,15 @@ module _ where
   overlap-commutative = list-isComm
 
   instance overlap-monoid : IsPartialMonoid _≡_ overlap-rel []
-  overlap-monoid = list-isMonoid {{D.dup-isSemigroup}}
+  overlap-monoid = list-isMonoid {{D.agreed-isSemigroup}}
 
   instance overlap-total : IsTotal overlap-rel _++_
-  overlap-total = list-isTotal {{D.dup-isSemigroup}}
+  overlap-total = list-isTotal {{D.agreed-isSemigroup}}
 
   instance overlap-idempotent : IsIdempotent U overlap-rel
-  overlap-idempotent = list-isIdempotent {{D.dup-isIdempotent}}
+  overlap-idempotent = list-isIdempotent {{D.agreed-isIdempotent}}
 
-  pattern overlaps σ = divide dup σ
+  pattern overlaps σ = divide agreed σ
 
 {- The relations betweens non-overlapping list sep and sublists -}
 module _ where

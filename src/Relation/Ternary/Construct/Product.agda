@@ -120,64 +120,64 @@ module _
 
   instance ×-isPositive-w/0 : IsPositiveWithZero _ (Pointwise _≈₁_ _≈₂_) ×-rel (u₁ , u₂)
   IsPositiveWithZero.isPositive ×-isPositive-w/0 = ×-isPositive
-  IsPositiveWithZero.ε-least ×-isPositive-w/0 = ε-least , ε-least
+  IsPositiveWithZero.ε-least ×-isPositive-w/0 = ε-least {{p₁}} , ε-least {{p₂}}
   IsPositiveWithZero.ε-split ×-isPositive-w/0 (σ₁ , σ₂) with refl ← ε-split σ₁ | refl ← ε-split σ₂ = refl
 
-module _
-  {{∥₁ ∣₁ ▹₁ : Rel₃ C₁}} {{∥₂ ∣₂ ▹₂ : Rel₃ C₂}}
-  {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂}
-  {u₁ u₂}
-  {{j₁ : IsJoinoid _≈₁_ ▹₁ ∥₁ ∣₁ u₁}} {{j₂ : IsJoinoid _≈₂_ ▹₂ ∥₂ ∣₂ u₂}} where
+-- module _
+--   {{∥₁ ∣₁ ▹₁ : Rel₃ C₁}} {{∥₂ ∣₂ ▹₂ : Rel₃ C₂}}
+--   {e₁ e₂} {_≈₁_ : C₁ → C₁ → Set e₁} {_≈₂_ : C₂ → C₂ → Set e₂}
+--   {u₁ u₂}
+--   {{j₁ : IsJoinoid _≈₁_ ▹₁ ∥₁ ∣₁ u₁}} {{j₂ : IsJoinoid _≈₂_ ▹₂ ∥₂ ∣₂ u₂}} where
 
-  instance ×-joinoid : IsJoinoid (Pointwise _≈₁_ _≈₂_) (×-rel {{▹₁}} {{▹₂}}) (×-rel {{∥₁}} {{∥₂}}) (×-rel {{∣₁}} {{∣₂}}) (u₁ , u₂)
+--   instance ×-joinoid : IsJoinoid (Pointwise _≈₁_ _≈₂_) (×-rel {{▹₁}} {{▹₂}}) (×-rel {{∥₁}} {{∥₂}}) (×-rel {{∣₁}} {{∣₂}}) (u₁ , u₂)
 
-  IsJoinoid.▹-distrib-∣ʳ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) =
-    let _ , _ , τ₁ , τ₂ , τ₃ = ▹-distrib-∣ʳ σ₁₁ σ₂₁ in
-    let _ , _ , χ₁ , χ₂ , χ₃ = ▹-distrib-∣ʳ σ₁₂ σ₂₂ in
-    -, -, (τ₁ , χ₁) , (τ₂ , χ₂) , τ₃ , χ₃
-  IsJoinoid.▹-distrib-∣ˡ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) (σ₃₁ , σ₃₂) =
-    let _ , τ₁ , τ₂ = ▹-distrib-∣ˡ σ₁₁ σ₂₁ σ₃₁ in
-    let _ , χ₁ , χ₂ = ▹-distrib-∣ˡ σ₁₂ σ₂₂ σ₃₂ in
-    -, (τ₁ , χ₁) , (τ₂ , χ₂)
+--   IsJoinoid.▹-distrib-∣ʳ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) =
+--     let _ , _ , τ₁ , τ₂ , τ₃ = ▹-distrib-∣ʳ σ₁₁ σ₂₁ in
+--     let _ , _ , χ₁ , χ₂ , χ₃ = ▹-distrib-∣ʳ σ₁₂ σ₂₂ in
+--     -, -, (τ₁ , χ₁) , (τ₂ , χ₂) , τ₃ , χ₃
+--   IsJoinoid.▹-distrib-∣ˡ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) (σ₃₁ , σ₃₂) =
+--     let _ , τ₁ , τ₂ = ▹-distrib-∣ˡ σ₁₁ σ₂₁ σ₃₁ in
+--     let _ , χ₁ , χ₂ = ▹-distrib-∣ˡ σ₁₂ σ₂₂ σ₃₂ in
+--     -, (τ₁ , χ₁) , (τ₂ , χ₂)
 
-  IsJoinoid.∥-distrib-∣ʳ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) =
-    let _ , _ , τ₁ , τ₂ , τ₃ = ∥-distrib-∣ʳ σ₁₁ σ₂₁ in
-    let _ , _ , χ₁ , χ₂ , χ₃ = ∥-distrib-∣ʳ σ₁₂ σ₂₂ in
-    -, -, (τ₁ , χ₁) , (τ₂ , χ₂) , τ₃ , χ₃
-  IsJoinoid.∥-distrib-∣ˡ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) (σ₃₁ , σ₃₂) =
-    let _ , τ₁ , τ₂ = ∥-distrib-∣ˡ σ₁₁ σ₂₁ σ₃₁ in
-    let _ , χ₁ , χ₂ = ∥-distrib-∣ˡ σ₁₂ σ₂₂ σ₃₂ in
-    -, (τ₁ , χ₁) , (τ₂ , χ₂)
+--   IsJoinoid.∥-distrib-∣ʳ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) =
+--     let _ , _ , τ₁ , τ₂ , τ₃ = ∥-distrib-∣ʳ σ₁₁ σ₂₁ in
+--     let _ , _ , χ₁ , χ₂ , χ₃ = ∥-distrib-∣ʳ σ₁₂ σ₂₂ in
+--     -, -, (τ₁ , χ₁) , (τ₂ , χ₂) , τ₃ , χ₃
+--   IsJoinoid.∥-distrib-∣ˡ ×-joinoid (σ₁₁ , σ₁₂) (σ₂₁ , σ₂₂) (σ₃₁ , σ₃₂) =
+--     let _ , τ₁ , τ₂ = ∥-distrib-∣ˡ σ₁₁ σ₂₁ σ₃₁ in
+--     let _ , χ₁ , χ₂ = ∥-distrib-∣ˡ σ₁₂ σ₂₂ σ₃₂ in
+--     -, (τ₁ , χ₁) , (τ₂ , χ₂)
 
-  module _
-    {{sep₁ : Rel₃ C₁}} {{sep₂ : Rel₃ C₂}} {_∙₁_ _∙₂_}
-    {{s₁ : IsTotal sep₁ _∙₁_}} {{s₂ : IsTotal sep₂ _∙₂_}}
-    where
+  -- module _
+  --   {{sep₁ : Rel₃ C₁}} {{sep₂ : Rel₃ C₂}} {_∙₁_ _∙₂_}
+  --   {{s₁ : IsTotal sep₁ _∙₁_}} {{s₂ : IsTotal sep₂ _∙₂_}}
+  --   where
 
-    private
-      _∙×_ : (C₁ × C₂) → (C₁ × C₂) → (C₁ × C₂)
-      cs ∙× ds = zip _∙₁_ _∙₂_ cs ds
+  --   private
+  --     _∙×_ : (C₁ × C₂) → (C₁ × C₂) → (C₁ × C₂)
+  --     cs ∙× ds = zip _∙₁_ _∙₂_ cs ds
 
-    {- TODO std lib contribution -}
-    module _ {{m₁ : IsMonoid _≈₁_ _∙₁_ ε}} {{m₂ : IsMonoid _≈₂_ _∙₂_ ε}} where
+  --   {- TODO std lib contribution -}
+  --   module _ {{m₁ : IsMonoid _≈₁_ _∙₁_ ε}} {{m₂ : IsMonoid _≈₂_ _∙₂_ ε}} where
 
-      open IsMonoid {{...}}
+  --     open IsMonoid {{...}}
 
-      ×-isTotalMagma : IsMagma (Pointwise _≈₁_ _≈₂_) _∙×_
-      IsMagma.isEquivalence ×-isTotalMagma = ×-equiv
-      IsMagma.∙-cong ×-isTotalMagma (e₁ , e₂) (e₃ , e₄) = ∙-cong e₁ e₃ , ∙-cong e₂ e₄
+  --     ×-isTotalMagma : IsMagma (Pointwise _≈₁_ _≈₂_) _∙×_
+  --     IsMagma.isEquivalence ×-isTotalMagma = ×-equiv
+  --     IsMagma.∙-cong ×-isTotalMagma (e₁ , e₂) (e₃ , e₄) = ∙-cong e₁ e₃ , ∙-cong e₂ e₄
 
-      ×-isTotalSemigroup : IsSemigroup (Pointwise _≈₁_ _≈₂_) _∙×_
-      IsSemigroup.isMagma ×-isTotalSemigroup = ×-isTotalMagma
-      IsSemigroup.assoc ×-isTotalSemigroup x y z = assoc _ _ _ , assoc _ _ _
+  --     ×-isTotalSemigroup : IsSemigroup (Pointwise _≈₁_ _≈₂_) _∙×_
+  --     IsSemigroup.isMagma ×-isTotalSemigroup = ×-isTotalMagma
+  --     IsSemigroup.assoc ×-isTotalSemigroup x y z = assoc _ _ _ , assoc _ _ _
 
-      instance ×-monoid : IsMonoid (Pointwise _≈₁_ _≈₂_) _∙×_ ε
-      IsMonoid.isSemigroup ×-monoid = ×-isTotalSemigroup
-      IsMonoid.identity ×-monoid    = (λ (x , y) → identityˡ x , identityˡ y)
-                                    , (λ (x , y) → identityʳ x , identityʳ y)
+  --     instance ×-monoid : IsMonoid (Pointwise _≈₁_ _≈₂_) _∙×_ ε
+  --     IsMonoid.isSemigroup ×-monoid = ×-isTotalSemigroup
+  --     IsMonoid.identity ×-monoid    = (λ (x , y) → identityˡ x , identityˡ y)
+  --                                   , (λ (x , y) → identityʳ x , identityʳ y)
 
-    instance ×-concat : IsTotal (×-rel {{sep₁}} {{sep₂}}) _∙×_
-    IsTotal.∙-parallel  ×-concat σ₁ σ₂ = zip ∙-parallel ∙-parallel σ₁ σ₂
+  --   instance ×-concat : IsTotal (×-rel {{sep₁}} {{sep₂}}) _∙×_
+  --   IsTotal.∙-parallel  ×-concat σ₁ σ₂ = zip ∙-parallel ∙-parallel σ₁ σ₂
 
 {- Some useful type-formers for this instance -}
 module _ {u} {{_ : Emptiness {A = C₂} u}} where

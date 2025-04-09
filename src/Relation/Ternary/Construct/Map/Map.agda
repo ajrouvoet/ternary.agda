@@ -12,7 +12,7 @@ module Relation.Ternary.Construct.Map.Map {k v}
 
 open import Function using (const; flip)
 open import Level
-open import Data.Unit hiding (_≤_)
+open import Data.Unit
 open import Data.Product
 open import Data.Maybe
 open import Data.Bool using (if_then_else_)

@@ -2,7 +2,7 @@
 
 module Relation.Ternary.Core where
 
-open import Level
+open import Agda.Primitive
 open import Function using (const; id)
 
 open import Data.Product
@@ -38,7 +38,7 @@ module _ {a} {A : Set a} where
   True = λ _ → ⊤
     where open import Data.Unit.Polymorphic
 
-record Rel₃ {a} (A : Set a) : Set (suc a) where
+record Rel₃ {a} (A : Set a) : Set (lsuc a) where
 
   field
     _∙_≣_ : (Φ₁ Φ₂ : A) → Pred A a

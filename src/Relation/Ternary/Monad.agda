@@ -16,7 +16,7 @@ open import Relation.Binary.Structures
 open import Relation.Ternary.Core
 open import Relation.Ternary.Structures.Syntax
 open import Relation.Ternary.Functor public
-open import Category.Monad.Predicate
+open import Effect.Monad.Predicate
 
 {- strong indexed monads on predicates over PRSAs -}
 RawMonad : ∀ {i} (I : Set i) → (ℓ₁ ℓ₂ : Level) → Set _
@@ -50,7 +50,7 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
     bind : ∀[ (P ─✴ M i₂ i₃ Q) ⇒ (M i₁ i₂ P ─✴ M i₁ i₃ Q) ]
     bind f ⟨ σ ⟩ mp with f✴mp ← str f ⟨ σ ⟩ mp = join (apply ⟨$⟩ f✴mp)
 
-    bind-syntax : (P ─✴ M i₂ i₃ Q) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₃ Q Φ
+    bind-syntax : ∀ {Φ₁ Φ₂ Φ : A} → (P ─✴ M i₂ i₃ Q) Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₃ Q Φ
     bind-syntax f σ m = bind f ⟨ σ ⟩ m
 
     syntax bind-syntax f σ m = m ⟨ σ ⟩= f
@@ -69,7 +69,7 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
     kleisli : ∀[ (Q ─✴ M i₂ i₃ R) ⇒ (P ─✴ M i₁ i₂ Q) ─✴ (P ─✴ M i₁ i₃ R) ]
     kleisli g ⟨ σ ⟩ f = bind g ∘⟨ σ ⟩ f
 
-    kleisli-syntax : (P ─✴ M i₁ i₂ Q) Φ₁ → Φ₂ ∙ Φ₁ ≣ Φ → (Q ─✴ M i₂ i₃ R) Φ₂ → (P ─✴ M i₁ i₃ R) Φ
+    kleisli-syntax : ∀ {Φ₁ Φ₂ Φ : A} → (P ─✴ M i₁ i₂ Q) Φ₁ → Φ₂ ∙ Φ₁ ≣ Φ → (Q ─✴ M i₂ i₃ R) Φ₂ → (P ─✴ M i₁ i₃ R) Φ
     kleisli-syntax g σ f = kleisli f ⟨ σ ⟩ g
 
     syntax kleisli-syntax f σ g = f ⟨ σ ⟩=> g
@@ -78,12 +78,12 @@ record Strong {i} (I : Set i) (M : RawMonad I a a) : Set (suc a ⊔ i) where
   module _ {i₁ i₂} {P : Pred A a} where
 
     infixl 5 str-syntax
-    str-syntax  : ∀ {Q : Pred A a} → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
+    str-syntax  : ∀ {Q : Pred A a} {Φ₁ Φ₂ Φ : A} → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
     str-syntax qx σ mp = str qx ⟨ σ ⟩ mp
     syntax str-syntax qx σ mp = qx &⟨ σ ⟩ mp
 
     infixl 5 typed-str-syntax
-    typed-str-syntax : ∀ {Φ₁ Φ₂ Φ} Q → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
+    typed-str-syntax : ∀ {Φ₁ Φ₂ Φ : A} Q → Q Φ₁ → Φ₁ ∙ Φ₂ ≣ Φ → M i₁ i₂ P Φ₂ → M i₁ i₂ (Q ✴ P) Φ
     typed-str-syntax Q qx σ mp = str {Q = Q} qx ⟨ σ ⟩ mp
     syntax typed-str-syntax Q qx σ mp = Q ∋ qx &⟨ σ ⟩ mp
 

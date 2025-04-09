@@ -2,6 +2,7 @@
 module Relation.Ternary.Construct.Agree {a} (A : Set a) where
 
 open import Function
+open import Data.Unit
 open import Data.Product
 open import Relation.Unary
 open import Relation.Binary.Structures

@@ -42,14 +42,11 @@ open import Relation.Ternary.Structures.Syntax hiding (_∙_)
 open IsEquivalence (≈-equivalence {{IsPartialMonoid.isSemigroup r₁-monoid}})
 
 private
-  instance
-    _ = r₁
-    _ = r₂
   variable
     u₁ u₂ u₃ d₁ d₂ d₃ u d : A
 
-open Rel₃ r₁ using () renaming (_∙_≣_ to _∙₁_≣_; _✴_ to _✴₁_; _─✴_ to _─✴₁_)
-open Rel₃ r₂ using () renaming (_∙_≣_ to _∙₂_≣_; _✴_ to _✴₂_; _─✴_ to _─✴₂_)
+open Rel₃ r₁ using () renaming (_∙_≣_ to _∙₁_≣_; _✴_ to _✴₁_; _∙⟨_⟩_ to _∙⟨_⟩₁_; _─✴_ to _─✴₁_; _⟨_⟩_ to _⟨_⟩₁_)
+open Rel₃ r₂ using () renaming (_∙_≣_ to _∙₂_≣_; _✴_ to _✴₂_; _∙⟨_⟩_ to _∙⟨_⟩₂_; _─✴_ to _─✴₂_; _⟨_⟩_ to _⟨_⟩₂_)
 
 module _ where
 
@@ -78,14 +75,14 @@ module _ where
 
   {- Exchange with leftovers -}
   data _-_≣_ : A → A → Account → Set ℓ where
-    sub : ∀ {e d' u'} →
+    sub : ∀ {e d' u' : A} →
           d' ∙₁ e ≣ d →
           u' ∙₂ e ≣ u →
           d - u ≣ (u' ⇅ d')
 
   data Exchange : Account → Account → Account → Set ℓ where
     -- exchange the rings and bind 'm
-    ex : ∀ {u₁' d₁' u₂' d₂'} →
+    ex : ∀ {u₁' d₁' u₂' d₂' : A} →
       -- exchange lhs to rhs and vice versa
       d₁ - u₂ ≣ (u₂' ⇅ d₂') →
       d₂ - u₁ ≣ (u₁' ⇅ d₁') →
@@ -278,13 +275,13 @@ module _ where
 
 module _ {P Q : Pred A ℓ} where
   zipUp : ∀[ (Up P) ✴ (Up Q) ⇒ Up (P ✴₁ Q) ]
-  zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (px ∙⟨ σ↑ ⟩ qx))
+  zipUp ((↑ px) ∙⟨ σ ⟩ (↑ qx)) = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (px ∙⟨ σ↑ ⟩₁ qx))
 
   unzipUp : ∀[ (Up (P ✴₁ Q)) ⇒ Up P ✴ Up Q ]
   unzipUp (↑ (px ∙⟨ σ ⟩ qx)) = (↑ px) Rel₃.∙⟨ (ex ε-sub ε-sub σ ∙-idʳ) ⟩ (↑ qx)
 
   zipDown : ∀[ (Down P) ✴ (Down Q) ⇒ Down (P ✴₂ Q) ]
-  zipDown (↓ p ∙⟨ σ ⟩ ↓ q) = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (p ∙⟨ σ↓ ⟩ q))
+  zipDown (↓ p ∙⟨ σ ⟩ ↓ q) = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (p ∙⟨ σ↓ ⟩₂ q))
 
 module _ {P} where
 
@@ -294,13 +291,13 @@ module _ {P} where
 module _ {P Q : Pred A ℓ} {{_ : Respect _≈ₐ_ Q}} where
 
   upMap : ∀[ Up (P ─✴₁ Q) ⇒ (Up P ─✴ Up Q) ]
-  upMap (↑ f) ⟨ σ ⟩ ↑ px = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (f ⟨ σ↑ ⟩ px))
+  upMap (↑ f) ⟨ σ ⟩ ↑ px = let _ , eq , σ↑ = ups σ in coe (≈-sym eq) (↑ (f ⟨ σ↑ ⟩₁ px))
 
   _<*>_ : ∀[ Up (P ⇒ Q) ∘ (_⇅ ε) ] → ∀[ Up P ⇒ Up Q ]
   f <*> (↑ upx) = ↑ (case f of λ where (↑ f) → f upx)
 
   downMap : ∀[ Down (P ─✴₂ Q) ⇒ (Down P ─✴ Down Q) ]
-  downMap (↓ f) ⟨ σ ⟩ ↓ px = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (f ⟨ σ↓ ⟩ px))
+  downMap (↓ f) ⟨ σ ⟩ ↓ px = let _ , eq , σ↓ = downs σ in coe (≈-sym eq) (↓ (f ⟨ σ↓ ⟩₂ px))
   
 module _ where
   open import Relation.Ternary.Functor

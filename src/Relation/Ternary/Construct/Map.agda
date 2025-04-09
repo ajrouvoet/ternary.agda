@@ -13,7 +13,7 @@ module Relation.Ternary.Construct.Map {k v}
 open import Axiom.Extensionality.Propositional
 open import Level
 open import Function
-open import Data.Unit hiding (_≤_)
+open import Data.Unit
 open import Data.Maybe
 open import Data.Maybe.Relation.Unary.Any
 open import Data.Maybe.Relation.Unary.All

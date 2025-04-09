@@ -4,6 +4,7 @@ open import Relation.Ternary.Core
 module Relation.Ternary.Construct.List {a} {A : Set a} (division : Rel₃ A) where
 
 open import Level
+open import Data.Unit
 open import Data.Product hiding (swap)
 open import Data.List hiding (_∷ʳ_)
 open import Data.List.Properties using (++-isMonoid; ++-identityʳ)
@@ -118,14 +119,14 @@ module _ where
       posˡ : ∀ {Φ₁ Φ₂ Φ} → Split Φ₁ Φ₂ Φ → Φ₁ SizeOf.≤ₐ Φ
       posˡ (divide x σ) = Nat.s≤s (posˡ σ)
       posˡ (consˡ σ)    = Nat.s≤s (posˡ σ)
-      posˡ (consʳ σ)    = ≤-step (posˡ σ)
+      posˡ (consʳ σ)    = m≤n⇒m≤1+n (posˡ σ)
       posˡ []           = ≤-refl
 
   IsPositive.positiveʳ list-positive = posʳ
     where
       posʳ : ∀ {Φ₁ Φ₂ Φ} → Split Φ₁ Φ₂ Φ → Φ₂ SizeOf.≤ₐ Φ
       posʳ (divide x σ) = Nat.s≤s (posʳ σ)
-      posʳ (consˡ σ)    = ≤-step (posʳ σ)
+      posʳ (consˡ σ)    = m≤n⇒m≤1+n (posʳ σ)
       posʳ (consʳ σ)    = Nat.s≤s (posʳ σ)
       posʳ []           = ≤-refl
 
